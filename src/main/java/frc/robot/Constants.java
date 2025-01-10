@@ -36,14 +36,14 @@ public final class Constants {
     REPLAY
   }
 
-
   public static final class OIConstants {
     public static int kGamepad = 0;
     public static int kJoystick1 = 4;
     public static int kJoystick2 = 2;
     public static int kFight = 3;
     public static int kCandle = 30;
-}
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }

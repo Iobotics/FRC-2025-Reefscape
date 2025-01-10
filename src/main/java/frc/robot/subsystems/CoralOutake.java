@@ -1,32 +1,26 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.spark.SparkBase;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.RelativeEncoder;
-
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralOutake extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private SparkMax leftOutake;
+
   private SparkMax rightOutake;
   private static SparkClosedLoopController leftClosedLoopController;
   private SparkClosedLoopController rightClosedLoopController;
-  private RelativeEncoder leftOutakeEncoder; 
+  private RelativeEncoder leftOutakeEncoder;
   private RelativeEncoder rightOutakeEncoder;
 
   private static final double kP = 0.0;
@@ -36,8 +30,8 @@ public class CoralOutake extends SubsystemBase {
   private static final double kMinOutput = -1.0;
 
   public CoralOutake() {
-    leftOutake = new SparkMax(1,MotorType.kBrushless);
-    rightOutake = new SparkMax(2,MotorType.kBrushless);
+    leftOutake = new SparkMax(1, MotorType.kBrushless);
+    rightOutake = new SparkMax(2, MotorType.kBrushless);
     leftClosedLoopController = leftOutake.getClosedLoopController();
     rightClosedLoopController = rightOutake.getClosedLoopController();
     leftOutakeEncoder = leftOutake.getEncoder();
@@ -45,37 +39,31 @@ public class CoralOutake extends SubsystemBase {
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
 
-    leftConfig
-      .inverted(true)
-      .idleMode(IdleMode.kCoast);
-    leftConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .pid(kP, kI, kD);
+    leftConfig.inverted(true).idleMode(IdleMode.kCoast);
+    leftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    leftOutake.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftOutake.configure(
+        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig rightConfig = new SparkMaxConfig();
 
-    rightConfig
-      .inverted(false)
-      .idleMode(IdleMode.kCoast);
-    rightConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .pid(kP, kI, kD);
+    rightConfig.inverted(false).idleMode(IdleMode.kCoast);
+    rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    rightOutake.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
+    rightOutake.configure(
+        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void setOutakeSpeed(double targetRPM){
+  public void setOutakeSpeed(double targetRPM) {
     rightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
     leftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
     SmartDashboard.putNumber("Shooter Target RPM", targetRPM);
   }
-  public void stopOutake(){
-     leftOutake.set(0);
-     rightOutake.set(0);
-     SmartDashboard.putNumber("Shooter Target RPM", 0);
+
+  public void stopOutake() {
+    leftOutake.set(0);
+    rightOutake.set(0);
+    SmartDashboard.putNumber("Shooter Target RPM", 0);
   }
 
   @Override
