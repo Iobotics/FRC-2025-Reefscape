@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
+  public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -36,6 +37,10 @@ public final class Constants {
     REPLAY
   }
 
+  public static Mode getRobot() {
+    return currentMode;
+  }
+
   public static final class OIConstants {
     public static int kGamepad = 0;
     public static int kJoystick1 = 4;
@@ -47,4 +52,8 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  // public static class FieldPoses {
+  //   public static Pose2d
+  // }
 }

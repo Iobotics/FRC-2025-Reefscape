@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "top-J"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "J-close"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "close-L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "close-k"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "close-L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Copy of close-k"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
