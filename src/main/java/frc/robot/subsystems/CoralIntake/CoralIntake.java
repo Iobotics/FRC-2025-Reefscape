@@ -1,4 +1,4 @@
-package frc.robot.subsystems.coralOutake;
+package frc.robot.subsystems.CoralIntake;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -13,15 +13,15 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class CoralOutake extends SubsystemBase {
+public class CoralIntake extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private SparkMax leftOutake;
+  private SparkMax leftIntake;
 
-  private SparkMax rightOutake;
+  private SparkMax rightIntake;
   private static SparkClosedLoopController leftClosedLoopController;
   private SparkClosedLoopController rightClosedLoopController;
-  private RelativeEncoder leftOutakeEncoder;
-  private RelativeEncoder rightOutakeEncoder;
+  private RelativeEncoder leftIntakeEncoder;
+  private RelativeEncoder rightIntakeEncoder;
 
   private static final double kP = 0.0;
   private static final double kI = 0.0;
@@ -29,20 +29,20 @@ public class CoralOutake extends SubsystemBase {
   private static final double kMaxOutput = 1.0;
   private static final double kMinOutput = -1.0;
 
-  public CoralOutake() {
-    leftOutake = new SparkMax(1, MotorType.kBrushless);
-    rightOutake = new SparkMax(2, MotorType.kBrushless);
-    leftClosedLoopController = leftOutake.getClosedLoopController();
-    rightClosedLoopController = rightOutake.getClosedLoopController();
-    leftOutakeEncoder = leftOutake.getEncoder();
-    rightOutakeEncoder = rightOutake.getEncoder();
+  public CoralIntake() {
+    leftIntake = new SparkMax(1, MotorType.kBrushless);
+    rightIntake = new SparkMax(2, MotorType.kBrushless);
+    leftClosedLoopController = leftIntake.getClosedLoopController();
+    rightClosedLoopController = rightIntake.getClosedLoopController();
+    leftIntakeEncoder = leftIntake.getEncoder();
+    rightIntakeEncoder = rightIntake.getEncoder();
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
 
     leftConfig.inverted(true).idleMode(IdleMode.kCoast);
     leftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    leftOutake.configure(
+    leftIntake.configure(
         leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig rightConfig = new SparkMaxConfig();
@@ -50,19 +50,19 @@ public class CoralOutake extends SubsystemBase {
     rightConfig.inverted(false).idleMode(IdleMode.kCoast);
     rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    rightOutake.configure(
+    rightIntake.configure(
         rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void setOutakeSpeed(double targetRPM) {
+  public void setIntakeSpeed(double targetRPM) {
     rightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
     leftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
     SmartDashboard.putNumber("Shooter Target RPM", targetRPM);
   }
 
-  public void stopOutake() {
-    leftOutake.set(0);
-    rightOutake.set(0);
+  public void stopIntake() {
+    leftIntake.set(0);
+    rightIntake.set(0);
     SmartDashboard.putNumber("Shooter Target RPM", 0);
   }
 
@@ -70,11 +70,11 @@ public class CoralOutake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // Update current RPM from the motor's encoder (example)
-    double leftRPM = leftOutakeEncoder.getVelocity();
+    double leftRPM = leftIntakeEncoder.getVelocity();
     SmartDashboard.putNumber("Main Shooter Current RPM", leftRPM);
 
     // Display secondary shooter RPM
-    double rightRPM = rightOutakeEncoder.getVelocity();
+    double rightRPM = rightIntakeEncoder.getVelocity();
     SmartDashboard.putNumber("Secondary Shooter RPM", rightRPM);
   }
 }
