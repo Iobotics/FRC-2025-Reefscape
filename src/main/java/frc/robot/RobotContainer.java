@@ -18,13 +18,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CoralManipulator.CoralManipulator;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -53,11 +59,14 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
 
   // Controller
-  private final CommandXboxController driveController = new CommandXboxController(0);
+  private final CommandXboxController driveController = new CommandXboxController(2);
   private final CommandXboxController operatorController = new CommandXboxController(1);
 
+  private final Joystick joystick1 = new Joystick(0);
+  private final JoystickButton CoralManipulatorButton = new JoystickButton(joystick1, 0);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -77,8 +86,9 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        break;
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
 
+        break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
@@ -94,6 +104,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
 
       default:
@@ -108,6 +119,7 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         break;
     }
 
@@ -142,6 +154,16 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+
+    CoralManipulatorButton.onTrue(
+        new InstantCommand(
+            () -> {
+              CoralManipulator.setTopOutakeSpeed(0.2);
+              CoralManipulator.setBottomOutakeSpeed(0.5);
+            },
+            CoralManipulator));
+    CoralManipulatorButton.onFalse(new InstantCommand(() -> CoralManipulator.stopOutake()));
+
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,

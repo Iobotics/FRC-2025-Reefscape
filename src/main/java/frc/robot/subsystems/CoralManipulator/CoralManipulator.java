@@ -15,66 +15,120 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private SparkMax leftOutake;
+  private SparkMax TopleftOutake;
 
-  private SparkMax rightOutake;
-  private static SparkClosedLoopController leftClosedLoopController;
-  private SparkClosedLoopController rightClosedLoopController;
-  private RelativeEncoder leftOutakeEncoder;
-  private RelativeEncoder rightOutakeEncoder;
+  private SparkMax ToprightOutake;
+  private static SparkClosedLoopController TopleftClosedLoopController;
+  private SparkClosedLoopController ToprightClosedLoopController;
+  private RelativeEncoder TopleftOutakeEncoder;
+  private RelativeEncoder ToprightOutakeEncoder;
+
+  private SparkMax BottomleftOutake;
+  private SparkMax BottomrightOutake;
+  private static SparkClosedLoopController BottomleftClosedLoopController;
+  private SparkClosedLoopController BottomrightClosedLoopController;
+  private RelativeEncoder BottomleftOutakeEncoder;
+  private RelativeEncoder BottomrightOutakeEncoder;
 
   private static final double kP = 0.0;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double kMaxOutput = 1.0;
   private static final double kMinOutput = -1.0;
+  /*
+    public final CoralManipulatorIO io;
+    public final
 
-  public CoralManipulator() {
-    leftOutake = new SparkMax(1, MotorType.kBrushless);
-    rightOutake = new SparkMax(2, MotorType.kBrushless);
-    leftClosedLoopController = leftOutake.getClosedLoopController();
-    rightClosedLoopController = rightOutake.getClosedLoopController();
-    leftOutakeEncoder = leftOutake.getEncoder();
-    rightOutakeEncoder = rightOutake.getEncoder();
+  */
+  public CoralManipulator(CoralManipulatorIO coralManipulatorIOSpark) {
+    TopleftOutake = new SparkMax(1, MotorType.kBrushless);
+    ToprightOutake = new SparkMax(2, MotorType.kBrushless);
+    TopleftClosedLoopController = TopleftOutake.getClosedLoopController();
+    ToprightClosedLoopController = ToprightOutake.getClosedLoopController();
+    TopleftOutakeEncoder = TopleftOutake.getEncoder();
+    ToprightOutakeEncoder = ToprightOutake.getEncoder();
 
-    SparkMaxConfig leftConfig = new SparkMaxConfig();
+    BottomleftOutake = new SparkMax(1, MotorType.kBrushless);
+    BottomrightOutake = new SparkMax(2, MotorType.kBrushless);
+    BottomleftClosedLoopController = BottomleftOutake.getClosedLoopController();
+    BottomrightClosedLoopController = BottomrightOutake.getClosedLoopController();
+    BottomleftOutakeEncoder = BottomleftOutake.getEncoder();
+    BottomrightOutakeEncoder = BottomrightOutake.getEncoder();
 
-    leftConfig.inverted(true).idleMode(IdleMode.kCoast);
-    leftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+    // top left config
+    SparkMaxConfig TopleftConfig = new SparkMaxConfig();
 
-    leftOutake.configure(
-        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    TopleftConfig.inverted(true).idleMode(IdleMode.kCoast);
+    TopleftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    SparkMaxConfig rightConfig = new SparkMaxConfig();
+    TopleftOutake.configure(
+        TopleftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // top right config
+    SparkMaxConfig ToprightConfig = new SparkMaxConfig();
 
-    rightConfig.inverted(false).idleMode(IdleMode.kCoast);
-    rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+    ToprightConfig.inverted(false).idleMode(IdleMode.kCoast);
+    ToprightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
-    rightOutake.configure(
-        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ToprightOutake.configure(
+        ToprightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // bottom left config
+    SparkMaxConfig BottomleftConfig = new SparkMaxConfig();
+
+    BottomleftConfig.inverted(true).idleMode(IdleMode.kCoast);
+    BottomleftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+
+    BottomleftOutake.configure(
+        BottomleftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // bottom right config
+    SparkMaxConfig BottomrightConfig = new SparkMaxConfig();
+
+    BottomrightConfig.inverted(true).idleMode(IdleMode.kCoast);
+    BottomrightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+
+    BottomrightOutake.configure(
+        BottomrightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void setOutakeSpeed(double targetRPM) {
-    rightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    leftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    SmartDashboard.putNumber("Shooter Target RPM", targetRPM);
+  public CoralManipulator(CoralManipulatorIOSim coralManipulatorIOSpark) {
+    // TODO Auto-generated constructor stub
+  }
+
+  public void setTopOutakeSpeed(double targetRPM) {
+    ToprightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
+    TopleftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
+    SmartDashboard.putNumber("Manipulator Target RPM", targetRPM);
+  }
+
+  public void setBottomOutakeSpeed(double targetRPM) {
+    BottomrightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
+    BottomleftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
+    SmartDashboard.putNumber("Manipulator Target RPM", targetRPM);
   }
 
   public void stopOutake() {
-    leftOutake.set(0);
-    rightOutake.set(0);
-    SmartDashboard.putNumber("Shooter Target RPM", 0);
+    TopleftOutake.set(0);
+    ToprightOutake.set(0);
+    BottomleftOutake.set(0);
+    BottomrightOutake.set(0);
+    SmartDashboard.putNumber("Manipulator Target RPM", 0);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // Update current RPM from the motor's encoder (example)
-    double leftRPM = leftOutakeEncoder.getVelocity();
-    SmartDashboard.putNumber("Main Shooter Current RPM", leftRPM);
+    double TopleftRPM = TopleftOutakeEncoder.getVelocity();
+    SmartDashboard.putNumber("top left Manipulator Current RPM", TopleftRPM);
 
     // Display secondary shooter RPM
-    double rightRPM = rightOutakeEncoder.getVelocity();
-    SmartDashboard.putNumber("Secondary Shooter RPM", rightRPM);
+    double ToprightRPM = ToprightOutakeEncoder.getVelocity();
+    SmartDashboard.putNumber("top right Manipulator RPM", ToprightRPM);
+
+    double BottomleftRPM = BottomleftOutakeEncoder.getVelocity();
+    SmartDashboard.putNumber("bottom left Manipulator Current RPM", BottomleftRPM);
+
+    // Display secondary shooter RPM
+    double BottomrightRPM = BottomrightOutakeEncoder.getVelocity();
+    SmartDashboard.putNumber("bottom right Manipulator RPM", BottomrightRPM);
   }
 }

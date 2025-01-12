@@ -20,10 +20,11 @@ import edu.wpi.first.wpilibj.RobotBase;
  * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
  * (log replay from a file).
  */
-public final class CoralOutake_Constants {
+public final class CoralManipulator_Constants {
   public static final boolean tuningMode = false;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final double motorReduction = 20;
 
   public static enum Mode {
     /** Running on a real robot. */
