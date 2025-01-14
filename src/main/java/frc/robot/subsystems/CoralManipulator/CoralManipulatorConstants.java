@@ -13,39 +13,11 @@
 
 package frc.robot.subsystems.CoralManipulator;
 
-import edu.wpi.first.wpilibj.RobotBase;
-
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
  * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
  * (log replay from a file).
  */
-public final class CoralManipulator_Constants {
-  public static final boolean tuningMode = false;
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+public final class CoralManipulatorConstants {
   public static final double motorReduction = 20;
-
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
-
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
-
-  public static final class OIConstants {
-    public static int kGamepad = 0;
-    public static int kJoystick1 = 4;
-    public static int kJoystick2 = 2;
-    public static int kFight = 3;
-    public static int kCandle = 30;
-  }
-
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-  }
 }
