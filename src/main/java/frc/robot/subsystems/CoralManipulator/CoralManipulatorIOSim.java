@@ -13,7 +13,7 @@
 
 package frc.robot.subsystems.CoralManipulator;
 
-import static frc.robot.subsystems.CoralManipulator.CoralManipulator_Constants.*;
+import static frc.robot.subsystems.CoralManipulator.CoralManipulatorConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -24,8 +24,8 @@ public class CoralManipulatorIOSim implements CoralManipulatorIO {
 
   private DCMotorSim sim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),
-          DCMotor.getCIM(1));
+          LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.004, motorReduction),
+          DCMotor.getNeoVortex(1));
 
   private double appliedVolts = 0.0;
 
@@ -43,5 +43,10 @@ public class CoralManipulatorIOSim implements CoralManipulatorIO {
   @Override
   public void setVoltage(double volts) {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+  }
+
+  @Override
+  public void setOutakeSpeed(double targetRPM) {
+    setVoltage(targetRPM * motorReduction * 2.0 * Math.PI / 60.0);
   }
 }
