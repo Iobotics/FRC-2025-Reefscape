@@ -33,10 +33,8 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -63,10 +61,10 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController operatorController = new CommandXboxController(0);
 
-  private final Joystick joystick1 = new Joystick(0);
-  private final JoystickButton CoralManipulatorButton = new JoystickButton(joystick1, 0);
+  private final Joystick joystick1 = new Joystick(1);
+  private final JoystickButton CoralManipulatorButton = new JoystickButton(joystick1, 1);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -75,13 +73,21 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
+        // drive =
+        //     new Drive(
+        //         new GyroIOPigeon2(),
+        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
+        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
+        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
+        //         new ModuleIOTalonFX(TunerConstants.BackRight));
+        // CHANGE
         drive =
             new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
         vision =
             new Vision(
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));

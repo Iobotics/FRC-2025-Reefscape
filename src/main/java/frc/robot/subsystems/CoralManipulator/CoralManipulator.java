@@ -31,11 +31,11 @@ public class CoralManipulator extends SubsystemBase {
   private static final double kMinOutput = -1.0;
 
   public CoralManipulator(CoralManipulatorIO coralManipulatorIOSpark) {
-    TopleftOutake = new SparkMax(1, MotorType.kBrushless);
+    TopleftOutake = new SparkMax(13, MotorType.kBrushless);
     TopleftClosedLoopController = TopleftOutake.getClosedLoopController();
     TopleftOutakeEncoder = TopleftOutake.getEncoder();
 
-    BottomleftOutake = new SparkMax(1, MotorType.kBrushless);
+    BottomleftOutake = new SparkMax(14, MotorType.kBrushless);
     BottomleftClosedLoopController = BottomleftOutake.getClosedLoopController();
     BottomleftOutakeEncoder = BottomleftOutake.getEncoder();
 

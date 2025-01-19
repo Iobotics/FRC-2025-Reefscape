@@ -31,7 +31,7 @@ public class CoralIntake extends SubsystemBase {
 
   public CoralIntake() {
     leftIntake = new SparkMax(1, MotorType.kBrushless);
-    rightIntake = new SparkMax(2, MotorType.kBrushless);
+    rightIntake = new SparkMax(3, MotorType.kBrushless);
     leftClosedLoopController = leftIntake.getClosedLoopController();
     rightClosedLoopController = rightIntake.getClosedLoopController();
     leftIntakeEncoder = leftIntake.getEncoder();

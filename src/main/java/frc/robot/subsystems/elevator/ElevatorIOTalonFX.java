@@ -30,7 +30,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public ElevatorIOTalonFX() {
-    talon = new TalonFX(0); // change later
+    talon = new TalonFX(10); // change later
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
