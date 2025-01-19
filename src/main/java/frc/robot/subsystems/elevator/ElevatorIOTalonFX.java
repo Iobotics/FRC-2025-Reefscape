@@ -1,11 +1,14 @@
 package frc.robot.subsystems.elevator;
 
+import frc.robot.Constants;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -30,7 +33,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public ElevatorIOTalonFX() {
-    talon = new TalonFX(0); // change later
+    talon = new TalonFX(Constants.elevatorID); // change later
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;

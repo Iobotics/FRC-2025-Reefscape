@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
@@ -41,8 +42,8 @@ public class CoralManipulator extends SubsystemBase {
 
   */
   public CoralManipulator(CoralManipulatorIO coralManipulatorIOSpark) {
-    TopleftOutake = new SparkMax(1, MotorType.kBrushless);
-    ToprightOutake = new SparkMax(2, MotorType.kBrushless);
+    TopleftOutake = new SparkMax(Constants.topLeftOutakeID, MotorType.kBrushless);
+    ToprightOutake = new SparkMax(Constants.topRightOutakeID, MotorType.kBrushless);
     TopleftClosedLoopController = TopleftOutake.getClosedLoopController();
     ToprightClosedLoopController = ToprightOutake.getClosedLoopController();
     TopleftOutakeEncoder = TopleftOutake.getEncoder();
