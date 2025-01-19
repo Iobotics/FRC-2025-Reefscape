@@ -165,8 +165,8 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
-    gyroIO.updateInputs(gyroInputs);
-    Logger.processInputs("Drive/Gyro", gyroInputs);
+    // gyroIO.updateInputs(gyroInputs);
+    //  Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
     }
@@ -205,7 +205,7 @@ public class Drive extends SubsystemBase {
 
       // Update gyro angle
       if (gyroInputs.connected) {
-        // Use the real gyro angle
+        //  Use the real gyro angle
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
