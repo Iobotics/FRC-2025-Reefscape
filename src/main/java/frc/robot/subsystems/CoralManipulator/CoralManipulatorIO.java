@@ -32,5 +32,9 @@ public interface CoralManipulatorIO {
 
   public default void setOutakeSpeed(double targetRPM) {}
 
+  public default void setTopOutakeSpeed(double targetRPM) {}
+
+  public default void setBottomOutakeSpeed(double targetRPM) {}
+
   public default void stopOutake() {}
 }
