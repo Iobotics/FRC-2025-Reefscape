@@ -32,7 +32,9 @@ public class CoralManipulator extends SubsystemBase {
   }
 
   public Command runOutake(double speed) {
-    return runEnd(() -> io.setOutakeSpeed(speed), () -> io.setOutakeSpeed(0.0));
+    return runEnd(
+        () -> io.setOutakeSpeed(speed), 
+        () -> io.setOutakeSpeed(0.0));
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {

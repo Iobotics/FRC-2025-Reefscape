@@ -16,6 +16,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
@@ -31,14 +32,12 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
  */
 public class RobotContainer {
   // Subsystems
-  private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
+  private final CoralManipulator CoralManipulator;
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
   private final CommandXboxController operatorController = new CommandXboxController(0);
 
-  private final Joystick joystick1 = new Joystick(0);
-  private final JoystickButton CoralManipulatorButton = new JoystickButton(joystick1, 1);
   // Dashboard inputs
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -81,8 +80,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-
-    CoralManipulatorButton.onTrue(CoralManipulator.runOutake(.2));
+    operatorController
+      .a()
+        .onTrue(Commands.startEnd(() -> CoralManipulator.runOutake(0.2), () -> CoralManipulator.runOutake(0)));
   }
 
   /**
