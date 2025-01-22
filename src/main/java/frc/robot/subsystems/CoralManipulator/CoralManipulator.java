@@ -25,7 +25,7 @@ public class CoralManipulator extends SubsystemBase {
   }
 
   public void runOutake(double percentVolts) {
-    io.setVoltage(percentVolts);
+    io.setVoltage(percentVolts * 12);
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {
