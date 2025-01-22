@@ -25,6 +25,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CoralFunnel.CoralFunnel;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -53,6 +57,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final CoralFunnel coralFunnel;
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
@@ -77,6 +82,7 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
 
       case SIM:
@@ -94,6 +100,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        coralFunnel = new CoralFunnel(new CoralFunnelIOSim());
         break;
 
       default:
@@ -108,6 +115,7 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
         break;
     }
 
@@ -191,6 +199,11 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(() -> coralFunnel.runFunnel(0.2), () -> coralFunnel.runFunnel(0)));
   }
 
   /**
