@@ -20,11 +20,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -33,7 +33,7 @@ import java.util.function.DoubleSupplier;
  * "SparkMax" with "SparkFlex".
  */
 public class CoralFunnelIOSpark implements CoralFunnelIO {
-  private final SparkMax coralFunnel = new SparkMax(coralFunnelCanId, MotorType.kBrushless);
+  private final SparkFlex coralFunnel = new SparkFlex(coralFunnelCanId, MotorType.kBrushless);
   private SparkClosedLoopController funnelClosedLoopController =
       coralFunnel.getClosedLoopController();
   private final RelativeEncoder funnelEncoder = coralFunnel.getEncoder();
@@ -46,7 +46,7 @@ public class CoralFunnelIOSpark implements CoralFunnelIO {
 
   public CoralFunnelIOSpark() {
     // config
-    SparkMaxConfig funnelConfig = new SparkMaxConfig();
+    SparkFlexConfig funnelConfig = new SparkFlexConfig();
 
     funnelConfig.inverted(true).idleMode(IdleMode.kCoast);
     funnelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
