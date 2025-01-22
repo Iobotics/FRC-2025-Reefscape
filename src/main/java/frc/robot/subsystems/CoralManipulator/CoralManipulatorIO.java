@@ -29,8 +29,4 @@ public interface CoralManipulatorIO {
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
-
-  public default void setOutakeSpeed(double targetRPM) {}
-
-  public default void stopOutake() {}
 }

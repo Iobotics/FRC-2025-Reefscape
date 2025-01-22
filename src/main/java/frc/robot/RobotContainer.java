@@ -18,13 +18,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -63,8 +60,6 @@ public class RobotContainer {
   private final CommandXboxController driveController = new CommandXboxController(2);
   private final CommandXboxController operatorController = new CommandXboxController(0);
 
-  private final Joystick joystick1 = new Joystick(1);
-  private final JoystickButton CoralManipulatorButton = new JoystickButton(joystick1, 1);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -110,7 +105,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
-        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         break;
 
       default:
@@ -161,15 +156,6 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
 
-    CoralManipulatorButton.onTrue(
-        new InstantCommand(
-            () -> {
-              CoralManipulator.setTopOutakeSpeed(0.2);
-              CoralManipulator.setBottomOutakeSpeed(0.5);
-            },
-            CoralManipulator));
-    CoralManipulatorButton.onFalse(new InstantCommand(() -> CoralManipulator.stopOutake()));
-
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
@@ -219,6 +205,11 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.runOutake(0.9), () -> CoralManipulator.runOutake(0)));
   }
 
   /**
