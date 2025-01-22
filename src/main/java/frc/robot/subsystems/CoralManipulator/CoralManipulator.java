@@ -2,16 +2,15 @@ package frc.robot.subsystems.CoralManipulator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO.CoralManipulatorIOInputs;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private final CoralManipulatorIO io;
 
-  private final CoralManipulatorIOInputs inputs = new CoralManipulatorIOInputs();
+  private final CoralManipulatorIOInputsAutoLogged inputs =
+      new CoralManipulatorIOInputsAutoLogged();
 
   public CoralManipulator(CoralManipulatorIO io) {
     this.io = io;
@@ -22,13 +21,11 @@ public class CoralManipulator extends SubsystemBase {
     // This method will be called once per scheduler run
     // Update current RPM from the motor's encoder (example)
     io.updateInputs(inputs);
-    Logger.processInputs("CoralManipulator", (LoggableInputs) inputs);
+    Logger.processInputs("CoralManipulator", inputs);
   }
 
-  public Command runOutake(double percentVolt) {
-    return runEnd(
-        () -> io.setVoltage(percentVolt * 12), 
-        () -> io.setVoltage(0.0));
+  public void runOutake(double percentVolts) {
+    io.setVoltage(percentVolts);
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {

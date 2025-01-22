@@ -18,7 +18,6 @@ import static frc.robot.subsystems.CoralManipulator.CoralManipulatorConstants.to
 import static frc.robot.util.SparkUtil.ifOk;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -27,7 +26,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -109,5 +107,4 @@ public class CoralManipulatorIOSpark implements CoralManipulatorIO {
     topCoralManipulator.setVoltage(volts);
     bottomCoralManipulator.setVoltage(volts);
   }
-
 }

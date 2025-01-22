@@ -44,5 +44,4 @@ public class CoralManipulatorIOSim implements CoralManipulatorIO {
   public void setVoltage(double volts) {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
   }
-
 }

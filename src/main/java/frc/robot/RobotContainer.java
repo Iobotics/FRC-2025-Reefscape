@@ -14,11 +14,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSim;
@@ -81,8 +79,10 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     operatorController
-      .a()
-        .onTrue(Commands.startEnd(() -> CoralManipulator.runOutake(0.2), () -> CoralManipulator.runOutake(0)));
+        .a()
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.runOutake(0.2), () -> CoralManipulator.runOutake(0)));
   }
 
   /**
