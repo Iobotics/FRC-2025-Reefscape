@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class CoralIntake extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
@@ -30,8 +31,8 @@ public class CoralIntake extends SubsystemBase {
   private static final double kMinOutput = -1.0;
 
   public CoralIntake() {
-    leftIntake = new SparkMax(1, MotorType.kBrushless);
-    rightIntake = new SparkMax(3, MotorType.kBrushless);
+    leftIntake = new SparkMax(Constants.leftIntakeID, MotorType.kBrushless);
+    rightIntake = new SparkMax(Constants.rightIntakeID, MotorType.kBrushless);
     leftClosedLoopController = leftIntake.getClosedLoopController();
     rightClosedLoopController = rightIntake.getClosedLoopController();
     leftIntakeEncoder = leftIntake.getEncoder();
