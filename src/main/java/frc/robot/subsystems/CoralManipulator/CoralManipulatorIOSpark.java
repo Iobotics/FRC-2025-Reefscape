@@ -110,28 +110,4 @@ public class CoralManipulatorIOSpark implements CoralManipulatorIO {
     bottomCoralManipulator.setVoltage(volts);
   }
 
-  @Override
-  public void setOutakeSpeed(double targetRPM) {
-    topClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    bottomClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-  }
-
-  @Override
-  public void setTopOutakeSpeed(double targetRPM) {
-    topClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    SmartDashboard.putNumber("Manipulator Target RPM", targetRPM);
-  }
-
-  @Override
-  public void setBottomOutakeSpeed(double targetRPM) {
-    bottomClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    SmartDashboard.putNumber("Manipulator Target RPM", targetRPM);
-  }
-
-  @Override
-  public void stopOutake() {
-    topCoralManipulator.set(0);
-    bottomCoralManipulator.set(0);
-    SmartDashboard.putNumber("Manipulator Target RPM", 0);
-  }
 }

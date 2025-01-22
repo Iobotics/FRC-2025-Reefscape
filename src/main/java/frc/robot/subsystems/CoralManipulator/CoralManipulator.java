@@ -13,12 +13,6 @@ public class CoralManipulator extends SubsystemBase {
 
   private final CoralManipulatorIOInputs inputs = new CoralManipulatorIOInputs();
 
-  private static final double kP = 0.0;
-  private static final double kI = 0.0;
-  private static final double kD = 0.0;
-  private static final double kMaxOutput = 1.0;
-  private static final double kMinOutput = -1.0;
-
   public CoralManipulator(CoralManipulatorIO io) {
     this.io = io;
   }
@@ -31,10 +25,10 @@ public class CoralManipulator extends SubsystemBase {
     Logger.processInputs("CoralManipulator", (LoggableInputs) inputs);
   }
 
-  public Command runOutake(double speed) {
+  public Command runOutake(double percentVolt) {
     return runEnd(
-        () -> io.setOutakeSpeed(speed), 
-        () -> io.setOutakeSpeed(0.0));
+        () -> io.setVoltage(percentVolt * 12), 
+        () -> io.setVoltage(0.0));
   }
 
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {

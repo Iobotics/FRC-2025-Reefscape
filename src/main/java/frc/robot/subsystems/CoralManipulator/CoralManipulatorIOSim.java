@@ -45,8 +45,4 @@ public class CoralManipulatorIOSim implements CoralManipulatorIO {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
   }
 
-  @Override
-  public void setOutakeSpeed(double targetRPM) {
-    setVoltage(targetRPM * motorReduction * 2.0 * Math.PI / 60.0);
-  }
 }
