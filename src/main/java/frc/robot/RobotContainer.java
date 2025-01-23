@@ -209,7 +209,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.startEnd(
-                () -> CoralManipulator.runOutake(0.9), () -> CoralManipulator.runOutake(0)));
+                () -> CoralManipulator.runOutake(0.35), () -> CoralManipulator.runOutake(0)));
   }
 
   /**

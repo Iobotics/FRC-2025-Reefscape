@@ -21,6 +21,5 @@ package frc.robot.subsystems.CoralManipulator;
 public final class CoralManipulatorConstants {
   public static final double motorReduction = 20;
   public static final int topCoralManipulatorCanId = 13;
-  public static final int bottomCoralManipulatorCanId = 14;
   public static final int currentLimit = 20;
 }
