@@ -25,6 +25,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Algae.Algae;
+import frc.robot.subsystems.Algae.AlgaeIO;
+import frc.robot.subsystems.Algae.AlgaeIOSim;
+import frc.robot.subsystems.Algae.AlgaeIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -54,6 +58,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final Algae algae;
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
@@ -78,6 +83,8 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        algae = new Algae(new AlgaeIOSpark());
+
         break;
 
       case SIM:
@@ -92,9 +99,11 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", VisionConstants.robotToCamera0, drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        algae = new Algae(new AlgaeIOSim());
         break;
 
       default:
@@ -109,9 +118,9 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        algae = new Algae(new AlgaeIO() {});
         break;
     }
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -192,6 +201,10 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(Commands.startEnd(() -> algae.runOutake(0.35), () -> algae.runOutake(0)));
   }
 
   /**

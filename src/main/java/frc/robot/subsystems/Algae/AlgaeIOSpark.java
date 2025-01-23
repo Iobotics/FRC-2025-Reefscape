@@ -15,20 +15,17 @@ package frc.robot.subsystems.Algae;
 
 import static frc.robot.subsystems.Algae.AlgaeConstants.*;
 import static frc.robot.util.SparkUtil.ifOk;
-import static frc.robot.util.SparkUtil.tryUntilOk;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import java.util.function.DoubleSupplier;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.units.measure.Angle;
 
 /**
  * This roller implementation is for Spark devices. It defaults to brushless control, but can be
@@ -36,16 +33,14 @@ import edu.wpi.first.units.measure.Angle;
  * "SparkMax" with "SparkFlex".
  */
 public class AlgaeIOSpark implements AlgaeIO {
-  private PIDController controller;
+  private static final double GEAR_RATIO = 75;
 
-  //right arm motor declaration
-  private final SparkMax Arm = new SparkMax(AlgaeCANID, MotorType.kBrushless);
+  // right arm motor declaration
+  private final SparkFlex Arm = new SparkFlex(AlgaeCANID, MotorType.kBrushless);
   private final RelativeEncoder ArmEncoder = Arm.getEncoder();
-  double currentPosition = Arm.getEncoder().getPosition();
- private SparkClosedLoopController rightClosedLoopController = Arm.getClosedLoopController();
+  private final SparkClosedLoopController pid = Arm.getClosedLoopController();
 
-
-  //PID constants
+  // PID constants
   private static final double kP = 0.0;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
@@ -53,17 +48,16 @@ public class AlgaeIOSpark implements AlgaeIO {
   private static final double kMinOutput = -1.0;
 
   public AlgaeIOSpark() {
-//right arm configuration
-double targetPosition = 5000;
-Arm.getEncoder().setPosition(0);
-//motor.set(ControlType)
 
+    // double targetPosition = 5000;
+    // Arm.getEncoder().setPosition(0);
+    // motor.set(ControlType)
+    SparkFlexConfig config = new SparkFlexConfig();
+    config.inverted(false).idleMode(IdleMode.kCoast);
+    config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+    Arm.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // config.restoreFactoryDefaults().;
 
-SparkMaxConfig rightConfig = new SparkMaxConfig();
- rightConfig.inverted(true).idleMode(IdleMode.kCoast);
-    rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
-    Arm.configure(
-        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -72,15 +66,10 @@ SparkMaxConfig rightConfig = new SparkMaxConfig();
     ifOk(Arm, ArmEncoder::getVelocity, (value) -> inputs.velocityRadPerSec = value);
     ifOk(
         Arm,
-        new DoubleSupplier[] {
-          Arm::getAppliedOutput, Arm::getBusVoltage
-        },
+        new DoubleSupplier[] {Arm::getAppliedOutput, Arm::getBusVoltage},
         (values) -> inputs.appliedVolts = values[0] * values[1]);
 
-    ifOk(
-      Arm,
-      Arm::getOutputCurrent,
-      (value) -> inputs.currentAmps = value);
+    ifOk(Arm, Arm::getOutputCurrent, (value) -> inputs.currentAmps = value);
   }
 
   @Override

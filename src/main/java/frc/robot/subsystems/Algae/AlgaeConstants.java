@@ -13,9 +13,8 @@
 
 package frc.robot.subsystems.Algae;
 
-public class AlgaeConstants{
-  public static final int AlgaeCANID = 6;
+public class AlgaeConstants {
+  public static final int AlgaeCANID = 13;
   public static final double motorReduction = 20;
   public static final int currentLimit = 40;
-  public static final double GearRatio = 1.58;
 }
