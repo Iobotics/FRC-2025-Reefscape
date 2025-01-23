@@ -11,8 +11,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -119,9 +117,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void runSetpoint(double setpointMeters, double feedforward) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
 
-    main.setControl(positionControl
-      .withPosition(setpointRotations)
-      .withFeedForward(feedforward));
+    main.setControl(positionControl.withPosition(setpointRotations).withFeedForward(feedforward));
   }
 
   // @Override

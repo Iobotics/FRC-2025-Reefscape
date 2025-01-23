@@ -92,7 +92,8 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", VisionConstants.robotToCamera0, drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
         break;
