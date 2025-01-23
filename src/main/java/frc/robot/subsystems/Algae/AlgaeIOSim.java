@@ -14,16 +14,22 @@
 package frc.robot.subsystems.Algae;
 
 import static frc.robot.subsystems.Algae.AlgaeConstants.*;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class AlgaeIOSim implements AlgaeIO {
+  private static final double autoStartAngle = Units.degreesToRadians(80.0);
   private DCMotorSim sim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),
+    
+
+         
+
           DCMotor.getCIM(1));
 
   private double appliedVolts = 0.0;
