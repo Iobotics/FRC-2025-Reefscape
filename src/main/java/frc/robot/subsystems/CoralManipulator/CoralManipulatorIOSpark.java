@@ -21,10 +21,10 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -33,8 +33,8 @@ import java.util.function.DoubleSupplier;
  * "SparkMax" with "SparkFlex".
  */
 public class CoralManipulatorIOSpark implements CoralManipulatorIO {
-  private final SparkMax topCoralManipulator =
-      new SparkMax(topCoralManipulatorCanId, MotorType.kBrushless);
+  private final SparkFlex topCoralManipulator =
+      new SparkFlex(topCoralManipulatorCanId, MotorType.kBrushless);
   private SparkClosedLoopController topClosedLoopController =
       topCoralManipulator.getClosedLoopController();
   private final RelativeEncoder topEncoder = topCoralManipulator.getEncoder();
@@ -47,7 +47,7 @@ public class CoralManipulatorIOSpark implements CoralManipulatorIO {
 
   public CoralManipulatorIOSpark() {
     // top left config
-    SparkMaxConfig topConfig = new SparkMaxConfig();
+    SparkFlexConfig topConfig = new SparkFlexConfig();
 
     topConfig.inverted(true).idleMode(IdleMode.kCoast);
     topConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
