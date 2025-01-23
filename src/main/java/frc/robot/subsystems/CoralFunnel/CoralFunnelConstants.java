@@ -20,6 +20,6 @@ package frc.robot.subsystems.CoralFunnel;
  */
 public final class CoralFunnelConstants {
   public static final double intakeMotorReduction = 25;
-  public static final int coralFunnelCanId = 15;
+  public static final int coralFunnelCanId = 13;
   public static final int currentLimit = 20;
 }
