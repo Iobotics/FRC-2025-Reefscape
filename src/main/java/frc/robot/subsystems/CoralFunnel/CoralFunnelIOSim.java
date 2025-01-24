@@ -24,8 +24,8 @@ public class CoralFunnelIOSim implements CoralFunnelIO {
 
   private DCMotorSim sim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, intakeMotorReduction),
-          DCMotor.getCIM(1));
+          LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.004, intakeMotorReduction),
+          DCMotor.getNeoVortex(1));
 
   private double appliedVolts = 0.0;
 
