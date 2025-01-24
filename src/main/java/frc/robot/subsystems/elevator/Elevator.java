@@ -23,6 +23,8 @@ public class Elevator extends SubsystemBase {
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", gains.kP());
   private static final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/kI", gains.kI());
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", gains.kD());
+  private static final LoggedTunableNumber kG =
+      new LoggedTunableNumber("Elevator/kG", gains.ffkG());
   private static final LoggedTunableNumber kS =
       new LoggedTunableNumber("Elevator/kS", gains.ffkS());
   private static final LoggedTunableNumber kV =
@@ -33,7 +35,7 @@ public class Elevator extends SubsystemBase {
   public final ElevatorIO io;
   public final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  ElevatorFeedforward feedforward = new ElevatorFeedforward(kS.get(), kV.get(), kA.get());
+  ElevatorFeedforward feedforward = new ElevatorFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
 
   private TrapezoidProfile profile;
   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
@@ -45,7 +47,7 @@ public class Elevator extends SubsystemBase {
   private double goalMeters;
 
   public enum Goal {
-    STOW(() -> 0.2),
+    STOW(new LoggedTunableNumber("Elevator/Stow", 0.0)),
     SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.5)),
     SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.8)),
     SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 1.1)),
@@ -102,7 +104,8 @@ public class Elevator extends SubsystemBase {
         maxAcceleration);
     LoggedTunableNumber.ifChanged(
         hashCode(),
-        () -> feedforward = new ElevatorFeedforward(kS.get(), kV.get(), kA.get()),
+        () -> feedforward = new ElevatorFeedforward(kG.get(), kS.get(), kV.get(), kA.get()),
+        kG,
         kS,
         kV,
         kA);

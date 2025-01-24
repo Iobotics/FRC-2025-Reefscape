@@ -6,6 +6,7 @@ public interface ElevatorIO {
   @AutoLog
   class ElevatorIOInputs {
     public boolean motorConnected = true;
+    public double positionRotations = 0.0;
     public double positionMeters = 0.0;
     public double velocityMeters = 0.0;
     public double torqueCurrentAmps = 0.0;

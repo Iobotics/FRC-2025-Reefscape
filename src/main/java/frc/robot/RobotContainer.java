@@ -41,6 +41,7 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -97,7 +98,8 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
         coralFunnel = new CoralFunnel(new CoralFunnelIOSim());

@@ -15,8 +15,8 @@ public class ElevatorIOSim implements ElevatorIO {
   ElevatorSim elevator =
       new ElevatorSim(
           LinearSystemId.createElevatorSystem(
-              DCMotor.getKrakenX60Foc(2), 0.4, Units.inchesToMeters(0.75), reduction),
-          DCMotor.getKrakenX60Foc(2),
+              DCMotor.getKrakenX60(2), 0.4, Units.inchesToMeters(0.75), reduction),
+          DCMotor.getKrakenX60(2),
           0.,
           ElevatorConstants.maxHeight,
           true,
