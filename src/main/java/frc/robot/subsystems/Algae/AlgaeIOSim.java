@@ -20,29 +20,32 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Constants;
 
 public class AlgaeIOSim implements AlgaeIO {
   private static final double autoStartAngle = Units.degreesToRadians(80.0);
-  private DCMotorSim sim =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),
-    
-
-         
-
-          DCMotor.getCIM(1));
-
   private double appliedVolts = 0.0;
+
+  private final DCMotorSim sim = new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.004, appliedVolts), 
+            DCMotor.getNEO(1)
+        );
+  private double positionOffset = 0.0;
 
   @Override
   public void updateInputs(AlgaeIOInputs inputs) {
-    sim.setInputVoltage(appliedVolts);
+    sim.setInput(appliedVolts);
     sim.update(0.02);
-
-    inputs.positionRad = sim.getAngularPositionRad();
+//sim.update(Constants.loopPeriodSecs);
+    inputs.positionRad = sim.getAngularPositionRad() + positionOffset;
     inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
-    inputs.appliedVolts = appliedVolts;
+    inputs.appliedVolts = new double[] {appliedVolts};
     inputs.currentAmps = sim.getCurrentDrawAmps();
+    
+
+    inputs.supplyCurrentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.torqueCurrentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.tempCelcius = new double[] {0.0};
   }
 
   @Override
