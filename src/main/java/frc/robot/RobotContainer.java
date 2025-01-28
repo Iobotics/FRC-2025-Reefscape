@@ -16,7 +16,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -76,7 +75,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
         vision =
             new Vision(
-                drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
         break;
 
@@ -92,7 +92,8 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", VisionConstants.robotToCamera0, drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
         break;
@@ -150,6 +151,25 @@ public class RobotContainer {
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
 
+    // driveController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // driveController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    // driveController.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+    // driveController.a().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.b().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    // driveController.x().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.y().onFalse(Commands.run(() -> drive.stop()));
+
     // Lock to 0° when A button is held
     driveController
         .a()
@@ -174,11 +194,11 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driveController
-        .y()
-        .onTrue(drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0))));
+    Command pathfindingCommand =
+        drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0)));
+    driveController.y().onTrue(pathfindingCommand);
 
-    driveController.y().onFalse(Commands.runOnce(() -> drive.stop()));
+    driveController.y().onFalse(Commands.runOnce(() -> pathfindingCommand.cancel()));
 
     operatorController
         .a()

@@ -42,6 +42,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -84,8 +85,7 @@ public class Drive extends SubsystemBase {
               TunerConstants.FrontLeft.WheelRadius,
               TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
               WHEEL_COF,
-              DCMotor.getKrakenX60Foc(1)
-                  .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
+              DCMotor.getKrakenX60(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
               TunerConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());
@@ -155,7 +155,7 @@ public class Drive extends SubsystemBase {
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 null,
-                null,
+                Voltage.ofBaseUnits(5, Volt),
                 null,
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
