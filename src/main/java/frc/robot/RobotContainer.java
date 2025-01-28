@@ -16,7 +16,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -81,7 +80,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
         vision =
             new Vision(
-                drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
         coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
@@ -158,6 +158,25 @@ public class RobotContainer {
             () -> -driveController.getLeftY(),
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
+
+    // driveController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // driveController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    // driveController.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+    // driveController.a().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.b().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    // driveController.x().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.y().onFalse(Commands.run(() -> drive.stop()));
 
     // Lock to 0° when A button is held
     driveController
