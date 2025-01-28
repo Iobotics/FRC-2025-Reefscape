@@ -183,11 +183,15 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driveController
-        .y()
-        .onTrue(drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0))));
+    Command pathfindingCommand =
+        drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0)));
+    driveController.y().onTrue(pathfindingCommand);
+    driveController.y().onFalse(Commands.runOnce(() -> pathfindingCommand.cancel()));
 
-    driveController.y().onFalse(Commands.runOnce(() -> drive.stop()));
+    // RIGHT ON DPAD
+    // operatorController
+    //     .pov(90)
+    //     .whileTrue()
 
     operatorController
         .a()

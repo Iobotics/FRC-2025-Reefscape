@@ -285,12 +285,12 @@ public class Drive extends SubsystemBase {
   public Command pathfindToPose(Pose2d targetPose) {
     // Create the constraints to use while pathfinding
     PathConstraints constraints =
-        new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(5.0, 5.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
     Command pathfindingCommand =
         AutoBuilder.pathfindToPose(
-            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
+            targetPose, constraints, 4.0 // Goal end velocity in meters/sec
             );
     return pathfindingCommand;
   }
