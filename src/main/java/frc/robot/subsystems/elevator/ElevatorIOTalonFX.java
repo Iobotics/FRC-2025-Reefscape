@@ -7,11 +7,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -35,13 +34,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // private final TorqueCurrentFOC currentControl = new
   // TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
   private final NeutralOut neutralOut = new NeutralOut();
-  private PIDController controller;
+  private TalonFXConfiguration config = new TalonFXConfiguration();
+  private final PositionVoltage positionControl = new PositionVoltage(0.0);
 
   public ElevatorIOTalonFX() {
     main = new TalonFX(19);
     follower = new TalonFX(20);
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.CurrentLimits.SupplyCurrentLimit = 40; // change later
@@ -57,8 +56,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     supplyCurrent = main.getSupplyCurrent();
     torqueCurrent = main.getTorqueCurrent();
     tempCelsius = main.getDeviceTemp();
-
-    controller = new PIDController(0.0, 0.0, 0.0);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -102,31 +99,28 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runVolts(double volts) {
-    volts = MathUtil.clamp(volts, -1.2, 1.2);
+    // volts = MathUtil.clamp(volts, -1.2, 1.2);
     main.setVoltage(volts);
   }
 
   @Override
   public void setPID(double p, double i, double d) {
-    controller = new PIDController(p, i, d);
+    config.Slot0.kP = p;
+    config.Slot0.kI = i;
+    config.Slot0.kD = d;
+
+    main.getConfigurator().apply(config);
+    // controller = new PIDController(p, i, d);
   }
 
   @Override
   public void runSetpoint(double setpointMeters, double feedforward) {
+    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
 
-    runVolts(
-        controller.calculate(
-                    (positionRotations.getValueAsDouble() / reduction)
-                        * ElevatorConstants.rotationsToMeters,
-                    setpointMeters / ElevatorConstants.rotationsToMeters)
-                * reduction
-            + feedforward);
-    // currentControl.setGoal(setpointRotations * reduction);
-    // runVolts(currentControl.calculate(positionRotations.getValueAsDouble() / reduction) +
-    // feedforward);
+    main.setControl(positionControl.withPosition(setpointRotations).withFeedForward(feedforward));
   }
 
   // @Override
-  // public voitalone(boolean enable) {
+  // public void (boolean enable) {
   //   talon.setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.talon }
 }
