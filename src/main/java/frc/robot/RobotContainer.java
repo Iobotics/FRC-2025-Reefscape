@@ -28,6 +28,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
+import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -55,6 +56,7 @@ public class RobotContainer {
   private final Vision vision;
   private final Elevator elevator;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
+  private final Sensor sensor;
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
@@ -88,6 +90,7 @@ public class RobotContainer {
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
         elevator = new Elevator(new ElevatorIOTalonFX());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        sensor = new Sensor();
 
         break;
       case SIM:
@@ -106,6 +109,7 @@ public class RobotContainer {
 
         elevator = new Elevator(new ElevatorIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        sensor = new Sensor();
         break;
 
       default:
@@ -121,6 +125,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        sensor = new Sensor();
         break;
     }
 
@@ -205,11 +210,8 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
-    operatorController
-        .rightBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.runOutake(0.35), () -> CoralManipulator.runOutake(0)));
+
+    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
   }
 
   /**

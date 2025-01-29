@@ -2,7 +2,9 @@ package frc.robot.subsystems.CoralManipulator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Sensor.Sensor;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class CoralManipulator extends SubsystemBase {
@@ -24,6 +26,7 @@ public class CoralManipulator extends SubsystemBase {
     Logger.processInputs("CoralManipulator", inputs);
   }
 
+  @AutoLogOutput
   public void runOutake(double percentVolts) {
     io.setVoltage(percentVolts * 12);
   }
@@ -32,5 +35,24 @@ public class CoralManipulator extends SubsystemBase {
     return runEnd(
         () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),
         () -> io.setVoltage(0.0));
+  }
+
+  public Command getCommand(Sensor coralSwitch) {
+    return new Command() {
+      @Override
+      public void execute() {
+        runOutake(0.35);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return !coralSwitch.getSwitch();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        runOutake(0);
+      }
+    };
   }
 }

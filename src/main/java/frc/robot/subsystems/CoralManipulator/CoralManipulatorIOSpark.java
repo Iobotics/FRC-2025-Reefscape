@@ -49,7 +49,7 @@ public class CoralManipulatorIOSpark implements CoralManipulatorIO {
     // top left config
     SparkFlexConfig topConfig = new SparkFlexConfig();
 
-    topConfig.inverted(true).idleMode(IdleMode.kCoast);
+    topConfig.inverted(true).idleMode(IdleMode.kBrake);
     topConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
 
     topCoralManipulator.configure(
