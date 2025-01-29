@@ -16,7 +16,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +24,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CoralFunnel.CoralFunnel;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSpark;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
@@ -39,6 +42,7 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -57,6 +61,7 @@ public class RobotContainer {
   private final Elevator elevator;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
+  private final CoralFunnel coralFunnel;
 
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
@@ -87,11 +92,13 @@ public class RobotContainer {
                 new ModuleIO() {});
         vision =
             new Vision(
-                drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         sensor = new Sensor();
 
+        coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -105,11 +112,13 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
+        coralFunnel = new CoralFunnel(new CoralFunnelIOSim());
         break;
 
       default:
@@ -126,6 +135,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
+        coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
         break;
     }
 
@@ -168,6 +178,25 @@ public class RobotContainer {
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
 
+    // driveController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // driveController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    // driveController.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+    // driveController.a().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.b().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    // driveController.x().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.y().onFalse(Commands.run(() -> drive.stop()));
+
     // Lock to 0° when A button is held
     driveController
         .a()
@@ -192,11 +221,15 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driveController
-        .y()
-        .onTrue(drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0))));
+    Command pathfindingCommand =
+        drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0)));
+    driveController.y().onTrue(pathfindingCommand);
+    driveController.y().onFalse(Commands.runOnce(() -> pathfindingCommand.cancel()));
 
-    driveController.y().onFalse(Commands.runOnce(() -> drive.stop()));
+    // RIGHT ON DPAD
+    // operatorController
+    //     .pov(90)
+    //     .whileTrue()
 
     operatorController
         .a()
@@ -210,6 +243,11 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(() -> coralFunnel.runFunnel(0.2), () -> coralFunnel.runFunnel(0)));
 
     operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
   }

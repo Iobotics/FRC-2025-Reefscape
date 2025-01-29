@@ -1,10 +1,15 @@
 package frc.robot.subsystems.elevator;
 
+import static frc.robot.subsystems.elevator.ElevatorConstants.reduction;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -15,7 +20,8 @@ import frc.robot.Constants;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   // Hardware
-  private final TalonFX talon;
+  private final TalonFX main;
+  private final TalonFX follower;
 
   // Status Signals
   private final StatusSignal<Angle> positionRotations;
@@ -29,22 +35,28 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // private final TorqueCurrentFOC currentControl = new
   // TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
   private final NeutralOut neutralOut = new NeutralOut();
+  private TalonFXConfiguration config = new TalonFXConfiguration();
+  private final PositionVoltage positionControl = new PositionVoltage(0.0);
 
   public ElevatorIOTalonFX() {
-    talon = new TalonFX(Constants.elevatorID); // change later
+    main = new TalonFX(19, "Carnivore");
+    follower = new TalonFX(20, "Carnivore");
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.CurrentLimits.SupplyCurrentLimit = 40; // change later
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talon.getConfigurator().apply(config);
+    main.getConfigurator().apply(config);
+    follower.getConfigurator().apply(config);
 
-    positionRotations = talon.getPosition();
-    velocityRps = talon.getVelocity();
-    appliedVoltage = talon.getMotorVoltage();
-    supplyCurrent = talon.getSupplyCurrent();
-    torqueCurrent = talon.getTorqueCurrent();
-    tempCelsius = talon.getDeviceTemp();
+    follower.setControl(new Follower(19, false));
+
+    positionRotations = main.getPosition();
+    velocityRps = main.getVelocity();
+    appliedVoltage = main.getMotorVoltage();
+    supplyCurrent = main.getSupplyCurrent();
+    torqueCurrent = main.getTorqueCurrent();
+    tempCelsius = main.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -55,10 +67,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         torqueCurrent,
         tempCelsius);
 
-    talon.optimizeBusUtilization(0, 1.0);
+    main.optimizeBusUtilization(0, 1.0);
   }
 
-  @Override
   public void updateInputs(ElevatorIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.refreshAll(
@@ -69,8 +80,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 torqueCurrent,
                 tempCelsius)
             .isOK();
-    // inputs.positionRads =
-    //     Units.rotationsToRadians(positionRotations.getValueAsDouble()) / reduction;
+    inputs.positionRotations = (positionRotations.getValueAsDouble()) / reduction;
+    inputs.positionMeters =
+        (positionRotations.getValueAsDouble() / reduction) * ElevatorConstants.rotationsToMeters;
+    inputs.velocityMeters =
+        (velocityRps.getValueAsDouble() / reduction) * ElevatorConstants.rotationsToMeters;
     // inputs.velocityRps =
     //     velocityRps.getValueAsDouble() / reduction;
     inputs.appliedVolts = appliedVoltage.getValueAsDouble();
@@ -81,15 +95,32 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void stop() {
-    talon.setControl(neutralOut);
+    main.setControl(neutralOut);
   }
 
+  @Override
   public void runVolts(double volts) {
-    talon.setVoltage(volts);
+    // volts = MathUtil.clamp(volts, -1.2, 1.2);
+    main.setVoltage(volts);
+  }
+
+  @Override
+  public void setPID(double p, double i, double d) {
+    config.Slot0.kP = p;
+    config.Slot0.kI = i;
+    config.Slot0.kD = d;
+
+    main.getConfigurator().apply(config);
+  }
+
+  @Override
+  public void runSetpoint(double setpointMeters, double feedforward) {
+    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+
+    main.setControl(positionControl.withPosition(setpointRotations).withFeedForward(feedforward));
   }
 
   // @Override
-  // public void setBrakeMode(boolean enable) {
-  //   talon.setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-  // }
+  // public void (boolean enable) {
+  //   talon.setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.talon }
 }
