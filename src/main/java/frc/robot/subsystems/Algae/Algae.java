@@ -3,6 +3,9 @@ package frc.robot.subsystems.Algae;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -41,11 +44,27 @@ public class Algae extends SubsystemBase {
 
 
 
-
-
-
-
-
+              public enum Goal {
+                DEFAULT(() -> 0),
+                UNJAM_INTAKE(new LoggedTunableNumber("Arm/UnjamDegrees", 40.0)),
+                STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 45.0)),
+                CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
+            
+                private final DoubleSupplier armSetpointSupplier;
+            
+                private Goal(DoubleSupplier armSetpointSupplier) {
+                    this.armSetpointSupplier = armSetpointSupplier;
+                }
+            
+                private double getRads() {
+                  return Units.degreesToRadians(armSetpointSupplier.getAsDouble());
+                }
+              }
+                @AutoLogOutput private Goal goal = Goal.DEFAULT;
+  public void setGoal(Goal newGoal) {
+    goal = newGoal;
+  }
+  private boolean characterizing = false;
 
   private final AlgaeIO io;
 

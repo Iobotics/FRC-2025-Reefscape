@@ -24,14 +24,14 @@ public class AlgaeConstants {
   public static final Rotation2d positionTolerance = Rotation2d.fromDegrees(3.0);
   public static final Translation2d armOrigin = new Translation2d(-0.238, 0.298);
   public static final Rotation2d minAngle = Rotation2d.fromDegrees(0); 
-
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(360);
   public static final int AlgaeCANID = 13;
   public static final int currentLimit = 40;
-  public static final int GearRatio = 75;
+  public static final double GearRatio = 75.0;
 
   public static final int encoderPin = 1;
 
+  public static final double Armlength = Units.inchesToMeters(10.0);
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
