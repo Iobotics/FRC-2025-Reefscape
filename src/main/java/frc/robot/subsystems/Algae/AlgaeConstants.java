@@ -12,10 +12,37 @@
 // GNU General Public License for more details.
 
 package frc.robot.subsystems.Algae;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
+
 
 public class AlgaeConstants {
+
+  public static final Rotation2d positionTolerance = Rotation2d.fromDegrees(3.0);
+  public static final Translation2d armOrigin = new Translation2d(-0.238, 0.298);
+  public static final Rotation2d minAngle = Rotation2d.fromDegrees(0); 
+
+  public static final Rotation2d maxAngle = Rotation2d.fromDegrees(360);
   public static final int AlgaeCANID = 13;
-  public static final double motorReduction = 20;
   public static final int currentLimit = 40;
-  public static final double GearRatio = 1.58;
+  public static final int GearRatio = 75;
+
+  public static final int encoderPin = 1;
+
+  public static final Gains gains =
+      switch (Constants.getRobot()) {
+        case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        default -> new Gains(0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0);
+      };
+
+  public static TrapezoidProfile.Constraints profileConstraints =
+      new TrapezoidProfile.Constraints(2 * Math.PI, 15);
+
+  public record Gains(
+      double kP, double kI, double kD, double ffkS, double ffkV, double ffkA, double ffkG) {}
 }
+
+

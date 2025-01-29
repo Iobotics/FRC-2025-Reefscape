@@ -1,9 +1,5 @@
 package frc.robot.subsystems.CoralFeeder;
 
-import javax.imageio.stream.IIOByteBuffer;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,8 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.CoralFeeder.CoralFeederIO.IntakeIOInputs;
-import frc.robot.subsystems.CoralFeeder.CoralFeederSwitchIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralFeeder extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
@@ -27,7 +22,8 @@ public class CoralFeeder extends SubsystemBase {
 
   private RelativeEncoder IntakeEn;
   private CoralFeederSwitchIO switchIO;
-  private final CoralFeederSwitchIOInputsAutoLogged switchInputs = new CoralFeederSwitchIOInputsAutoLogged();
+  private final CoralFeederSwitchIOInputsAutoLogged switchInputs =
+      new CoralFeederSwitchIOInputsAutoLogged();
   private boolean intakeSwitchState;
 
   private static final double kP = 0.0;
@@ -62,9 +58,10 @@ public class CoralFeeder extends SubsystemBase {
     SmartDashboard.putNumber("Intake Target RPM", 0);
   }
 
-  public boolean optic(){
+  public boolean optic() {
     return intakeSwitchState;
   }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -73,12 +70,12 @@ public class CoralFeeder extends SubsystemBase {
     switchIO.updateInputs(switchInputs);
     Logger.processInputs("OpticSensor", switchInputs);
 
-    if(switchInputs.intakeSwitchState){
+    if (switchInputs.intakeSwitchState) {
       intakeSwitchState = true;
     } else {
       intakeSwitchState = false;
     }
-    
+
     SmartDashboard.putNumber("Intake Current RPM", IntakeRPM);
   }
 }

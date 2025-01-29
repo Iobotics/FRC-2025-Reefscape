@@ -17,24 +17,25 @@ import static frc.robot.subsystems.Algae.AlgaeConstants.*;
 import static frc.robot.util.SparkUtil.ifOk;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkAbsoluteEncoderSim;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-//import com.revrobotics.AbsoluteEncoder;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+
+import com.revrobotics.AbsoluteEncoder;
+import java.util.function.DoubleSupplier;
 
 /**
  * This roller implementation is for Spark devices. It defaults to brushless control, but can be
@@ -43,24 +44,22 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  */
 public class AlgaeIOSparkFlex implements AlgaeIO {
   private static final double GEAR_RATIO = 75;
-//convert to degrees using gear box
+  // convert to degrees using gear box
   // right arm motor declaration
   private final SparkFlex Arm = new SparkFlex(AlgaeCANID, MotorType.kBrushless);
-  private final RelativeEncoder ArmEncoder = Arm.getEncoder();
+  private final DutyCycleEncoder encoder = new DutyCycleEncoder(new DigitalInput(encoderPin));
   private final SparkClosedLoopController pid = Arm.getClosedLoopController();
- private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0,0.0,0.0);
+  private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
 
- 
   // PID constants
- 
- 
+
   private static final double kP = 0.0;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double kMaxOutput = 1.0;
   private static final double kMinOutput = -1.0;
 
-  public AlgaeIOSpark() {
+  public AlgaeIOSparkFlex() {
 
     // double targetPosition = 5000;
     // Arm.getEncoder().setPosition(0);
@@ -69,14 +68,16 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
     config.inverted(false).idleMode(IdleMode.kCoast);
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
     Arm.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-
   }
 
   @Override
   public void updateInputs(AlgaeIOInputs inputs) {
-    ifOk(Arm, ArmEncoder::getPosition, (value) -> inputs.positionRad = Units.rotationsToRadians(ArmEncoder.getPosition() / GEAR_RATIO));
-    ifOk(Arm, ArmEncoder::getVelocity, (value) -> inputs.velocityRadPerSec = value);
+    ifOk(
+        Arm,
+        encoder::getPosition,
+        (value) ->
+            inputs.positionRad = Units.rotationsToRadians(encoder.getPosition() / GEAR_RATIO));
+    ifOk(Arm, encoder::getVelocity, (value) -> inputs.velocityRadPerSec = value);
     ifOk(
         Arm,
         new DoubleSupplier[] {Arm::getAppliedOutput, Arm::getBusVoltage},
@@ -85,46 +86,42 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
     ifOk(Arm, Arm::getOutputCurrent, (value) -> inputs.currentAmps = value);
   }
 
- /*  @Override
+  /*  @Override
   public void setVoltage(double volts) {
     Arm.setVoltage(volts); */
 
- @Override
-    public void runSetpoint(double setpointRads, double ffVolts) {
-        pid.setReference(
-            Units.radiansToRotations(setpointRads) * GEAR_RATIO,
-            ControlType.kPosition,
-            0,
-            ffVolts,
-            SparkClosedLoopController.ArbFFUnits.kVoltage 
-        );
-    }
+  @Override
+  public void runSetpoint(double setpointRads, double ffVolts) {
+    pid.setReference(
+        Units.radiansToRotations(setpointRads) * GEAR_RATIO,
+        ControlType.kPosition,
+        ClosedLoopSlot.kSlot0,
+        ffVolts,
+        SparkClosedLoopController.ArbFFUnits.kVoltage);
+  }
 
-    @Override
-    public void runVolts(double volts) {
-        Arm.setVoltage(volts);
-    }
+  @Override
+  public void setVoltage(double volts) {
+    Arm.setVoltage(volts);
+  }
 
-    @Override
-    public void setPosition(double position){
-ArmEncoder.setPosition(position);
-
-    }
-/* 
-    @Override
-    public void stop() {
-        Arm.stopMotor();
-    }
-*/
-@Override
-public void stop(TrapezoidProfile.State setpoint){
-  double feedforward = ArmFeedfoward.calculate(setpoint.position*2*Math.PI, setpoint.velocity);
-  pid.setReference(
-    setpoint.position, ControlType.kPosition,0, feedforward);
-}
-
+  public void setPosition(double position) {
+    encoder.setPosition(position);
+  }
+  /*
+      @Override
+      public void stop() {
+          Arm.stopMotor();
+      }
+  */
+  //   @Override
+  //   public void runSetpoint(double setpointRads, double ff){
+  //     double feedforward = ArmFeedfoward.calculate(setpointRads, 0);
+  //     pid.setReference(
+  //       setpointRads, ControlType.kPosition, ClosedLoopSlot.kSlot0, feedforward);
+  // }
 
 }
 
-  //DELMAR ROBOTICS ENGINEERS AT MADE 2024 ROBOT    LOOK AT GITHUB 
-  //NRG ROBOT 2025
+  // DELMAR ROBOTICS ENGINEERS AT MADE 2024 ROBOT    LOOK AT GITHUB
+  // NRG ROBOT 2025

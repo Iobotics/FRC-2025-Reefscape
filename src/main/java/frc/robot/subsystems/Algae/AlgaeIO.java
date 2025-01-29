@@ -22,7 +22,7 @@ public interface AlgaeIO {
 
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
-    public double[] appliedVolts = new double[] {};
+    public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
     public double[] supplyCurrentAmps = new double[] {};
     public double[] torqueCurrentAmps = new double[] {};
@@ -30,7 +30,6 @@ public interface AlgaeIO {
     public double relativeEncoderPositionRads = 0.0;
     public double[] tempCelcius = new double[] {};
     public boolean absoluteEncoderConnected = true;
-
   }
 
   /** Update the set of loggable inputs. */
@@ -39,18 +38,17 @@ public interface AlgaeIO {
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
+  public default void runSetpoint(double setpointRads, double feedfoward) {}
 
-public default void runSetpoint( double setpointRads, double feedfoward){}
+  /** Run motors at current */
+  public default void runCurrent(double amps) {}
 
- /** Run motors at current */
-   public  default void runCurrent(double amps) {}
+  /** Set brake mode enabled */
+  public default void setBrakeMode(boolean enabled) {}
 
-    /** Set brake mode enabled */
-   public  default void setBrakeMode(boolean enabled) {}
+  /** Set PID values */
+  public default void setPID(double p, double i, double d) {}
 
-    /** Set PID values */
-   public default void setPID(double p, double i, double d) {}
-
-    /** Stops motors */
-     public default void stop() {}
+  /** Stops motors */
+  public default void stop() {}
 }
