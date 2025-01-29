@@ -15,13 +15,13 @@ public class ElevatorIOSim implements ElevatorIO {
   ElevatorSim elevator =
       new ElevatorSim(
           LinearSystemId.createElevatorSystem(
-              DCMotor.getKrakenX60(2), 2.7, Units.inchesToMeters(0.75), reduction),
+              DCMotor.getKrakenX60(2), 7.2, Units.inchesToMeters(0.75), reduction),
           DCMotor.getKrakenX60(2),
           0.,
           ElevatorConstants.maxHeight,
           true,
           0.,
-          new double[] {0.0, 0.0});
+          new double[] {0.01, 0.01});
 
   private PIDController controller;
   private boolean controllerNeedsReset = false;

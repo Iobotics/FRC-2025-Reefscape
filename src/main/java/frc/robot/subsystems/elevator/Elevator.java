@@ -109,10 +109,6 @@ public class Elevator extends SubsystemBase {
         kS,
         kV,
         kA);
-    // LoggedTunableNumber.ifChanged(
-    //     hashCode(), () ->
-    // setGoal(setPointPositionMeters.get(),setPointVelocityMetersPerSecond.get()),
-    // setPointPositionMeters,setPointVelocityMetersPerSecond);
 
     goalMeters = goal.getMeters();
 
@@ -122,7 +118,7 @@ public class Elevator extends SubsystemBase {
 
     io.runSetpoint(
         setpointState.position,
-        feedforward.calculate(setpointState.position, setpointState.velocity));
+        feedforward.calculateWithVelocities(inputs.velocityMeters, setpointState.velocity));
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
     Logger.recordOutput("Elevator/GoalPos", goalMeters);

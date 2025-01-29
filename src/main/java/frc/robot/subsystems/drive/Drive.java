@@ -55,6 +55,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -110,6 +111,19 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+  private static final LoggedTunableNumber translationkP =
+      new LoggedTunableNumber("Drive/translationkP", AutoConstants.translationGains.kP());
+  private static final LoggedTunableNumber translationkI =
+      new LoggedTunableNumber("Drive/translationkI", AutoConstants.translationGains.kI());
+  private static final LoggedTunableNumber translationkD =
+      new LoggedTunableNumber("Drive/translationkD", AutoConstants.translationGains.kD());
+  private static final LoggedTunableNumber rotationkP =
+      new LoggedTunableNumber("Drive/rotationkP", AutoConstants.rotationGains.kP());
+  private static final LoggedTunableNumber rotationkI =
+      new LoggedTunableNumber("Drive/rotationkI", AutoConstants.rotationGains.kI());
+  private static final LoggedTunableNumber rotationkD =
+      new LoggedTunableNumber("Drive/rotationkD", AutoConstants.rotationGains.kD());
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -128,27 +142,7 @@ public class Drive extends SubsystemBase {
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
 
-    // Configure AutoBuilder for PathPlanner
-    AutoBuilder.configure(
-        this::getPose,
-        this::setPose,
-        this::getChassisSpeeds,
-        this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-        PP_CONFIG,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput(
-              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+    configureAutoBuilder();
 
     // Configure SysId
     sysId =
@@ -219,6 +213,41 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> configureAutoBuilder(),
+        translationkP,
+        translationkI,
+        translationkD,
+        rotationkP,
+        rotationkI,
+        rotationkD);
+  }
+
+  private void configureAutoBuilder() {
+    // Configure AutoBuilder for PathPlanner
+    AutoBuilder.configure(
+        this::getPose,
+        this::setPose,
+        this::getChassisSpeeds,
+        this::runVelocity,
+        new PPHolonomicDriveController(
+            new PIDConstants(translationkP.get(), translationkI.get(), translationkD.get()),
+            new PIDConstants(rotationkP.get(), rotationkI.get(), rotationkD.get())),
+        PP_CONFIG,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        this);
+    Pathfinding.setPathfinder(new LocalADStarAK());
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput(
+              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
   }
 
   /**
@@ -285,12 +314,12 @@ public class Drive extends SubsystemBase {
   public Command pathfindToPose(Pose2d targetPose) {
     // Create the constraints to use while pathfinding
     PathConstraints constraints =
-        new PathConstraints(5.0, 5.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(4.0, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
     Command pathfindingCommand =
         AutoBuilder.pathfindToPose(
-            targetPose, constraints, 4.0 // Goal end velocity in meters/sec
+            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
             );
     return pathfindingCommand;
   }

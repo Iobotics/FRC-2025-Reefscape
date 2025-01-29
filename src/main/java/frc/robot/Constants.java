@@ -16,6 +16,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -26,8 +27,7 @@ public final class Constants {
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = true;
   public static final Mode simMode = Mode.SIM;
-  // public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-  public static final Mode currentMode = Mode.REPLAY;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {
     /** Running on a real robot. */

@@ -38,8 +38,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
 
   public ElevatorIOTalonFX() {
-    main = new TalonFX(19);
-    follower = new TalonFX(20);
+    main = new TalonFX(19, "Carnivore");
+    follower = new TalonFX(20, "Carnivore");
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -110,7 +110,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kD = d;
 
     main.getConfigurator().apply(config);
-    // controller = new PIDController(p, i, d);
   }
 
   @Override
