@@ -1,80 +1,58 @@
 package frc.robot.subsystems.CoralManipulator;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Sensor.Sensor;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private SparkMax leftOutake;
+  private final CoralManipulatorIO io;
 
-  private SparkMax rightOutake;
-  private static SparkClosedLoopController leftClosedLoopController;
-  private SparkClosedLoopController rightClosedLoopController;
-  private RelativeEncoder leftOutakeEncoder;
-  private RelativeEncoder rightOutakeEncoder;
+  private final CoralManipulatorIOInputsAutoLogged inputs =
+      new CoralManipulatorIOInputsAutoLogged();
 
-  private static final double kP = 0.0;
-  private static final double kI = 0.0;
-  private static final double kD = 0.0;
-  private static final double kMaxOutput = 1.0;
-  private static final double kMinOutput = -1.0;
-
-  public CoralManipulator() {
-    leftOutake = new SparkMax(1, MotorType.kBrushless);
-    rightOutake = new SparkMax(2, MotorType.kBrushless);
-    leftClosedLoopController = leftOutake.getClosedLoopController();
-    rightClosedLoopController = rightOutake.getClosedLoopController();
-    leftOutakeEncoder = leftOutake.getEncoder();
-    rightOutakeEncoder = rightOutake.getEncoder();
-
-    SparkMaxConfig leftConfig = new SparkMaxConfig();
-
-    leftConfig.inverted(true).idleMode(IdleMode.kCoast);
-    leftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
-
-    leftOutake.configure(
-        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    SparkMaxConfig rightConfig = new SparkMaxConfig();
-
-    rightConfig.inverted(false).idleMode(IdleMode.kCoast);
-    rightConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
-
-    rightOutake.configure(
-        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
-
-  public void setOutakeSpeed(double targetRPM) {
-    rightClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    leftClosedLoopController.setReference(targetRPM, ControlType.kVelocity);
-    SmartDashboard.putNumber("Shooter Target RPM", targetRPM);
-  }
-
-  public void stopOutake() {
-    leftOutake.set(0);
-    rightOutake.set(0);
-    SmartDashboard.putNumber("Shooter Target RPM", 0);
+  public CoralManipulator(CoralManipulatorIO io) {
+    this.io = io;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // Update current RPM from the motor's encoder (example)
-    double leftRPM = leftOutakeEncoder.getVelocity();
-    SmartDashboard.putNumber("Main Shooter Current RPM", leftRPM);
+    io.updateInputs(inputs);
+    Logger.processInputs("CoralManipulator", inputs);
+  }
 
-    // Display secondary shooter RPM
-    double rightRPM = rightOutakeEncoder.getVelocity();
-    SmartDashboard.putNumber("Secondary Shooter RPM", rightRPM);
+  @AutoLogOutput
+  public void runOutake(double percentVolts) {
+    io.setVoltage(percentVolts * 12);
+  }
+
+  public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {
+    return runEnd(
+        () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),
+        () -> io.setVoltage(0.0));
+  }
+
+  public Command getCommand(Sensor coralSwitch) {
+    return new Command() {
+      @Override
+      public void execute() {
+        runOutake(0.35);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return !coralSwitch.getSwitch();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        runOutake(0);
+      }
+    };
   }
 }

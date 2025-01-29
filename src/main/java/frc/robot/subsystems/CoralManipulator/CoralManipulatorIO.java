@@ -11,10 +11,22 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Roller;
+package frc.robot.subsystems.CoralManipulator;
 
-public class RollerConstants {
-  public static final int rollerCanId = 15;
-  public static final double motorReduction = 20;
-  public static final int currentLimit = 40;
+import org.littletonrobotics.junction.AutoLog;
+
+public interface CoralManipulatorIO {
+  @AutoLog
+  public static class CoralManipulatorIOInputs {
+    public double positionRad = 0.0;
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double currentAmps = 0.0;
+  }
+
+  /** Update the set of loggable inputs. */
+  public default void updateInputs(CoralManipulatorIOInputs inputs) {}
+
+  /** Run open loop at the specified voltage. */
+  public default void setVoltage(double volts) {}
 }

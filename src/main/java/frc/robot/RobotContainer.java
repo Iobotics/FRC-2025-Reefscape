@@ -28,12 +28,14 @@ import frc.robot.subsystems.CoralFunnel.CoralFunnel;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSpark;
+import frc.robot.subsystems.CoralManipulator.CoralManipulator;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
+import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -57,11 +59,13 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
+  private final Sensor sensor;
   private final CoralFunnel coralFunnel;
 
   // Controller
-  private final CommandXboxController driveController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController driveController = new CommandXboxController(2);
+  private final CommandXboxController operatorController = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -71,21 +75,31 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
+        // drive =
+        //     new Drive(
+        //         new GyroIOPigeon2(),
+        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
+        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
+        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
+        //         new ModuleIOTalonFX(TunerConstants.BackRight));
+        // CHANGE
         drive =
             new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        sensor = new Sensor();
+
         coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
-
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
@@ -102,6 +116,8 @@ public class RobotContainer {
                     "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIOSim());
         break;
 
@@ -117,6 +133,8 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
         break;
     }
@@ -152,6 +170,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
@@ -229,6 +248,8 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             Commands.startEnd(() -> coralFunnel.runFunnel(0.2), () -> coralFunnel.runFunnel(0)));
+
+    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
   }
 
   /**
