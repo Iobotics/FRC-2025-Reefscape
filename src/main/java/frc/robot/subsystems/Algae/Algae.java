@@ -1,32 +1,19 @@
 package frc.robot.subsystems.Algae;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.EqualsUtil;
-import frc.robot.util.LoggedTunableNumber;
-import frc.robot.Constants;
-
 import static frc.robot.subsystems.Algae.AlgaeConstants.*;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Algae extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", gains.kP());
+
   private static final LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Gains/kI", gains.kI());
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Gains/kD", gains.kD());
   private static final LoggedTunableNumber kS =
@@ -37,33 +24,34 @@ public class Algae extends SubsystemBase {
       new LoggedTunableNumber("Arm/Gains/kA", gains.ffkA());
   private static final LoggedTunableNumber kG =
       new LoggedTunableNumber("Arm/Gains/kG", gains.ffkG());
-      private static final LoggedTunableNumber lowerLimitDegrees =
+  private static final LoggedTunableNumber lowerLimitDegrees =
       new LoggedTunableNumber("Arm/LowerLimitDegrees", minAngle.getDegrees());
   private static final LoggedTunableNumber upperLimitDegrees =
       new LoggedTunableNumber("Arm/UpperLimitDegrees", maxAngle.getDegrees());
 
+  public enum Goal {
+    DEFAULT(() -> 0),
+    UNJAM_INTAKE(new LoggedTunableNumber("Arm/UnjamDegrees", 40.0)),
+    STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 45.0)),
+    CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
 
+    private final DoubleSupplier armSetpointSupplier;
 
-              public enum Goal {
-                DEFAULT(() -> 0),
-                UNJAM_INTAKE(new LoggedTunableNumber("Arm/UnjamDegrees", 40.0)),
-                STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 45.0)),
-                CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
-            
-                private final DoubleSupplier armSetpointSupplier;
-            
-                private Goal(DoubleSupplier armSetpointSupplier) {
-                    this.armSetpointSupplier = armSetpointSupplier;
-                }
-            
-                private double getRads() {
-                  return Units.degreesToRadians(armSetpointSupplier.getAsDouble());
-                }
-              }
-                @AutoLogOutput private Goal goal = Goal.DEFAULT;
+    private Goal(DoubleSupplier armSetpointSupplier) {
+      this.armSetpointSupplier = armSetpointSupplier;
+    }
+
+    private double getRads() {
+      return Units.degreesToRadians(armSetpointSupplier.getAsDouble());
+    }
+  }
+
+  @AutoLogOutput private Goal goal = Goal.DEFAULT;
+
   public void setGoal(Goal newGoal) {
     goal = newGoal;
   }
+
   private boolean characterizing = false;
 
   private final AlgaeIO io;

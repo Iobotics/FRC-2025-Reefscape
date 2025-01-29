@@ -16,10 +16,7 @@ package frc.robot.subsystems.Algae;
 import static frc.robot.subsystems.Algae.AlgaeConstants.*;
 import static frc.robot.util.SparkUtil.ifOk;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -33,8 +30,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-
-import com.revrobotics.AbsoluteEncoder;
 import java.util.function.DoubleSupplier;
 
 /**
