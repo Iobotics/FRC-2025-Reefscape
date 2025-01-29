@@ -28,7 +28,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Algae.Algae;
 import frc.robot.subsystems.Algae.AlgaeIO;
 import frc.robot.subsystems.Algae.AlgaeIOSim;
-import frc.robot.subsystems.Algae.AlgaeIOSpark;
+import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
+import frc.robot.subsystems.CoralFeeder.CoralFeeder;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -83,7 +84,7 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        algae = new Algae(new AlgaeIOSpark());
+        algae = new Algae(new AlgaeIOSparkFlex());
 
         break;
 
@@ -201,10 +202,6 @@ public class RobotContainer {
     operatorController
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
-
-    operatorController
-        .rightBumper()
-        .whileTrue(Commands.startEnd(() -> algae.runOutake(0.35), () -> algae.runOutake(0)));
   }
 
   /**
