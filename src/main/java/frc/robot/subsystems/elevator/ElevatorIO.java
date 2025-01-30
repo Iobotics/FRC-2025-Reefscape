@@ -5,13 +5,14 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
   @AutoLog
   class ElevatorIOInputs {
-    public boolean motorConnected = true;
-    public double positionRotations = 0.0;
-    public double positionMeters = 0.0;
-    public double velocityMeters = 0.0;
-    public double torqueCurrentAmps = 0.0;
-    public double supplyCurrentAmps = 0.0;
-    public double appliedVolts = 0.0;
+    public boolean leaderMotorConnected = true;
+    public boolean followerMotorConnected = true;
+    public double[] positionRotations = new double[] {};
+    public double[] positionMeters = new double[] {};
+    public double[] velocityMeters = new double[] {};
+    public double[] torqueCurrentAmps = new double[] {};
+    public double[] supplyCurrentAmps = new double[] {};
+    public double[] appliedVolts = new double[] {};
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}
@@ -21,6 +22,8 @@ public interface ElevatorIO {
   default void runVolts(double volts) {}
 
   default void runSetpoint(double setpointMeters, double feedforward) {}
+
+  default void runCurrent(double amps) {}
 
   default void setPID(double p, double i, double d) {}
 }

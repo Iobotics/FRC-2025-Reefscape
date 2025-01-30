@@ -16,7 +16,7 @@ public class ElevatorConstants {
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(20.0, 0.0, 5.0, 0.0, 0.115, 0.0, 0.0);
-        default -> new Gains(0.0, 0.0, 0.0, 0.0, 1.0, 0.001, 0.15);
+        default -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
 
   public record Gains(

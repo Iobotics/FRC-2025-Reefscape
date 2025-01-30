@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -27,10 +28,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CoralFunnel.CoralFunnel;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
-import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSpark;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
-import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -95,10 +94,14 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
-        sensor = new Sensor();
 
-        coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        sensor = new Sensor();
+        coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
+        // CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        // sensor = new Sensor();
+
+        // coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -157,6 +160,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    SequentialCommandGroup score = new SequentialCommandGroup();
 
     // Configure the button bindings
     configureButtonBindings();
@@ -247,9 +252,14 @@ public class RobotContainer {
     operatorController
         .leftBumper()
         .whileTrue(
-            Commands.startEnd(() -> coralFunnel.runFunnel(0.2), () -> coralFunnel.runFunnel(0)));
+            Commands.startEnd(() -> coralFunnel.runFunnel(0.1), () -> coralFunnel.runFunnel(0)));
 
-    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    // operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            Commands.startEnd(() -> elevator.manualCurrent(75), () -> elevator.manualCurrent(0)));
   }
 
   /**

@@ -76,6 +76,10 @@ public class Elevator extends SubsystemBase {
     goal = Goal.STOW;
   }
 
+  public void manualCurrent(double amps) {
+    io.runCurrent(-amps);
+  }
+
   boolean closedLoop = true;
 
   public Elevator(ElevatorIO io) {
@@ -116,13 +120,13 @@ public class Elevator extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
-    io.runSetpoint(
-        setpointState.position,
-        feedforward.calculateWithVelocities(inputs.velocityMeters, setpointState.velocity));
+    // io.runSetpoint(
+    //     setpointState.position,
+    //     feedforward.calculateWithVelocities(inputs.velocityMeters[0], setpointState.velocity));
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
     Logger.recordOutput("Elevator/GoalPos", goalMeters);
-    measuredVisualizer.update(inputs.positionMeters);
+    // measuredVisualizer.update(inputs.positionMeters);
     setpointVisualizer.update(setpointState.position);
     goalVisualizer.update(goalMeters);
   }

@@ -39,11 +39,11 @@ public class ElevatorIOSim implements ElevatorIO {
       controllerNeedsReset = true;
     }
 
-    inputs.positionMeters = elevator.getPositionMeters();
-    inputs.velocityMeters = elevator.getVelocityMetersPerSecond();
-    inputs.supplyCurrentAmps = elevator.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = elevator.getCurrentDrawAmps();
-    inputs.appliedVolts = appliedVoltage;
+    // inputs.positionMeters = elevator.getPositionMeters();
+    // inputs.velocityMeters = elevator.getVelocityMetersPerSecond();
+    // inputs.supplyCurrentAmps = elevator.getCurrentDrawAmps();
+    // inputs.torqueCurrentAmps = elevator.getCurrentDrawAmps();
+    // inputs.appliedVolts = appliedVoltage;
 
     elevator.update(Constants.loopPeriodSecs);
     elevator.setInputVoltage(0.0);
