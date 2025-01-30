@@ -47,7 +47,6 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
 
   // PID constants
-
   private static final double kP = 0.0;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
@@ -77,9 +76,9 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
         Arm,
         new DoubleSupplier[] {Arm::getAppliedOutput, Arm::getBusVoltage},
         (values) -> inputs.appliedVolts = values[0] * values[1]);
-
-    ifOk(Arm, Arm::getOutputCurrent, (value) -> inputs.currentAmps = value);
+     ifOk(Arm, Arm::getOutputCurrent, (value) -> inputs.currentAmps = value); 
   }
+     
 
   /*  @Override
   public void setVoltage(double volts) {
@@ -99,16 +98,17 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   public void setVoltage(double volts) {
     Arm.setVoltage(volts);
   }
-
+/* 
   public void setPosition(double position) {
     encoder.setPosition(position);
   }
-  /*
+
+  */
       @Override
       public void stop() {
           Arm.stopMotor();
       }
-  */
+  
   //   @Override
   //   public void runSetpoint(double setpointRads, double ff){
   //     double feedforward = ArmFeedfoward.calculate(setpointRads, 0);
