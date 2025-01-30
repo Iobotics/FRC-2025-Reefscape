@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -37,6 +38,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final NeutralOut neutralOut = new NeutralOut();
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
   private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0);
+  private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
 
   public ElevatorIOTalonFX() {
     main = new TalonFX(19, "Carnivore");
@@ -93,9 +95,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 torqueCurrent.get(0),
                 tempCelsius.get(0))
             .isOK();
+
     inputs.followerMotorConnected =
         BaseStatusSignal.refreshAll(
                 appliedVoltage.get(1),
+                velocityRps.get(1),
                 supplyCurrent.get(1),
                 torqueCurrent.get(1),
                 tempCelsius.get(1))
@@ -125,7 +129,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runVolts(double volts) {
-    // volts = MathUtil.clamp(volts, -1.2, 1.2);
     main.setVoltage(volts);
   }
 
@@ -149,11 +152,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
     // main.setControl()
 
+    // main.setControl(
+    //     positionControl
+    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+    //         .withFeedForward(feedforward)
+    //         .withEnableFOC(true));
+
     main.setControl(
-        positionControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-            .withFeedForward(feedforward)
-            .withEnableFOC(true));
+      positionCurrentControl
+          .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+          .withFeedForward(feedforward)
+    );
   }
 
   // @Override

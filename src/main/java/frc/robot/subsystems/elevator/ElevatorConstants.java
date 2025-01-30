@@ -6,8 +6,8 @@ import frc.robot.Constants;
 
 public class ElevatorConstants {
   public static final double reduction = 5; // change to actual reduction
-  public static final double rotationsToMeters =
-      Math.PI * Units.inchesToMeters(1.5) * 1.5; // based off carriage distance to ground
+  public static final double drumDiameter = Units.inchesToMeters(1.5);
+  public static final double rotationsToMeters = Math.PI * drumDiameter * 2;
   public static final double maxHeight = Units.inchesToMeters(72);
 
   public static TrapezoidProfile.Constraints profileConstraints =
