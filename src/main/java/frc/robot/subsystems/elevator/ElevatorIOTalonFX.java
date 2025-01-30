@@ -159,10 +159,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     //         .withEnableFOC(true));
 
     main.setControl(
-      positionCurrentControl
-          .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-          .withFeedForward(feedforward)
-    );
+        positionCurrentControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withFeedForward(feedforward));
   }
 
   // @Override

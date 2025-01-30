@@ -120,9 +120,8 @@ public class Elevator extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
-    // io.runSetpoint(
-    //     setpointState.position,
-    //     feedforward.calculateWithVelocities(inputs.velocityMeters[0], setpointState.velocity));
+    io.runSetpoint(setpointState.position, feedforward.calculate(setpointState.velocity));
+    // feedforward.calculateWithVelocities(inputs.velocityMeters[0], setpointState.velocity));
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
     Logger.recordOutput("Elevator/GoalPos", goalMeters);
