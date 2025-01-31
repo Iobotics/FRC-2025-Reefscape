@@ -57,7 +57,7 @@ public class ElevatorIOSim implements ElevatorIO {
   }
 
   @Override
-  public void runSetpoint(double setpointMeters, double feedforward) {
+  public void runSetpoint(double setpointMeters) {
     if (!closedLoop) {
       controllerNeedsReset = true;
       closedLoop = true;
@@ -66,11 +66,11 @@ public class ElevatorIOSim implements ElevatorIO {
       controller.reset();
       controllerNeedsReset = false;
     }
-    runVolts(controller.calculate(elevator.getPositionMeters(), setpointMeters) + feedforward);
+    runVolts(controller.calculate(elevator.getPositionMeters(), setpointMeters));
   }
 
-  @Override
-  public void setPID(double p, double i, double d) {
-    controller.setPID(p, i, d);
-  }
+  // @Override
+  // public void setPID(double p, double i, double d) {
+  //   controller.setPID(p, i, d);
+  // }
 }

@@ -138,17 +138,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setPID(double p, double i, double d) {
+  public void setPID(double p, double i, double d, double v, double s, double a, double g) {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.Slot0.kP = p;
     config.Slot0.kI = i;
     config.Slot0.kD = d;
+    config.Slot0.kS = s;
+    config.Slot0.kV = v;
+    config.Slot0.kA = a;
+    config.Slot0.kG = g;
 
     main.getConfigurator().apply(config);
   }
 
   @Override
-  public void runSetpoint(double setpointMeters, double feedforward) {
+  public void runSetpoint(double setpointMeters) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
     // main.setControl()
 
@@ -160,8 +164,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     main.setControl(
         positionCurrentControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-            .withFeedForward(feedforward));
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations)));
   }
 
   // @Override

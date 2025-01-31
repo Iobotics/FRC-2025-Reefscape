@@ -98,7 +98,14 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", inputs);
 
     LoggedTunableNumber.ifChanged(
-        hashCode(), () -> io.setPID(kP.get(), kI.get(), kD.get()), kP, kI, kD);
+        hashCode(), () -> io.setPID(kP.get(), kI.get(), kD.get(), kV.get(), kS.get(), kA.get(), kG.get()), 
+        kP, 
+        kI, 
+        kD,
+        kV,
+        kS,
+        kA,
+        kG);
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
@@ -106,13 +113,13 @@ public class Elevator extends SubsystemBase {
                 new TrapezoidProfile(new Constraints(maxVelocity.get(), maxAcceleration.get())),
         maxVelocity,
         maxAcceleration);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> feedforward = new ElevatorFeedforward(kG.get(), kS.get(), kV.get(), kA.get()),
-        kG,
-        kS,
-        kV,
-        kA);
+    // LoggedTunableNumber.ifChanged(
+    //     hashCode(),
+    //     () -> feedforward = new ElevatorFeedforward(kG.get(), kS.get(), kV.get(), kA.get()),
+    //     kG,
+    //     kS,
+    //     kV,
+    //     kA);
 
     goalMeters = goal.getMeters();
 
@@ -120,7 +127,7 @@ public class Elevator extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
-    io.runSetpoint(setpointState.position, feedforward.calculate(setpointState.velocity));
+    io.runSetpoint(setpointState.position);
     // feedforward.calculateWithVelocities(inputs.velocityMeters[0], setpointState.velocity));
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
