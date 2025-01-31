@@ -24,11 +24,10 @@ public interface AlgaeIO {
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
-    public double[] supplyCurrentAmps = new double[] {};
-    public double[] torqueCurrentAmps = new double[] {};
+    public double supplyCurrentAmps = 0.0;
+    public double torqueCurrentAmps = 0.0;
     public double absoluteEncoderPositionRads = 0.0;
     public double relativeEncoderPositionRads = 0.0;
-    public double[] tempCelcius = new double[] {};
     public boolean absoluteEncoderConnected = true;
   }
 

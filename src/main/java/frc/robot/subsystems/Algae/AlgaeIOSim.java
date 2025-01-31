@@ -13,13 +13,14 @@
 
 package frc.robot.subsystems.Algae;
 
-import static frc.robot.subsystems.Algae.AlgaeConstants.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.subsystems.Algae.AlgaeConstants.*;
 
 public class AlgaeIOSim implements AlgaeIO {
   private static final double autoStartAngle = Units.degreesToRadians(80.0);
@@ -27,14 +28,8 @@ public class AlgaeIOSim implements AlgaeIO {
 
   private final DCMotorSim sim =
       new DCMotorSim(
-          DCMotorSim.getNEO(1),
-          GearRatio,
-          0.00912890116,
-          Armlength,
-          minAngle.getRadians(),
-          maxAngle.getRadians(),
-          true,
-          Units.degreesToRadians(0.0));
+          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.04, AlgaeConstants.GearRatio),
+          DCMotor.getNeoVortex(1));
 
   private final PIDController controller;
   private double appliedVoltage = 0.0;
@@ -76,26 +71,12 @@ public class AlgaeIOSim implements AlgaeIO {
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = sim.getCurrentDrawAmps();
 
-    inputs.supplyCurrentAmps = new double[] {sim.getCurrentDrawAmps()};
-    inputs.torqueCurrentAmps = new double[] {sim.getCurrentDrawAmps()};
-    inputs.tempCelcius = new double[] {0.0};
+    inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps();
   }
 
   @Override
   public void setVoltage(double volts) {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-  }
-
-  @Override
-  public void runSetpoint(double setpointRads, double feedforward) {
-    if (!closedLoop) {
-      controllerNeedsReset = true;
-      closedLoop = true;
-    }
-    if (controllerNeedsReset) {
-      controller.reset();
-      controllerNeedsReset = false;
-    }
-    runVolts(controller.calculate(sim.getAngleRads(), setpointRads + positionOffset) + feedforward);
   }
 }

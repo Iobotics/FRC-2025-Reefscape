@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Algae.Algae;
+import frc.robot.subsystems.Algae.Algae.Goalposition;
 import frc.robot.subsystems.Algae.AlgaeIO;
 import frc.robot.subsystems.Algae.AlgaeIOSim;
 import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
@@ -36,7 +37,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -189,7 +189,7 @@ public class RobotContainer {
 
     driveController.y().onFalse(Commands.runOnce(() -> drive.stop()));
 
-    operatorController
+    /*operatorController
         .a()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.stop()));
     operatorController
@@ -200,7 +200,24 @@ public class RobotContainer {
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.stop()));
     operatorController
         .y()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));*/
+
+    operatorController
+        .a()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.UNJAM_INTAKE), () -> algae.stop()));
+    operatorController
+        .b()
+        .whileTrue(
+            Commands.startEnd(
+                () -> algae.setGoal(Goalposition.STATION_INTAKE), () -> algae.stop()));
+    operatorController
+        .x()
+        .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));
+    operatorController
+        .y()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
   }
 
   /**
