@@ -30,6 +30,7 @@ import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -97,10 +98,10 @@ public class RobotContainer {
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
 
-        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        // CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
-        // CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         // sensor = new Sensor();
 
         // coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
@@ -240,23 +241,29 @@ public class RobotContainer {
 
     operatorController
         .a()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.returnToHome()));
     operatorController
         .b()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.returnToHome()));
     operatorController
         .x()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
     operatorController
         .y()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
-
-    operatorController
-        .leftBumper()
         .whileTrue(
-            Commands.startEnd(() -> coralFunnel.runFunnel(0.1), () -> coralFunnel.runFunnel(0)));
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
 
-    // operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    // operatorController
+    //     .leftBumper()
+    //     .whileTrue(
+    //         Commands.startEnd(() -> coralFunnel.runFunnel(0.1), () -> coralFunnel.runFunnel(0)));
+
+    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
+
+    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
     operatorController
         .rightBumper()

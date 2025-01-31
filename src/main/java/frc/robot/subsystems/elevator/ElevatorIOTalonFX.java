@@ -10,7 +10,9 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
@@ -19,6 +21,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 import java.util.List;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
@@ -38,13 +41,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final NeutralOut neutralOut = new NeutralOut();
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
   private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0);
+  private final VoltageOut voltageControl = new VoltageOut(0.0);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
+  private TalonFXConfiguration config = new TalonFXConfiguration();
 
   public ElevatorIOTalonFX() {
     main = new TalonFX(19, "Carnivore");
     follower = new TalonFX(20, "Carnivore");
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.CurrentLimits.SupplyCurrentLimit = 80; // change later
@@ -54,8 +58,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 0;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
-    main.getConfigurator().apply(config);
-    follower.getConfigurator().apply(config);
+    config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
 
     follower.setControl(new Follower(19, false));
 
@@ -129,7 +134,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runVolts(double volts) {
-    main.setVoltage(volts);
+    main.setControl(voltageControl.withOutput(volts));
   }
 
   @Override
@@ -139,7 +144,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPID(double p, double i, double d, double v, double s, double a, double g) {
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.Slot0.kP = p;
     config.Slot0.kI = i;
     config.Slot0.kD = d;
@@ -148,7 +152,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kA = a;
     config.Slot0.kG = g;
 
-    main.getConfigurator().apply(config);
+    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
   }
 
   @Override
@@ -156,15 +160,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
     // main.setControl()
 
-    // main.setControl(
-    //     positionControl
-    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-    //         .withFeedForward(feedforward)
-    //         .withEnableFOC(true));
-
     main.setControl(
-        positionCurrentControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations)));
+        positionControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withEnableFOC(true));
+
+    // main.setControl(
+    //     positionCurrentControl
+    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations)));
   }
 
   // @Override

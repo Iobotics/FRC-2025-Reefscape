@@ -68,19 +68,26 @@ public class Elevator extends SubsystemBase {
 
   @AutoLogOutput private Goal goal = Goal.STOW;
 
+  boolean closedLoop = true;
+
   public void setGoal(Goal newGoal) {
+    closedLoop = true;
     goal = newGoal;
   }
 
-  public void stop() {
+  public void returnToHome() {
     goal = Goal.STOW;
   }
 
   public void manualCurrent(double amps) {
-    io.runCurrent(-amps);
+    closedLoop = false;
+    io.runCurrent(amps);
   }
 
-  boolean closedLoop = true;
+  public void stop() {
+    closedLoop = false;
+    io.stop();
+  }
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -98,9 +105,10 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", inputs);
 
     LoggedTunableNumber.ifChanged(
-        hashCode(), () -> io.setPID(kP.get(), kI.get(), kD.get(), kV.get(), kS.get(), kA.get(), kG.get()), 
-        kP, 
-        kI, 
+        hashCode(),
+        () -> io.setPID(kP.get(), kI.get(), kD.get(), kV.get(), kS.get(), kA.get(), kG.get()),
+        kP,
+        kI,
         kD,
         kV,
         kS,
@@ -127,8 +135,9 @@ public class Elevator extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
-    io.runSetpoint(setpointState.position);
-    // feedforward.calculateWithVelocities(inputs.velocityMeters[0], setpointState.velocity));
+    if (closedLoop) {
+      io.runSetpoint(setpointState.position);
+    }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
     Logger.recordOutput("Elevator/GoalPos", goalMeters);

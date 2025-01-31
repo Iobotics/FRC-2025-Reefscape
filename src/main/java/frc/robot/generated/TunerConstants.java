@@ -102,7 +102,7 @@ public class TunerConstants {
 
   public static final SwerveDrivetrainConstants DrivetrainConstants =
       new SwerveDrivetrainConstants()
-          // .withCANBusName(kCANBus.getName())
+          .withCANBusName(kCANBus.getName())
           .withPigeon2Id(kPigeonId)
           .withPigeon2Configs(pigeonConfigs);
 
