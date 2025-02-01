@@ -25,6 +25,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Algae.Algae;
+import frc.robot.subsystems.Algae.Algae.Goalposition;
+import frc.robot.subsystems.Algae.AlgaeIO;
+import frc.robot.subsystems.Algae.AlgaeIOSim;
+import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
 import frc.robot.subsystems.CoralFunnel.CoralFunnel;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
 import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
@@ -39,7 +44,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -61,6 +65,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final Algae algae;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
   private final CoralFunnel coralFunnel;
@@ -68,6 +73,7 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController operatorController2 = new CommandXboxController(2); //change name later
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -97,6 +103,9 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        algae = new Algae(new AlgaeIOSparkFlex());
+
+        break;
 
         // CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
@@ -122,6 +131,7 @@ public class RobotContainer {
                     "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        algae = new Algae(new AlgaeIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIOSim());
@@ -139,12 +149,12 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        algae = new Algae(new AlgaeIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
         break;
     }
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -238,7 +248,8 @@ public class RobotContainer {
     // operatorController
     //     .pov(90)
     //     .whileTrue()
-
+  
+    // == Elevator Controls == 
     operatorController
         .a()
         .whileTrue(
@@ -253,14 +264,14 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
     operatorController
         .y()
+        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+    operatorController
+        .y()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
-
-    // operatorController
-    //     .leftBumper()
-    //     .whileTrue(
-    //         Commands.startEnd(() -> coralFunnel.runFunnel(0.1), () -> coralFunnel.runFunnel(0)));
-
+    
+    
+    // == Coral Manipulator Controls ==
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
 
     operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
@@ -269,6 +280,26 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.startEnd(() -> elevator.manualCurrent(75), () -> elevator.manualCurrent(0)));
+    
+    // == Algae Controls ==
+    operatorController2
+        .a()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.SCOREL4), () -> algae.stop()));
+    operatorController2
+        .b()
+        .whileTrue(
+            Commands.startEnd(
+                () -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
+    operatorController2
+        .x()
+        .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));
+    operatorController2
+        .y()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
+
+
   }
 
   /**
