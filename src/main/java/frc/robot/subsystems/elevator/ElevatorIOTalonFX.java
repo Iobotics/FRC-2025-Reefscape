@@ -7,16 +7,22 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
+import java.util.List;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   // Hardware
@@ -24,75 +30,101 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX follower;
 
   // Status Signals
-  private final StatusSignal<Angle> positionRotations;
-  private final StatusSignal<AngularVelocity> velocityRps;
-  private final StatusSignal<Voltage> appliedVoltage;
-  private final StatusSignal<Current> supplyCurrent;
-  private final StatusSignal<Current> torqueCurrent;
-  private final StatusSignal<Temperature> tempCelsius;
+  private final List<StatusSignal<Angle>> positionRotations;
+  private final List<StatusSignal<AngularVelocity>> velocityRps;
+  private final List<StatusSignal<Voltage>> appliedVoltage;
+  private final List<StatusSignal<Current>> supplyCurrent;
+  private final List<StatusSignal<Current>> torqueCurrent;
+  private final List<StatusSignal<Temperature>> tempCelsius;
 
   // Control
-  // private final TorqueCurrentFOC currentControl = new
-  // TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
   private final NeutralOut neutralOut = new NeutralOut();
-  private PIDController controller;
+  private final PositionVoltage positionControl = new PositionVoltage(0.0);
+  private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0);
+  private final VoltageOut voltageControl = new VoltageOut(0.0);
+  private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
+  private TalonFXConfiguration config = new TalonFXConfiguration();
 
   public ElevatorIOTalonFX() {
-    main = new TalonFX(19);
-    follower = new TalonFX(20);
+    main = new TalonFX(19, "Carnivore");
+    follower = new TalonFX(20, "Carnivore");
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.CurrentLimits.SupplyCurrentLimit = 40; // change later
+    config.CurrentLimits.SupplyCurrentLimit = 80; // change later
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    main.getConfigurator().apply(config);
-    follower.getConfigurator().apply(config);
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+    config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
 
     follower.setControl(new Follower(19, false));
 
-    positionRotations = main.getPosition();
-    velocityRps = main.getVelocity();
-    appliedVoltage = main.getMotorVoltage();
-    supplyCurrent = main.getSupplyCurrent();
-    torqueCurrent = main.getTorqueCurrent();
-    tempCelsius = main.getDeviceTemp();
-
-    controller = new PIDController(0.0, 0.0, 0.0);
+    positionRotations = List.of(main.getPosition(), follower.getPosition());
+    velocityRps = List.of(main.getVelocity(), follower.getVelocity());
+    appliedVoltage = List.of(main.getMotorVoltage(), follower.getMotorVoltage());
+    supplyCurrent = List.of(main.getSupplyCurrent(), follower.getSupplyCurrent());
+    torqueCurrent = List.of(main.getTorqueCurrent(), follower.getTorqueCurrent());
+    tempCelsius = List.of(main.getDeviceTemp(), follower.getDeviceTemp());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
-        positionRotations,
-        velocityRps,
-        appliedVoltage,
-        supplyCurrent,
-        torqueCurrent,
-        tempCelsius);
+        100,
+        positionRotations.get(0),
+        positionRotations.get(1),
+        velocityRps.get(0),
+        velocityRps.get(1),
+        appliedVoltage.get(0),
+        appliedVoltage.get(1),
+        supplyCurrent.get(0),
+        supplyCurrent.get(1),
+        torqueCurrent.get(0),
+        torqueCurrent.get(1),
+        tempCelsius.get(0),
+        tempCelsius.get(1));
 
     main.optimizeBusUtilization(0, 1.0);
+    follower.optimizeBusUtilization(0, 1.0);
   }
 
   public void updateInputs(ElevatorIOInputs inputs) {
-    inputs.motorConnected =
+    inputs.leaderMotorConnected =
         BaseStatusSignal.refreshAll(
-                positionRotations,
-                velocityRps,
-                appliedVoltage,
-                supplyCurrent,
-                torqueCurrent,
-                tempCelsius)
+                positionRotations.get(0),
+                velocityRps.get(0),
+                appliedVoltage.get(0),
+                supplyCurrent.get(0),
+                torqueCurrent.get(0),
+                tempCelsius.get(0))
             .isOK();
-    inputs.positionRotations = (positionRotations.getValueAsDouble()) / reduction;
-    inputs.positionMeters =
-        (positionRotations.getValueAsDouble() / reduction) * ElevatorConstants.rotationsToMeters;
+
+    inputs.followerMotorConnected =
+        BaseStatusSignal.refreshAll(
+                appliedVoltage.get(1),
+                velocityRps.get(1),
+                supplyCurrent.get(1),
+                torqueCurrent.get(1),
+                tempCelsius.get(1))
+            .isOK();
+
+    inputs.positionRotations =
+        positionRotations.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
     inputs.velocityMeters =
-        (velocityRps.getValueAsDouble() / reduction) * ElevatorConstants.rotationsToMeters;
-    // inputs.velocityRps =
-    //     velocityRps.getValueAsDouble() / reduction;
-    inputs.appliedVolts = appliedVoltage.getValueAsDouble();
-    inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
-    inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
-    // inputs.tempCelsius = tempCelsius.getValueAsDouble();
+        velocityRps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.appliedVolts =
+        appliedVoltage.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.supplyCurrentAmps =
+        supplyCurrent.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.torqueCurrentAmps =
+        torqueCurrent.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.positionMeters =
+        new double[] {
+          (inputs.positionRotations[0] / reduction) * ElevatorConstants.rotationsToMeters,
+          (inputs.positionRotations[0] / reduction) * ElevatorConstants.rotationsToMeters
+        };
   }
 
   @Override
@@ -102,31 +134,43 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runVolts(double volts) {
-    volts = MathUtil.clamp(volts, -1.2, 1.2);
-    main.setVoltage(volts);
+    main.setControl(voltageControl.withOutput(volts));
   }
 
   @Override
-  public void setPID(double p, double i, double d) {
-    controller = new PIDController(p, i, d);
+  public void runCurrent(double amps) {
+    main.setControl(currentControl.withOutput(amps).withMaxAbsDutyCycle(0.2));
   }
 
   @Override
-  public void runSetpoint(double setpointMeters, double feedforward) {
+  public void setPID(double p, double i, double d, double v, double s, double a, double g) {
+    config.Slot0.kP = p;
+    config.Slot0.kI = i;
+    config.Slot0.kD = d;
+    config.Slot0.kS = s;
+    config.Slot0.kV = v;
+    config.Slot0.kA = a;
+    config.Slot0.kG = g;
 
-    runVolts(
-        controller.calculate(
-                    (positionRotations.getValueAsDouble() / reduction)
-                        * ElevatorConstants.rotationsToMeters,
-                    setpointMeters / ElevatorConstants.rotationsToMeters)
-                * reduction
-            + feedforward);
-    // currentControl.setGoal(setpointRotations * reduction);
-    // runVolts(currentControl.calculate(positionRotations.getValueAsDouble() / reduction) +
-    // feedforward);
+    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+  }
+
+  @Override
+  public void runSetpoint(double setpointMeters) {
+    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+    // main.setControl()
+
+    main.setControl(
+        positionControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withEnableFOC(true));
+
+    // main.setControl(
+    //     positionCurrentControl
+    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations)));
   }
 
   // @Override
-  // public voitalone(boolean enable) {
+  // public void (boolean enable) {
   //   talon.setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.talon }
 }

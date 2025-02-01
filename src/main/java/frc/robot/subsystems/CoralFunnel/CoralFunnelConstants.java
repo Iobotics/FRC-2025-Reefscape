@@ -11,10 +11,15 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Roller;
+package frc.robot.subsystems.CoralFunnel;
 
-public class RollerConstants {
-  public static final int rollerCanId = 15;
-  public static final double motorReduction = 20;
-  public static final int currentLimit = 40;
+/**
+ * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
+ * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
+ * (log replay from a file).
+ */
+public final class CoralFunnelConstants {
+  public static final double intakeMotorReduction = 25;
+  public static final int coralFunnelCanId = 13;
+  public static final int currentLimit = 20;
 }

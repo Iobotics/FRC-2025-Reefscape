@@ -13,10 +13,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -37,6 +40,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+  private Alert canAlert;
+  private CANBus bus;
 
   public Robot() {
     // Record metadata
@@ -63,6 +68,7 @@ public class Robot extends LoggedRobot {
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
+        SignalLogger.setPath("/U/ctre-logs/");
         break;
 
       case SIM:
@@ -98,6 +104,9 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    canAlert = new Alert("CAN util over 80%", Alert.AlertType.kWarning);
+    bus = new CANBus("Carnivore");
+
     // https://pathplanner.dev/pplib-follow-a-single-path.html#java-warmup
     FollowPathCommand.warmupCommand().schedule();
 
@@ -111,6 +120,13 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     // Switch thread to high priority to improve loop timing
     Threads.setCurrentThreadPriority(true, 99);
+
+    float busUtil = bus.getStatus().BusUtilization;
+    Logger.recordOutput("CANBus/Utilization", busUtil);
+
+    if (busUtil > 0.8) {
+      canAlert.set(true);
+    }
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
