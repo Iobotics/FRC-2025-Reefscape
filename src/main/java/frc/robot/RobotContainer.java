@@ -205,12 +205,12 @@ public class RobotContainer {
     operatorController
         .a()
         .whileTrue(
-            Commands.startEnd(() -> algae.setGoal(Goalposition.UNJAM_INTAKE), () -> algae.stop()));
+            Commands.startEnd(() -> algae.setGoal(Goalposition.SCOREL4), () -> algae.stop()));
     operatorController
         .b()
         .whileTrue(
             Commands.startEnd(
-                () -> algae.setGoal(Goalposition.STATION_INTAKE), () -> algae.stop()));
+                () -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
     operatorController
         .x()
         .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));

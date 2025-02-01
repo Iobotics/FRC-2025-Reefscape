@@ -14,7 +14,9 @@
 package frc.robot.subsystems.Algae;
 
 import static frc.robot.subsystems.Algae.AlgaeConstants.*;
+import static frc.robot.util.SparkUtil.*;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -27,7 +29,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 /**
  * This roller implementation is for Spark devices. It defaults to brushless control, but can be
@@ -38,7 +39,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   // convert to degrees using gear box
   // right arm motor declaration
   private final SparkFlex Arm = new SparkFlex(AlgaeCANID, MotorType.kBrushless);
-  private final DutyCycleEncoder encoder = new DutyCycleEncoder(encoderPin, 360, 180);
+  private final AbsoluteEncoder encoder = Arm.getAbsoluteEncoder();
   private final SparkClosedLoopController pid = Arm.getClosedLoopController();
   private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -49,32 +50,45 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   private static final double kMaxOutput = 1.0;
   private static final double kMinOutput = -1.0;
 
+  private SparkFlexConfig config;
+
   public AlgaeIOSparkFlex() {
 
     // double targetPosition = 5000;
     // Arm.getEncoder().setPosition(0);
     // motor.set(ControlType)
-    SparkFlexConfig config = new SparkFlexConfig();
-    config.inverted(false).idleMode(IdleMode.kCoast);
+    config = new SparkFlexConfig();
+    config.inverted(false).idleMode(IdleMode.kBrake);
     config
         .closedLoop
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(kP, kI, kD)
         .outputRange(-1, 1);
-    Arm.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    config.smartCurrentLimit(40);
+    tryUntilOk(
+        Arm,
+        5,
+        () ->
+            Arm.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
   }
 
-  private double position = 0.0;
-  private double velocity = 0.0;
-  private double volts = 0.0;
-  private double Amps = 0.0;
+  @Override
+  public void setPID(double p, double i, double d) {
+    config.closedLoop.pid(p, i, d);
+
+    tryUntilOk(
+        Arm,
+        5,
+        () ->
+            Arm.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+  }
 
   @Override
   public void updateInputs(AlgaeIOInputs inputs) {
-    inputs.positionRad = Units.rotationsToRadians(position);
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocity);
-    inputs.appliedVolts = volts;
-    inputs.currentAmps = Amps;
+    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition());
+    inputs.velocityRadPerSec = Units.rotationsToRadians(encoder.getVelocity());
+    inputs.appliedVolts = Arm.getBusVoltage();
+    inputs.currentAmps = Arm.getOutputCurrent();
   }
 
   @Override

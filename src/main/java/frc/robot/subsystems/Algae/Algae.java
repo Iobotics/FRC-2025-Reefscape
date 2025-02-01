@@ -8,6 +8,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.util.EqualsUtil;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.BooleanSupplier;
@@ -36,8 +37,8 @@ public class Algae extends SubsystemBase {
 
   public enum Goalposition {
     DEFAULT(() -> 0),
-    UNJAM_INTAKE(new LoggedTunableNumber("Arm/UnjamDegrees", 40.0)),
-    STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 45.0)),
+    SCOREL4(new LoggedTunableNumber("Arm/ScoreL4", 40.0)),
+    INTAKEALGAE(new LoggedTunableNumber("Arm/IntakeAlgae", 45.0)),
     CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
 
     private final DoubleSupplier armSetpointSupplier;
@@ -97,6 +98,15 @@ public class Algae extends SubsystemBase {
         kG,
         kV,
         kA);
+    
+    setpointState = profile.calculate(
+      Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
+
+    
+    double ffVolts = ff.calculate(
+      Units.degreesToRadians(90-setpointState.position), 
+      -setpointState.velocity);
+
 
     setBrakeMode(!coastSupplier.getAsBoolean());
     io.runSetpoint(
