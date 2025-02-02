@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -28,6 +29,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
+import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -57,10 +59,11 @@ public class RobotContainer {
   private final Elevator elevator;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
-
+  private final LED LED;
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
   private final CommandXboxController operatorController = new CommandXboxController(0);
+  private final CommandXboxController ledOp = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -91,6 +94,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOTalonFX());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         sensor = new Sensor();
+        LED = new LED();
 
         break;
       case SIM:
@@ -110,6 +114,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
+        LED = new LED();
         break;
 
       default:
@@ -126,6 +131,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
+        LED = new LED();
         break;
     }
 
@@ -211,6 +217,23 @@ public class RobotContainer {
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
 
+    //  ledOp.leftBumper().whileTrue(new StartEndCommand(() -> LED.onBlue(), () -> LED.onRed(),
+    // LED));
+    ledOp
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> LED.onBlue().schedule(), 
+                () -> LED.onRed().schedule(), 
+                LED // Subsystem
+                ));
+
+    // ledOp.rightBumper().onTrue(Commands.runOnce(() -> LED.onRed()));
+    // .whileTrue(commands.startEnd(()->))
+    /**
+     * ledOp .leftBumper() .onTrue( Commands.runOnce( () -> { if (isBlue) { LED.onBlue(); } else {
+     * LED.onRed(); } isBlue = !isBlue; // Toggle the state }));
+     */
     operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
   }
 
