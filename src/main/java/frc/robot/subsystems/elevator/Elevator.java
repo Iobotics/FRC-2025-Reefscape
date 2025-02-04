@@ -32,6 +32,15 @@ public class Elevator extends SubsystemBase {
   private static final LoggedTunableNumber kA =
       new LoggedTunableNumber("Elevator/kA", gains.ffkA());
 
+  private static final LoggedTunableNumber maxVelocityMotionMagic =
+      new LoggedTunableNumber(
+          "Elevator/MotionMagic/Velocity", motionMagicConstraints.velocity());
+  private static final LoggedTunableNumber maxAccelerationMotionMagic =
+      new LoggedTunableNumber(
+          "Elevator/MotionMagic/Acceleration", motionMagicConstraints.acceleration());
+  private static final LoggedTunableNumber maxJerkMotionMagic =
+      new LoggedTunableNumber("Elevator/MotionMagic/Jerk", motionMagicConstraints.jerk());
+
   public final ElevatorIO io;
   public final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
@@ -121,13 +130,14 @@ public class Elevator extends SubsystemBase {
                 new TrapezoidProfile(new Constraints(maxVelocity.get(), maxAcceleration.get())),
         maxVelocity,
         maxAcceleration);
-    // LoggedTunableNumber.ifChanged(
-    //     hashCode(),
-    //     () -> feedforward = new ElevatorFeedforward(kG.get(), kS.get(), kV.get(), kA.get()),
-    //     kG,
-    //     kS,
-    //     kV,
-    //     kA);
+
+    LoggedTunableNumber.ifChanged(
+      hashCode(), 
+      () -> io.setMotionMagicConstraints(
+        maxVelocityMotionMagic.get(), maxAccelerationMotionMagic.get(), maxJerkMotionMagic.get()), 
+      maxVelocityMotionMagic,
+      maxAccelerationMotionMagic,
+      maxJerkMotionMagic);
 
     goalMeters = goal.getMeters();
 
@@ -135,12 +145,18 @@ public class Elevator extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
+    // setpoint code, comment out if using motion magic
+    // if (closedLoop) {
+    //   io.runSetpoint(
+    //       setpointState.position,
+    //       kG.get()
+    //           + kV.get() * setpointState.velocity
+    //           + kS.get() * Math.signum(setpointState.velocity));
+    // }
+
+    // motion magic setpoint code
     if (closedLoop) {
-      io.runSetpoint(
-          setpointState.position,
-          kG.get()
-              + kV.get() * setpointState.velocity
-              + kS.get() * Math.signum(setpointState.velocity));
+      io.runSetpointMotionMagic(goalMeters, kG.get());
     }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);

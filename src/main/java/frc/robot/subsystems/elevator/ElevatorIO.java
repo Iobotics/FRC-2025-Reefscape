@@ -13,6 +13,7 @@ public interface ElevatorIO {
     public double[] torqueCurrentAmps = new double[] {};
     public double[] supplyCurrentAmps = new double[] {};
     public double[] appliedVolts = new double[] {};
+    public double[] setpointRotations = new double[] {};
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}
@@ -23,7 +24,11 @@ public interface ElevatorIO {
 
   default void runSetpoint(double setpointMeters, double feedforward) {}
 
+  default void runSetpointMotionMagic(double setpointMeters, double feedforward) {}
+
   default void runCurrent(double amps) {}
+
+  default void setMotionMagicConstraints(double velocity, double acceleration, double jerk) {}
 
   default void setPID(double p, double i, double d, double v, double s, double a, double g) {}
 }

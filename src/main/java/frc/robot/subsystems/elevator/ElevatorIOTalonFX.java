@@ -1,11 +1,14 @@
 package frc.robot.subsystems.elevator;
 
+import static frc.robot.subsystems.elevator.ElevatorConstants.motionMagicConstraints;
 import static frc.robot.subsystems.elevator.ElevatorConstants.reduction;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -21,6 +24,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.elevator.ElevatorConstants.motionMagicConstraints;
 import frc.robot.util.PhoenixUtil;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -37,6 +41,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final List<StatusSignal<Current>> supplyCurrent;
   private final List<StatusSignal<Current>> torqueCurrent;
   private final List<StatusSignal<Temperature>> tempCelsius;
+  private final List<StatusSignal<Double>> setpointRotations;
 
   // Control
   private final NeutralOut neutralOut = new NeutralOut();
@@ -45,6 +50,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final VoltageOut voltageControl = new VoltageOut(0.0);
   private final Follower followerControl = new Follower(19, false);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
+
+  private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl = 
+    new DynamicMotionMagicTorqueCurrentFOC(
+      0.0,
+      motionMagicConstraints.velocity(),
+      motionMagicConstraints.acceleration(),
+      motionMagicConstraints.jerk());
+
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
   public ElevatorIOTalonFX() {
@@ -57,14 +70,22 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // config.CurrentLimits.SupplyCurrentLimitEnable = true;
     // config.CurrentLimits.SupplyCurrentLowerLimit = 60;
     // config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
-    // config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-    // config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = 0;
     // config.CurrentLimits.StatorCurrentLimit = 160;
     config.HardwareLimitSwitch.ForwardLimitEnable = false;
     config.HardwareLimitSwitch.ReverseLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+
+    // motion magic configs
+    config.MotionMagic.MotionMagicAcceleration = 100;
+    config.MotionMagic.MotionMagicCruiseVelocity = 50;
+    config.MotionMagic.MotionMagicJerk = 1000;
+
+    main.getClosedLoopReference();
+
     PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
     PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
 
@@ -76,6 +97,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     supplyCurrent = List.of(main.getSupplyCurrent(), follower.getSupplyCurrent());
     torqueCurrent = List.of(main.getTorqueCurrent(), follower.getTorqueCurrent());
     tempCelsius = List.of(main.getDeviceTemp(), follower.getDeviceTemp());
+    setpointRotations = List.of(main.getClosedLoopReference(), follower.getClosedLoopReference());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
@@ -131,6 +153,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
           (inputs.positionRotations[0] / reduction) * ElevatorConstants.rotationsToMeters,
           (inputs.positionRotations[0] / reduction) * ElevatorConstants.rotationsToMeters
         };
+    inputs.setpointRotations =
+        setpointRotations.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
 
   @Override
@@ -162,6 +186,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
+  public void setMotionMagicConstraints(double velocity, double acceleration, double jerk) {
+    config.MotionMagic.MotionMagicAcceleration = acceleration;
+    config.MotionMagic.MotionMagicCruiseVelocity = velocity;
+    config.MotionMagic.MotionMagicJerk = jerk;
+
+    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+
+    motionMagicControl.Velocity = velocity;
+    motionMagicControl.Acceleration = acceleration;
+    motionMagicControl.Jerk = jerk;
+  }
+
+  @Override
   public void runSetpoint(double setpointMeters, double feedforward) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
 
@@ -179,6 +216,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     //     positionCurrentControl
     //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
     //         .withFeedForward(feedforward));
+  }
+
+  @Override
+  public void runSetpointMotionMagic(double setpointMeters, double feedforward) {
+    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+
+    main.setControl(
+        motionMagicControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withFeedForward(feedforward)
+            .withSlot(0));
   }
 
   // @Override
