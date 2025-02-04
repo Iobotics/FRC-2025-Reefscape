@@ -2,6 +2,7 @@ package frc.robot.subsystems.CoralManipulator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.Sensor;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -10,6 +11,8 @@ import org.littletonrobotics.junction.Logger;
 public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private final CoralManipulatorIO io;
+
+  public boolean touchingManipulator = false;
 
   private final CoralManipulatorIOInputsAutoLogged inputs =
       new CoralManipulatorIOInputsAutoLogged();
@@ -37,11 +40,12 @@ public class CoralManipulator extends SubsystemBase {
         () -> io.setVoltage(0.0));
   }
 
-  public Command getCommand(Sensor coralSwitch) {
+  public Command getCommand(Sensor coralSwitch, LED led) {
     return new Command() {
       @Override
       public void execute() {
         runOutake(0.35);
+        led.applyLED(led.yellow);
       }
 
       @Override
@@ -51,7 +55,9 @@ public class CoralManipulator extends SubsystemBase {
 
       @Override
       public void end(boolean interrupted) {
+        touchingManipulator = true;
         runOutake(0);
+        led.applyLED(led.green);
       }
     };
   }

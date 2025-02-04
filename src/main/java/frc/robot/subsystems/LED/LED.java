@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LED extends SubsystemBase {
   private static final int kPort = 9;
-  private static final int kLength = 26;
+  private static final int kLength = 178;
 
   private final AddressableLED m_led;
   private final AddressableLEDBuffer m_buffer;
@@ -17,6 +17,8 @@ public class LED extends SubsystemBase {
   public final LEDPattern red;
   public final LEDPattern blue;
   public final LEDPattern black;
+  public final LEDPattern green;
+  public final LEDPattern yellow;
 
   public LED() {
     m_led = new AddressableLED(kPort);
@@ -28,11 +30,15 @@ public class LED extends SubsystemBase {
     red = LEDPattern.solid(Color.kRed);
     blue = LEDPattern.solid(Color.kBlue);
     black = LEDPattern.solid(Color.kBlack);
+    green = LEDPattern.solid(Color.kGreen);
+    yellow = LEDPattern.solid(Color.kYellow);
 
     // Set the default command to turn the strip off, otherwise the last colors written by
     // the last command to run will continue to be displayed.
     // Note: Other default patterns could be used instead!
-    setDefaultCommand(onBlue());
+    // setDefaultCommand(onBlue());
+    red.applyTo(m_buffer);
+    m_led.setData(m_buffer);
   }
 
   @Override
@@ -41,7 +47,7 @@ public class LED extends SubsystemBase {
     m_led.setData(m_buffer);
   }
 
-  private void applyLED(LEDPattern pattern) {
+  public void applyLED(LEDPattern pattern) {
     pattern.applyTo(m_buffer);
     m_led.setData(m_buffer);
   }
@@ -61,5 +67,9 @@ public class LED extends SubsystemBase {
 
   public Command onBlue() {
     return run(() -> applyLED(this.blue));
+  }
+
+  public Command onGreen() {
+    return run(() -> applyLED(this.green));
   }
 }

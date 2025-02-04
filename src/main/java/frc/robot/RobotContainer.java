@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -63,7 +62,6 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(2);
   private final CommandXboxController operatorController = new CommandXboxController(0);
-  private final CommandXboxController ledOp = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -115,6 +113,7 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
+        LED.onRed();
         break;
 
       default:
@@ -132,6 +131,7 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
+        LED.onRed();
         break;
     }
 
@@ -219,14 +219,6 @@ public class RobotContainer {
 
     //  ledOp.leftBumper().whileTrue(new StartEndCommand(() -> LED.onBlue(), () -> LED.onRed(),
     // LED));
-    ledOp
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> LED.onBlue().schedule(), 
-                () -> LED.onRed().schedule(), 
-                LED // Subsystem
-                ));
 
     // ledOp.rightBumper().onTrue(Commands.runOnce(() -> LED.onRed()));
     // .whileTrue(commands.startEnd(()->))
@@ -234,7 +226,7 @@ public class RobotContainer {
      * ledOp .leftBumper() .onTrue( Commands.runOnce( () -> { if (isBlue) { LED.onBlue(); } else {
      * LED.onRed(); } isBlue = !isBlue; // Toggle the state }));
      */
-    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
   }
 
   /**
