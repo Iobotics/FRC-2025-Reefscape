@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 
@@ -15,13 +16,13 @@ public class ElevatorIOSim implements ElevatorIO {
   ElevatorSim elevator =
       new ElevatorSim(
           LinearSystemId.createElevatorSystem(
-              DCMotor.getKrakenX60(2), 7.2, Units.inchesToMeters(0.75), reduction),
+              DCMotor.getKrakenX60(2), 7.2, Units.inchesToMeters(1.5), reduction),
           DCMotor.getKrakenX60(2),
           0.,
           ElevatorConstants.maxHeight,
           true,
           0.,
-          new double[] {0.01, 0.01});
+          new double[] {0.0, 0.0});
 
   private PIDController controller;
   private boolean controllerNeedsReset = false;
@@ -38,6 +39,13 @@ public class ElevatorIOSim implements ElevatorIO {
     if (DriverStation.isDisabled()) {
       controllerNeedsReset = true;
     }
+    inputs.positionMeters = new double[] {elevator.getPositionMeters()};
+    inputs.velocityMeters = new double[] {elevator.getVelocityMetersPerSecond()};
+    inputs.supplyCurrentAmps = new double[] {elevator.getCurrentDrawAmps()};
+    inputs.torqueCurrentAmps = new double[] {elevator.getCurrentDrawAmps()};
+    inputs.appliedVolts = new double[] {appliedVoltage};
+    inputs.positionRotations =
+        new double[] {elevator.getPositionMeters() / (2 * Math.PI * reduction * rotationsToMeters)};
 
     // inputs.positionMeters = elevator.getPositionMeters();
     // inputs.velocityMeters = elevator.getVelocityMetersPerSecond();

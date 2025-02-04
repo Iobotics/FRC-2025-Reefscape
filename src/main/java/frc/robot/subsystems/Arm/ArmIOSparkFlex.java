@@ -11,9 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Arm;
 
-import static frc.robot.subsystems.Algae.AlgaeConstants.*;
+import static frc.robot.subsystems.Arm.ArmConstants.*;
 import static frc.robot.util.SparkUtil.*;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -34,10 +34,10 @@ import edu.wpi.first.math.util.Units;
  * easily adapted for a brushed motor. A Spark Flex can be used by swapping all instances of
  * "SparkMax" with "SparkFlex".
  */
-public class AlgaeIOSparkFlex implements AlgaeIO {
+public class ArmIOSparkFlex implements ArmIO {
   // convert to degrees using gear box
   // right arm motor declaration
-  private final SparkFlex Arm = new SparkFlex(AlgaeCANID, MotorType.kBrushless);
+  private final SparkFlex Arm = new SparkFlex(ArmCANID, MotorType.kBrushless);
   private final AbsoluteEncoder encoder = Arm.getAbsoluteEncoder();
   private final SparkClosedLoopController pid = Arm.getClosedLoopController();
   // private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
@@ -51,7 +51,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
 
   private SparkFlexConfig config;
 
-  public AlgaeIOSparkFlex() {
+  public ArmIOSparkFlex() {
 
     // double targetPosition = 5000;
     // Arm.getEncoder().setPosition(0);
@@ -83,7 +83,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   }
 
   @Override
-  public void updateInputs(AlgaeIOInputs inputs) {
+  public void updateInputs(ArmIOInputs inputs) {
     inputs.positionRad = Units.rotationsToRadians(encoder.getPosition());
     inputs.velocityRadPerSec = Units.rotationsToRadians(encoder.getVelocity());
     inputs.appliedVolts = Arm.getAppliedOutput() * 12;

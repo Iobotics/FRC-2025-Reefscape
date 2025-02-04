@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -20,15 +20,15 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.subsystems.Algae.AlgaeConstants.*;
+import frc.robot.subsystems.Arm.ArmConstants.*;
 
-public class AlgaeIOSim implements AlgaeIO {
+public class ArmIOSim implements ArmIO {
   private static final double autoStartAngle = Units.degreesToRadians(80.0);
   private double appliedVolts = 0.0;
 
   private final DCMotorSim sim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.04, AlgaeConstants.GearRatio),
+          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.04, ArmConstants.GearRatio),
           DCMotor.getNeoVortex(1));
 
   private final PIDController controller;
@@ -39,19 +39,13 @@ public class AlgaeIOSim implements AlgaeIO {
   private boolean closedLoop = true;
   private boolean wasNotAuto = true;
 
-  public AlgaeIOSim() {
+  public ArmIOSim() {
     controller = new PIDController(0.0, 0.0, 0.0);
     sim.setState(0.0, 0.0);
-    setPosition(0.0);
-  }
-
-  private void setPosition(double d) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setPosition'");
   }
 
   @Override
-  public void updateInputs(AlgaeIOInputs inputs) {
+  public void updateInputs(ArmIOInputs inputs) {
     sim.setInput(appliedVolts);
     sim.update(0.02);
     // sim.update(Constants.loopPeriodSecs);

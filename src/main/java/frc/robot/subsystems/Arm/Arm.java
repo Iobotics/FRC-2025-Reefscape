@@ -1,6 +1,6 @@
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Arm;
 
-import static frc.robot.subsystems.Algae.AlgaeConstants.*;
+import static frc.robot.subsystems.Arm.ArmConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -16,7 +16,7 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Algae extends SubsystemBase {
+public class Arm extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Gains/kP", gains.kP());
 
@@ -74,11 +74,11 @@ public class Algae extends SubsystemBase {
 
   private boolean characterizing = false;
 
-  private final AlgaeIO io;
+  private final ArmIO io;
 
-  private final AlgaeIOInputsAutoLogged inputs = new AlgaeIOInputsAutoLogged();
+  private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
 
-  public Algae(AlgaeIO io) {
+  public Arm(ArmIO io) {
     this.io = io;
     ff = new ArmFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
   }

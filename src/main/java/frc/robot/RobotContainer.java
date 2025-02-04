@@ -25,11 +25,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Algae.Algae;
-import frc.robot.subsystems.Algae.Algae.Goalposition;
-import frc.robot.subsystems.Algae.AlgaeIO;
-import frc.robot.subsystems.Algae.AlgaeIOSim;
-import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
+import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Arm.Arm.Goalposition;
+import frc.robot.subsystems.Arm.ArmIO;
+import frc.robot.subsystems.Arm.ArmIOSim;
+import frc.robot.subsystems.Arm.ArmIOSparkFlex;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
@@ -64,7 +64,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
-  private final Algae algae;
+  private final Arm arm;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
   private final LED LED;
@@ -102,8 +102,8 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        // algae = new Algae(new AlgaeIOSparkFlex());
-        algae = new Algae(new AlgaeIOSparkFlex());
+        // arm = new arm(new armIOSparkFlex());
+        arm = new Arm(new ArmIOSparkFlex());
 
         sensor = new Sensor();
         LED = new LED();
@@ -125,7 +125,7 @@ public class RobotContainer {
                     "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
-        algae = new Algae(new AlgaeIOSim());
+        arm = new Arm(new ArmIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
@@ -143,7 +143,7 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
-        algae = new Algae(new AlgaeIO() {});
+        arm = new Arm(new ArmIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
@@ -271,22 +271,20 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(() -> elevator.manualCurrent(55), () -> elevator.manualCurrent(0)));
 
-    // == Algae Controls ==
+    // == arm Controls ==
     operatorController2
         .a()
-        .whileTrue(
-            Commands.startEnd(() -> algae.setGoal(Goalposition.SCOREL4), () -> algae.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.SCOREL4), () -> arm.stop()));
     operatorController2
         .b()
         .whileTrue(
-            Commands.startEnd(() -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
+            Commands.startEnd(() -> arm.setGoal(Goalposition.INTAKEALGAE), () -> arm.stop()));
     operatorController2
         .x()
-        .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.CUSTOM), () -> arm.stop()));
     operatorController2
         .y()
-        .whileTrue(
-            Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> arm.stop()));
 
     driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
     driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
@@ -296,13 +294,11 @@ public class RobotContainer {
     //         Commands.startEnd(
     //             () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
 
-    driveController
-        .pov(0)
-        .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
+    driveController.pov(0).whileTrue(Commands.startEnd(() -> arm.runVolts(1.2), () -> arm.stop()));
 
     driveController
         .pov(180)
-        .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.runVolts(-1.2), () -> arm.stop()));
   }
 
   /**

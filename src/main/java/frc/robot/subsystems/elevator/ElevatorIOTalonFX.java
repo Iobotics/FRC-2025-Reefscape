@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -69,7 +68,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
     PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
 
-    follower.setControl(new Follower(19, false));
+    follower.setControl(followerControl);
 
     positionRotations = List.of(main.getPosition(), follower.getPosition());
     velocityRps = List.of(main.getVelocity(), follower.getVelocity());
@@ -174,8 +173,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
             .withEnableFOC(true)
             .withFeedForward(feedforward));
-
-    follower.setControl(new StrictFollower(19));
 
     //
     // main.setControl(

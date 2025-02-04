@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,13 +19,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class AlgaeConstants {
+public class ArmConstants {
 
   public static final Rotation2d positionTolerance = Rotation2d.fromDegrees(3.0);
   public static final Translation2d armOrigin = new Translation2d(-0.238, 0.298);
   public static final Rotation2d minAngle = Rotation2d.fromDegrees(0);
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(360);
-  public static final int AlgaeCANID = 12;
+  public static final int ArmCANID = 12;
   public static final int currentLimit = 40;
   public static final double GearRatio = 75.0;
 

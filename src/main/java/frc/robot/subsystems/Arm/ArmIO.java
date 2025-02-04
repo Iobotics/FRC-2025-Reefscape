@@ -11,13 +11,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.Algae;
+package frc.robot.subsystems.Arm;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface AlgaeIO {
+public interface ArmIO {
   @AutoLog
-  public static class AlgaeIOInputs {
+  public static class ArmIOInputs {
     public boolean motorConnected = true;
 
     public double positionRad = 0.0;
@@ -32,7 +32,7 @@ public interface AlgaeIO {
   }
 
   /** Update the set of loggable inputs. */
-  public default void updateInputs(AlgaeIOInputs inputs) {}
+  public default void updateInputs(ArmIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
