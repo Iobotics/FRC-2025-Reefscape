@@ -136,7 +136,11 @@ public class Elevator extends SubsystemBase {
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalMeters, 0.0));
 
     if (closedLoop) {
-      io.runSetpoint(setpointState.position, kG.get() + kV.get() * setpointState.velocity);
+      io.runSetpoint(
+          setpointState.position,
+          kG.get()
+              + kV.get() * setpointState.velocity
+              + kS.get() * Math.signum(setpointState.velocity));
     }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);

@@ -54,13 +54,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.CurrentLimits.SupplyCurrentLimit = 100; // change later
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 60;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
-    config.CurrentLimits.StatorCurrentLimit = 160;
+    // config.CurrentLimits.SupplyCurrentLimit = 100; // change later
+    // config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    // config.CurrentLimits.SupplyCurrentLowerLimit = 60;
+    // config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
+    // config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+    // config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+    // config.CurrentLimits.StatorCurrentLimit = 160;
     config.HardwareLimitSwitch.ForwardLimitEnable = false;
     config.HardwareLimitSwitch.ReverseLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
@@ -169,17 +169,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     Logger.recordOutput("Elevator/SetpointRotations", setpointRotations);
     // main.setControl()
 
-    // main.setControl( // kG 0.5 kV 1000.
-    //     positionControl
-    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-    //         .withEnableFOC(false));
+    main.setControl( // kG 0.5 kV 1000.
+        positionControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withEnableFOC(true)
+            .withFeedForward(feedforward));
 
     follower.setControl(new StrictFollower(19));
 
-    main.setControl(
-        positionCurrentControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-            .withFeedForward(feedforward));
+    //
+    // main.setControl(
+    //     positionCurrentControl
+    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+    //         .withFeedForward(feedforward));
   }
 
   // @Override

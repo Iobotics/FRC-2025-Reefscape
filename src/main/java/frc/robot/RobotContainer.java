@@ -268,14 +268,14 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
 
     // == Coral Manipulator Controls ==
-    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
 
-    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
+    driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
-    operatorController
+    driveController
         .rightBumper()
         .whileTrue(
-            Commands.startEnd(() -> elevator.manualCurrent(45), () -> elevator.manualCurrent(0)));
+            Commands.startEnd(() -> elevator.manualCurrent(55), () -> elevator.manualCurrent(0)));
 
     // == Algae Controls ==
     operatorController2
@@ -308,11 +308,11 @@ public class RobotContainer {
     //         Commands.startEnd(
     //             () -> CoralManipulator.runOutake(-0.5), () -> CoralManipulator.runOutake(0)));
 
-    operatorController
+    driveController
         .pov(0)
         .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
 
-    operatorController
+    driveController
         .pov(180)
         .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
   }
