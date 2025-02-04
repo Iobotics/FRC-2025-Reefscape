@@ -44,7 +44,7 @@ public class CoralManipulator extends SubsystemBase {
     return new Command() {
       @Override
       public void execute() {
-        setOutake(0.35);
+        setOutake(0.5);
         led.applyLED(led.yellow);
         if (!coralSwitch.getSwitch()) {
           touchingManipulator = true;

@@ -262,9 +262,9 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
 
     // == Coral Manipulator Controls ==
-    driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    // driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
 
-    driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
+    // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
     driveController
         .rightBumper()
@@ -288,16 +288,15 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
 
-    operatorController
-        .rightBumper()
-        .whileTrue(CoralManipulator.getCommand(sensor, LED));
-    operatorController
-        .leftBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
-    
-    operatorController
+    driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+    // operatorController
+    //     .leftBumper()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
+
+    driveController
         .pov(0)
         .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
 
