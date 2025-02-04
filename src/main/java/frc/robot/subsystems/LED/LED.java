@@ -33,10 +33,7 @@ public class LED extends SubsystemBase {
     green = LEDPattern.solid(Color.kGreen);
     yellow = LEDPattern.solid(Color.kYellow);
 
-    // Set the default command to turn the strip off, otherwise the last colors written by
-    // the last command to run will continue to be displayed.
-    // Note: Other default patterns could be used instead!
-    // setDefaultCommand(onBlue());
+    // Set initial color to red
     red.applyTo(m_buffer);
     m_led.setData(m_buffer);
   }

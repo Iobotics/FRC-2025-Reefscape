@@ -93,7 +93,6 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         sensor = new Sensor();
         LED = new LED();
-
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -113,7 +112,6 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
-        LED.onRed();
         break;
 
       default:
@@ -131,7 +129,6 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
-        LED.onRed();
         break;
     }
 
@@ -217,15 +214,6 @@ public class RobotContainer {
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
 
-    //  ledOp.leftBumper().whileTrue(new StartEndCommand(() -> LED.onBlue(), () -> LED.onRed(),
-    // LED));
-
-    // ledOp.rightBumper().onTrue(Commands.runOnce(() -> LED.onRed()));
-    // .whileTrue(commands.startEnd(()->))
-    /**
-     * ledOp .leftBumper() .onTrue( Commands.runOnce( () -> { if (isBlue) { LED.onBlue(); } else {
-     * LED.onRed(); } isBlue = !isBlue; // Toggle the state }));
-     */
     operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
   }
 
