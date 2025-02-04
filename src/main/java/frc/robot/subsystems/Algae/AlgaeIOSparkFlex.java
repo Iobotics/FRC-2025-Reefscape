@@ -27,7 +27,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -41,7 +40,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   private final SparkFlex Arm = new SparkFlex(AlgaeCANID, MotorType.kBrushless);
   private final AbsoluteEncoder encoder = Arm.getAbsoluteEncoder();
   private final SparkClosedLoopController pid = Arm.getClosedLoopController();
-  private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
+  // private final ArmFeedforward ArmFeedfoward = new ArmFeedforward(0.0, 0.0, 0.0, 0.0, 0.0);
 
   // PID constants
   private static final double kP = 0.0;
@@ -64,7 +63,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(kP, kI, kD)
         .outputRange(-1, 1);
-    config.smartCurrentLimit(40);
+    config.smartCurrentLimit(80);
     tryUntilOk(
         Arm,
         5,
@@ -87,7 +86,7 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
   public void updateInputs(AlgaeIOInputs inputs) {
     inputs.positionRad = Units.rotationsToRadians(encoder.getPosition());
     inputs.velocityRadPerSec = Units.rotationsToRadians(encoder.getVelocity());
-    inputs.appliedVolts = Arm.getBusVoltage();
+    inputs.appliedVolts = Arm.getAppliedOutput() * 12;
     inputs.currentAmps = Arm.getOutputCurrent();
   }
 
@@ -97,6 +96,10 @@ public class AlgaeIOSparkFlex implements AlgaeIO {
     pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
+  @Override
+  public void setVoltage(double voltage) {
+    Arm.set(voltage / 12);
+  }
   /*
   public void setPosition(double position) {
     encoder.setPosition(position);

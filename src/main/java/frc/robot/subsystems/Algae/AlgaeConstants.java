@@ -29,8 +29,6 @@ public class AlgaeConstants {
   public static final int currentLimit = 40;
   public static final double GearRatio = 75.0;
 
-  public static final int encoderPin = 1;
-
   public static final double Armlength = Units.inchesToMeters(10.0);
   public static final Gains gains =
       switch (Constants.getRobot()) {
@@ -38,8 +36,12 @@ public class AlgaeConstants {
         default -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
 
+  // public static TrapezoidProfile.Constraints profileConstraints =
+  //     new TrapezoidProfile.Constraints(2 * Math.PI, 15);
+
+  // for tuning
   public static TrapezoidProfile.Constraints profileConstraints =
-      new TrapezoidProfile.Constraints(2 * Math.PI, 15);
+      new TrapezoidProfile.Constraints(Math.PI / 2, 5);
 
   public record Gains(
       double kP, double kI, double kD, double ffkS, double ffkV, double ffkA, double ffkG) {}

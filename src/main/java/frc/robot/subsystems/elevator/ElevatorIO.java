@@ -21,7 +21,7 @@ public interface ElevatorIO {
 
   default void runVolts(double volts) {}
 
-  default void runSetpoint(double setpointMeters) {}
+  default void runSetpoint(double setpointMeters, double feedforward) {}
 
   default void runCurrent(double amps) {}
 

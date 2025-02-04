@@ -37,7 +37,7 @@ public interface AlgaeIO {
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
-  public default void runSetpoint(double setpointRads, double feedfoward) {}
+  public default void runSetpoint(double setpointDegrees, double feedfoward) {}
 
   /** Run motors at current */
   public default void runCurrent(double amps) {}

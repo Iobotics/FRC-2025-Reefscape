@@ -41,7 +41,7 @@ public class CoralManipulator extends SubsystemBase {
     return new Command() {
       @Override
       public void execute() {
-        runOutake(0.35);
+        runOutake(0.5);
       }
 
       @Override

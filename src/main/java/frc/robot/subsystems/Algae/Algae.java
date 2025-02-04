@@ -59,7 +59,7 @@ public class Algae extends SubsystemBase {
   }
 
   @AutoLogOutput private double currentCompensation = 0.0;
-  private TrapezoidProfile profile;
+  private TrapezoidProfile profile = new TrapezoidProfile(profileConstraints);
   private TrapezoidProfile.State setpointState = new TrapezoidProfile.State();
 
   private double goalAngle;
@@ -80,6 +80,7 @@ public class Algae extends SubsystemBase {
 
   public Algae(AlgaeIO io) {
     this.io = io;
+    ff = new ArmFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
   }
 
   @Override
@@ -88,6 +89,8 @@ public class Algae extends SubsystemBase {
     // Update current RPM from the motor's encoder (example)
     io.updateInputs(inputs);
     Logger.processInputs("Arm", inputs);
+
+    goalAngle = goalposition.getRads();
 
     LoggedTunableNumber.ifChanged(
         hashCode(), () -> io.setPID(kP.get(), kI.get(), kD.get()), kP, kI, kD);
@@ -98,19 +101,18 @@ public class Algae extends SubsystemBase {
         kG,
         kV,
         kA);
-    
-    setpointState = profile.calculate(
-      Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
+    setpointState =
+        profile.calculate(
+            Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
 
-    
-    double ffVolts = ff.calculate(
-      Units.degreesToRadians(90-setpointState.position), 
-      -setpointState.velocity);
+    double ffVolts = ff.calculate(Math.PI - setpointState.position, setpointState.velocity);
 
+    Logger.recordOutput("Arm/FFVolts", ffVolts);
+    Logger.recordOutput("Arm/GoalAngle", goalAngle);
+    Logger.recordOutput("Arm/SetpointAngle", setpointState.position);
 
     setBrakeMode(!coastSupplier.getAsBoolean());
-    io.runSetpoint(
-        setpointState.position, ff.calculate(setpointState.position, setpointState.velocity));
+    // io.runSetpoint(Units.radiansToDegrees(setpointState.position), ffVolts);
   }
 
   public void stop() {
@@ -126,6 +128,10 @@ public class Algae extends SubsystemBase {
     if (brakeModeEnabled == enabled) return;
     brakeModeEnabled = enabled;
     io.setBrakeMode(brakeModeEnabled);
+  }
+
+  public void runVolts(double volts) {
+    io.setVoltage(volts);
   }
 
   // --------------------------------------------------------------

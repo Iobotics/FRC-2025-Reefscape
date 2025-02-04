@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,6 +24,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   // Hardware
@@ -42,6 +44,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
   private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0);
   private final VoltageOut voltageControl = new VoltageOut(0.0);
+  private final Follower followerControl = new Follower(19, false);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -51,13 +54,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.CurrentLimits.SupplyCurrentLimit = 80; // change later
+    config.CurrentLimits.SupplyCurrentLimit = 100; // change later
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 60;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+    config.CurrentLimits.StatorCurrentLimit = 160;
+    config.HardwareLimitSwitch.ForwardLimitEnable = false;
+    config.HardwareLimitSwitch.ReverseLimitEnable = false;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
     PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
@@ -147,27 +154,32 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kP = p;
     config.Slot0.kI = i;
     config.Slot0.kD = d;
-    config.Slot0.kS = s;
-    config.Slot0.kV = v;
-    config.Slot0.kA = a;
-    config.Slot0.kG = g;
+    // config.Slot0.kS = s;
+    // config.Slot0.kV = v;
+    // config.Slot0.kA = a;
+    // config.Slot0.kG = g;
 
     PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
   }
 
   @Override
-  public void runSetpoint(double setpointMeters) {
+  public void runSetpoint(double setpointMeters, double feedforward) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+
+    Logger.recordOutput("Elevator/SetpointRotations", setpointRotations);
     // main.setControl()
 
-    main.setControl(
-        positionControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-            .withEnableFOC(true));
+    // main.setControl( // kG 0.5 kV 1000.
+    //     positionControl
+    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+    //         .withEnableFOC(false));
 
-    // main.setControl(
-    //     positionCurrentControl
-    //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations)));
+    follower.setControl(new StrictFollower(19));
+
+    main.setControl(
+        positionCurrentControl
+            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withFeedForward(feedforward));
   }
 
   // @Override

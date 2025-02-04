@@ -44,6 +44,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -73,7 +74,8 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
-  private final CommandXboxController operatorController2 = new CommandXboxController(2); //change name later
+  private final CommandXboxController operatorController2 =
+      new CommandXboxController(2); // change name later
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -103,11 +105,9 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        // algae = new Algae(new AlgaeIOSparkFlex());
         algae = new Algae(new AlgaeIOSparkFlex());
 
-        break;
-
-        // CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
@@ -248,8 +248,8 @@ public class RobotContainer {
     // operatorController
     //     .pov(90)
     //     .whileTrue()
-  
-    // == Elevator Controls == 
+
+    // == Elevator Controls ==
     operatorController
         .a()
         .whileTrue(
@@ -264,13 +264,9 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
     operatorController
         .y()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
-    operatorController
-        .y()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
-    
-    
+
     // == Coral Manipulator Controls ==
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
 
@@ -279,8 +275,8 @@ public class RobotContainer {
     operatorController
         .rightBumper()
         .whileTrue(
-            Commands.startEnd(() -> elevator.manualCurrent(75), () -> elevator.manualCurrent(0)));
-    
+            Commands.startEnd(() -> elevator.manualCurrent(45), () -> elevator.manualCurrent(0)));
+
     // == Algae Controls ==
     operatorController2
         .a()
@@ -289,8 +285,7 @@ public class RobotContainer {
     operatorController2
         .b()
         .whileTrue(
-            Commands.startEnd(
-                () -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
+            Commands.startEnd(() -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
     operatorController2
         .x()
         .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));
@@ -299,7 +294,27 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
 
+    // operatorController2
+    //     .rightBumper()
+    //     .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
 
+    // operatorController2
+    //     .leftBumper()
+    //     .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
+
+    // operatorController
+    //     .a()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.runOutake(-0.5), () -> CoralManipulator.runOutake(0)));
+
+    operatorController
+        .pov(0)
+        .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
+
+    operatorController
+        .pov(180)
+        .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
   }
 
   /**

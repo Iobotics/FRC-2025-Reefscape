@@ -57,7 +57,7 @@ public class ElevatorIOSim implements ElevatorIO {
   }
 
   @Override
-  public void runSetpoint(double setpointMeters) {
+  public void runSetpoint(double setpointMeters, double feedforward) {
     if (!closedLoop) {
       controllerNeedsReset = true;
       closedLoop = true;
