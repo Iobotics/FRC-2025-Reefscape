@@ -30,12 +30,10 @@ import frc.robot.subsystems.Algae.Algae.Goalposition;
 import frc.robot.subsystems.Algae.AlgaeIO;
 import frc.robot.subsystems.Algae.AlgaeIOSim;
 import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
-import frc.robot.subsystems.CoralFunnel.CoralFunnel;
-import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
-import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
+import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -69,8 +67,7 @@ public class RobotContainer {
   private final Algae algae;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
-  private final CoralFunnel coralFunnel;
-
+  private final LED LED;
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -109,11 +106,8 @@ public class RobotContainer {
         algae = new Algae(new AlgaeIOSparkFlex());
 
         sensor = new Sensor();
-        coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
+        LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
-        // sensor = new Sensor();
-
-        // coralFunnel = new CoralFunnel(new CoralFunnelIOSpark());
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -134,7 +128,7 @@ public class RobotContainer {
         algae = new Algae(new AlgaeIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
-        coralFunnel = new CoralFunnel(new CoralFunnelIOSim());
+        LED = new LED();
         break;
 
       default:
@@ -152,7 +146,7 @@ public class RobotContainer {
         algae = new Algae(new AlgaeIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
-        coralFunnel = new CoralFunnel(new CoralFunnelIO() {});
+        LED = new LED();
         break;
     }
     // Set up auto routines
@@ -294,21 +288,16 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
 
-    // operatorController2
-    //     .rightBumper()
-    //     .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
-
-    // operatorController2
-    //     .leftBumper()
-    //     .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
-
-    // operatorController
-    //     .a()
-    //     .whileTrue(
-    //         Commands.startEnd(
-    //             () -> CoralManipulator.runOutake(-0.5), () -> CoralManipulator.runOutake(0)));
-
-    driveController
+    operatorController
+        .rightBumper()
+        .whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
+    
+    operatorController
         .pov(0)
         .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
 
