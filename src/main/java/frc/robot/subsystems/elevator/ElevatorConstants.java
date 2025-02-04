@@ -5,10 +5,9 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 public class ElevatorConstants {
-  public static final double reduction = 3; // change to actual reduction
-  public static final double rotationsToMeters =
-      Math.PI * 2.0 * (1.0); // change 1.0 to the radius of the hub
-
+  public static final double reduction = 5; // change to actual reduction
+  public static final double drumDiameter = Units.inchesToMeters(1.5);
+  public static final double rotationsToMeters = Math.PI * drumDiameter * 2;
   public static final double maxHeight = Units.inchesToMeters(72);
 
   public static TrapezoidProfile.Constraints profileConstraints =

@@ -16,15 +16,23 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Algae.Algae;
+import frc.robot.subsystems.Algae.Algae.Goalposition;
+import frc.robot.subsystems.Algae.AlgaeIO;
+import frc.robot.subsystems.Algae.AlgaeIOSim;
+import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
+import frc.robot.subsystems.CoralFunnel.CoralFunnel;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
+import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
@@ -32,14 +40,17 @@ import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.Sensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -56,12 +67,15 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Elevator elevator;
+  private final Algae algae;
   private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
   private final Sensor sensor;
   private final LED LED;
   // Controller
-  private final CommandXboxController driveController = new CommandXboxController(2);
-  private final CommandXboxController operatorController = new CommandXboxController(0);
+  private final CommandXboxController driveController = new CommandXboxController(0);
+  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController operatorController2 =
+      new CommandXboxController(2); // change name later
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -71,28 +85,32 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIOPigeon2(),
-        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
-        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
-        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
-        //         new ModuleIOTalonFX(TunerConstants.BackRight));
-        // CHANGE
         drive =
             new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        // // CHANGE
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {});
         vision =
             new Vision(
-                drive::addVisionMeasurement, new VisionIOPhotonVision("camera", new Transform3d()));
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        // algae = new Algae(new AlgaeIOSparkFlex());
+        algae = new Algae(new AlgaeIOSparkFlex());
+
         sensor = new Sensor();
         LED = new LED();
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -106,9 +124,11 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("camera", new Transform3d(), drive::getPose));
+                new VisionIOPhotonVisionSim(
+                    "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+        algae = new Algae(new AlgaeIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
@@ -126,12 +146,12 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        algae = new Algae(new AlgaeIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
         break;
     }
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -150,6 +170,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    SequentialCommandGroup score = new SequentialCommandGroup();
 
     // Configure the button bindings
     configureButtonBindings();
@@ -170,6 +192,25 @@ public class RobotContainer {
             () -> -driveController.getLeftY(),
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
+
+    // driveController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // driveController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    // driveController.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+    // driveController.a().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.b().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    // driveController.x().onFalse(Commands.run(() -> drive.stop()));
+
+    // driveController.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    // driveController.y().onFalse(Commands.run(() -> drive.stop()));
 
     // Lock to 0° when A button is held
     driveController
@@ -195,24 +236,60 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driveController
-        .y()
-        .onTrue(drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0))));
+    Command pathfindingCommand =
+        drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0)));
+    driveController.y().onTrue(pathfindingCommand);
+    driveController.y().onFalse(Commands.runOnce(() -> pathfindingCommand.cancel()));
 
-    driveController.y().onFalse(Commands.runOnce(() -> drive.stop()));
+    // RIGHT ON DPAD
+    // operatorController
+    //     .pov(90)
+    //     .whileTrue()
 
+    // == Elevator Controls ==
     operatorController
         .a()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.returnToHome()));
     operatorController
         .b()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.returnToHome()));
     operatorController
         .x()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
     operatorController
         .y()
-        .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
+
+    // == Coral Manipulator Controls ==
+    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
+
+    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            Commands.startEnd(() -> elevator.manualCurrent(45), () -> elevator.manualCurrent(0)));
+
+    // == Algae Controls ==
+    operatorController2
+        .a()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.SCOREL4), () -> algae.stop()));
+    operatorController2
+        .b()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.INTAKEALGAE), () -> algae.stop()));
+    operatorController2
+        .x()
+        .whileTrue(Commands.startEnd(() -> algae.setGoal(Goalposition.CUSTOM), () -> algae.stop()));
+    operatorController2
+        .y()
+        .whileTrue(
+            Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
 
     operatorController
         .rightBumper()
@@ -222,6 +299,14 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(
                 () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
+    
+    operatorController
+        .pov(0)
+        .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
+
+    operatorController
+        .pov(180)
+        .whileTrue(Commands.startEnd(() -> algae.runVolts(-1.2), () -> algae.stop()));
   }
 
   /**

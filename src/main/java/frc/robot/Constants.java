@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -22,7 +25,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
@@ -58,9 +61,15 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final double intakeSpeed = 0.5;
   }
 
-  // public static class FieldPoses {
-  //   public static Pose2d
-  // }
+  public static class FieldConstants {
+    // assumes all blue alliance
+    public static Translation2d center =
+        new Translation2d(
+            Distance.ofBaseUnits(158.515, Units.Inch), Distance.ofBaseUnits(345.44, Units.Inch));
+
+    public static Translation2d reef = center.plus(new Translation2d(-4.284788, 0.0));
+  }
 }

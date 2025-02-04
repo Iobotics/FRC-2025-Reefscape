@@ -15,13 +15,13 @@ public class ElevatorIOSim implements ElevatorIO {
   ElevatorSim elevator =
       new ElevatorSim(
           LinearSystemId.createElevatorSystem(
-              DCMotor.getKrakenX60Foc(2), 0.4, Units.inchesToMeters(0.75), reduction),
-          DCMotor.getKrakenX60Foc(2),
+              DCMotor.getKrakenX60(2), 7.2, Units.inchesToMeters(0.75), reduction),
+          DCMotor.getKrakenX60(2),
           0.,
           ElevatorConstants.maxHeight,
           true,
           0.,
-          new double[] {0.0, 0.0});
+          new double[] {0.01, 0.01});
 
   private PIDController controller;
   private boolean controllerNeedsReset = false;
@@ -39,11 +39,11 @@ public class ElevatorIOSim implements ElevatorIO {
       controllerNeedsReset = true;
     }
 
-    inputs.positionMeters = elevator.getPositionMeters();
-    inputs.velocityMeters = elevator.getVelocityMetersPerSecond();
-    inputs.supplyCurrentAmps = elevator.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = elevator.getCurrentDrawAmps();
-    inputs.appliedVolts = appliedVoltage;
+    // inputs.positionMeters = elevator.getPositionMeters();
+    // inputs.velocityMeters = elevator.getVelocityMetersPerSecond();
+    // inputs.supplyCurrentAmps = elevator.getCurrentDrawAmps();
+    // inputs.torqueCurrentAmps = elevator.getCurrentDrawAmps();
+    // inputs.appliedVolts = appliedVoltage;
 
     elevator.update(Constants.loopPeriodSecs);
     elevator.setInputVoltage(0.0);
@@ -66,11 +66,11 @@ public class ElevatorIOSim implements ElevatorIO {
       controller.reset();
       controllerNeedsReset = false;
     }
-    runVolts(controller.calculate(elevator.getPositionMeters(), setpointMeters) + feedforward);
+    runVolts(controller.calculate(elevator.getPositionMeters(), setpointMeters));
   }
 
-  @Override
-  public void setPID(double p, double i, double d) {
-    controller.setPID(p, i, d);
-  }
+  // @Override
+  // public void setPID(double p, double i, double d) {
+  //   controller.setPID(p, i, d);
+  // }
 }

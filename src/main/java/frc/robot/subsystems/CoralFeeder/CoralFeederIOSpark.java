@@ -1,19 +1,6 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+package frc.robot.subsystems.CoralFeeder;
 
-package frc.robot.subsystems.Roller;
-
-import static frc.robot.subsystems.Roller.RollerConstants.*;
+import static frc.robot.subsystems.CoralFeeder.CoralFeeder_Constants.*;
 import static frc.robot.util.SparkUtil.ifOk;
 import static frc.robot.util.SparkUtil.tryUntilOk;
 
@@ -31,11 +18,12 @@ import java.util.function.DoubleSupplier;
  * easily adapted for a brushed motor. A Spark Flex can be used by swapping all instances of
  * "SparkMax" with "SparkFlex".
  */
-public class RollerIOSpark implements RollerIO {
-  private final SparkFlex roller = new SparkFlex(rollerCanId, MotorType.kBrushless);
-  private final RelativeEncoder encoder = roller.getEncoder();
+public class CoralFeederIOSpark implements CoralFeederIO {
+  private final SparkFlex Intake =
+      new SparkFlex(CoralFeeder_Constants.intakeId, MotorType.kBrushless);
+  private final RelativeEncoder encoder = Intake.getEncoder();
 
-  public RollerIOSpark() {
+  public CoralFeederIOSpark() {
     var config = new SparkFlexConfig();
     config.idleMode(IdleMode.kBrake).smartCurrentLimit(currentLimit).voltageCompensation(12.0);
     config
@@ -47,26 +35,26 @@ public class RollerIOSpark implements RollerIO {
         .uvwAverageDepth(2);
 
     tryUntilOk(
-        roller,
+        Intake,
         5,
         () ->
-            roller.configure(
+            Intake.configure(
                 config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
   }
 
   @Override
-  public void updateInputs(RollerIOInputs inputs) {
-    ifOk(roller, encoder::getPosition, (value) -> inputs.positionRad = value);
-    ifOk(roller, encoder::getVelocity, (value) -> inputs.velocityRadPerSec = value);
+  public void updateInputs(IntakeIOInputs inputs) {
+    ifOk(Intake, encoder::getPosition, (value) -> inputs.positionRad = value);
+    ifOk(Intake, encoder::getVelocity, (value) -> inputs.velocityRadPerSec = value);
     ifOk(
-        roller,
-        new DoubleSupplier[] {roller::getAppliedOutput, roller::getBusVoltage},
+        Intake,
+        new DoubleSupplier[] {Intake::getAppliedOutput, Intake::getBusVoltage},
         (values) -> inputs.appliedVolts = values[0] * values[1]);
-    ifOk(roller, roller::getOutputCurrent, (value) -> inputs.currentAmps = value);
+    ifOk(Intake, Intake::getOutputCurrent, (value) -> inputs.currentAmps = value);
   }
 
   @Override
   public void setVoltage(double volts) {
-    roller.setVoltage(volts);
+    Intake.setVoltage(volts);
   }
 }
