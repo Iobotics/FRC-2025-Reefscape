@@ -214,7 +214,14 @@ public class RobotContainer {
         .y()
         .whileTrue(Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.stop()));
 
-    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController
+        .rightBumper()
+        .whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
   }
 
   /**

@@ -12,7 +12,7 @@ public class CoralManipulator extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private final CoralManipulatorIO io;
 
-  public boolean touchingManipulator = false;
+  public int touchingManipulator = 0;
 
   private final CoralManipulatorIOInputsAutoLogged inputs =
       new CoralManipulatorIOInputsAutoLogged();
@@ -30,7 +30,7 @@ public class CoralManipulator extends SubsystemBase {
   }
 
   @AutoLogOutput
-  public void runOutake(double percentVolts) {
+  public void setOutake(double percentVolts) {
     io.setVoltage(percentVolts * 12);
   }
 
@@ -44,19 +44,26 @@ public class CoralManipulator extends SubsystemBase {
     return new Command() {
       @Override
       public void execute() {
-        runOutake(0.35);
+        setOutake(0.35);
         led.applyLED(led.yellow);
+        if (!coralSwitch.getSwitch()) {
+          touchingManipulator = 1;
+        }
       }
 
       @Override
       public boolean isFinished() {
-        return !coralSwitch.getSwitch();
+        if (touchingManipulator == 1) {
+          return coralSwitch.getSwitch();
+        } else {
+          return false;
+        }
       }
 
       @Override
       public void end(boolean interrupted) {
-        touchingManipulator = true;
-        runOutake(0);
+        touchingManipulator = 0;
+        setOutake(0);
         led.applyLED(led.green);
       }
     };
