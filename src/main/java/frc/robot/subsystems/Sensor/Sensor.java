@@ -7,7 +7,7 @@ public class Sensor {
   // Sensor
   public final DigitalInput coralSwitch = new DigitalInput(0);
 
-  @AutoLogOutput
+  @AutoLogOutput(key = "Sensor/value")
   public boolean getSwitch() {
     return coralSwitch.get();
   }
