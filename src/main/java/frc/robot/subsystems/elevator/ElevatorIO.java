@@ -14,6 +14,11 @@ public interface ElevatorIO {
     public double[] supplyCurrentAmps = new double[] {};
     public double[] appliedVolts = new double[] {};
     public double[] setpointRotations = new double[] {};
+    public boolean atGoal = false;
+  }
+
+  default boolean atGoal() {
+    return false;
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}

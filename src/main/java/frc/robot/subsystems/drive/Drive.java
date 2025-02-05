@@ -53,6 +53,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
@@ -223,6 +224,8 @@ public class Drive extends SubsystemBase {
         rotationkP,
         rotationkI,
         rotationkD);
+
+    RobotState.getInstance().setEstimatedPose(getPose());
   }
 
   private void configureAutoBuilder() {
@@ -314,13 +317,14 @@ public class Drive extends SubsystemBase {
   public Command pathfindToPose(Pose2d targetPose) {
     // Create the constraints to use while pathfinding
     PathConstraints constraints =
-        new PathConstraints(4.0, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(4.0, 5.0, Units.degreesToRadians(540), Units.degreesToRadians(1080));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
     Command pathfindingCommand =
         AutoBuilder.pathfindToPose(
-            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
+            targetPose, constraints, 1.0 // Goal end velocity in meters/sec
             );
+    pathfindingCommand.addRequirements(this);
     return pathfindingCommand;
   }
 

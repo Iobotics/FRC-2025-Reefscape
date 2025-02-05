@@ -8,7 +8,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.EqualsUtil;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -33,8 +32,7 @@ public class Elevator extends SubsystemBase {
       new LoggedTunableNumber("Elevator/kA", gains.ffkA());
 
   private static final LoggedTunableNumber maxVelocityMotionMagic =
-      new LoggedTunableNumber(
-          "Elevator/MotionMagic/Velocity", motionMagicConstraints.velocity());
+      new LoggedTunableNumber("Elevator/MotionMagic/Velocity", motionMagicConstraints.velocity());
   private static final LoggedTunableNumber maxAccelerationMotionMagic =
       new LoggedTunableNumber(
           "Elevator/MotionMagic/Acceleration", motionMagicConstraints.acceleration());
@@ -57,10 +55,10 @@ public class Elevator extends SubsystemBase {
 
   public enum Goal {
     STOW(new LoggedTunableNumber("Elevator/Stow", 0.0)),
-    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.5)),
-    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.8)),
-    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 1.1)),
-    SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 2.0)),
+    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.1)),
+    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.29)),
+    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.79)),
+    SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.26)),
     INTAKE(new LoggedTunableNumber("Elevator/Intake", 0.2)),
     ;
 
@@ -132,12 +130,15 @@ public class Elevator extends SubsystemBase {
         maxAcceleration);
 
     LoggedTunableNumber.ifChanged(
-      hashCode(), 
-      () -> io.setMotionMagicConstraints(
-        maxVelocityMotionMagic.get(), maxAccelerationMotionMagic.get(), maxJerkMotionMagic.get()), 
-      maxVelocityMotionMagic,
-      maxAccelerationMotionMagic,
-      maxJerkMotionMagic);
+        hashCode(),
+        () ->
+            io.setMotionMagicConstraints(
+                maxVelocityMotionMagic.get(),
+                maxAccelerationMotionMagic.get(),
+                maxJerkMotionMagic.get()),
+        maxVelocityMotionMagic,
+        maxAccelerationMotionMagic,
+        maxJerkMotionMagic);
 
     goalMeters = goal.getMeters();
 
@@ -168,7 +169,7 @@ public class Elevator extends SubsystemBase {
 
   @AutoLogOutput
   public boolean atGoal(double tolerance) {
-    return EqualsUtil.epsilonEquals(setpointState.position, goalMeters, tolerance);
+    return io.atGoal();
   }
 
   public boolean atGoal() {

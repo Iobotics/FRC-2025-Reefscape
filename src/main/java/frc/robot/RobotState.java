@@ -1,27 +1,34 @@
 package frc.robot;
 
+import static edu.wpi.first.math.util.Units.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.FieldConstants;
+import java.util.ArrayList;
+import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class RobotState {
   // 0 degrees is facing red alliance
   public enum reefZone {
-    AB(Angle.ofBaseUnits(180, Units.Degrees)),
-    CD(Angle.ofBaseUnits(120, Units.Degrees)),
-    EF(Angle.ofBaseUnits(60, Units.Degrees)),
-    GH(Angle.ofBaseUnits(0, Units.Degrees)),
-    IJ(Angle.ofBaseUnits(300, Units.Degrees)),
-    KL(Angle.ofBaseUnits(240, Units.Degrees));
+    AB(180),
+    CD(120),
+    EF(60),
+    GH(0),
+    IJ(300),
+    KL(240);
 
-    private Angle angle;
+    private double angle;
 
-    reefZone(Angle angle) {
+    reefZone(double angle) {
       this.angle = angle;
     }
 
-    private Angle getAngle() {
-      return angle;
+    private double getRads() {
+      return Units.degreesToRadians(angle);
     }
   }
 
@@ -34,20 +41,42 @@ public class RobotState {
     return instance;
   }
 
-  private RobotState() {}
+  public Pose2d reefGoalPose;
+
+  private RobotState() {
+    reefGoalPose = new Pose2d();
+  }
 
   private Pose2d odometryPose = new Pose2d();
   private Pose2d estimatedPose = new Pose2d();
 
-  private void closestReefPose() {}
+  public void setEstimatedPose(Pose2d pose) {
+    estimatedPose = pose;
+  }
 
-  // public Pose2d getReefGoalPose() {
-  //     List<Pose2d> reefGoals = new ArrayList<Pose2d>();
+  public Pose2d getReefGoalPose(boolean clockwise) {
+    List<Pose2d> reefGoals = new ArrayList<Pose2d>();
+    for (reefZone zone : reefZone.values())
+      reefGoals.add(
+          new Pose2d(
+              FieldConstants.reef.plus(
+                  new Translation2d(1.4, 0.2 * (clockwise ? -1 : 1))
+                      .rotateBy(new Rotation2d(zone.getRads()))),
+              new Rotation2d(zone.getRads() + Math.PI)));
+    Pose2d[] reefGoalsArray = new Pose2d[reefGoals.size()];
+    reefGoalsArray = reefGoals.toArray(reefGoalsArray);
+    Logger.recordOutput("RobotState/reefPositions", reefGoalsArray);
+    reefGoalPose = estimatedPose.nearest(reefGoals);
+    Logger.recordOutput("RobotState/goalPose", reefGoalPose);
+    return estimatedPose.nearest(reefGoals);
+  }
 
-  //     FieldConstants.reef
-  //         .plus(
-  //             new Transform2d(2,0.2, new Rotation2d(zone.getAngle()))
-  //         );
+  public boolean atGoal() {
+    return reefGoalPose.minus(estimatedPose).getTranslation().getNorm() < 0.1;
+  }
 
+  // @Override
+  // public void periodic() {
+  //   this.getReefGoalPose();
   // }
 }

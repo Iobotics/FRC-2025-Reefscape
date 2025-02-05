@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -51,6 +52,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -76,6 +78,9 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private final Trigger scoreTrigger;
+  private final Trigger inZoneTrigger;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -170,6 +175,9 @@ public class RobotContainer {
 
     SequentialCommandGroup score = new SequentialCommandGroup();
 
+    scoreTrigger = new Trigger(elevator::atGoal);
+    inZoneTrigger = new Trigger(RobotState.getInstance()::atGoal);
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -190,37 +198,18 @@ public class RobotContainer {
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
 
-    // driveController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    // driveController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-
-    // driveController.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-    // driveController.a().onFalse(Commands.run(() -> drive.stop()));
-
-    // driveController.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // driveController.b().onFalse(Commands.run(() -> drive.stop()));
-
-    // driveController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-    // driveController.x().onFalse(Commands.run(() -> drive.stop()));
-
-    // driveController.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-    // driveController.y().onFalse(Commands.run(() -> drive.stop()));
-
     // Lock to 0° when A button is held
-    driveController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -driveController.getLeftY(),
-                () -> -driveController.getLeftX(),
-                () -> new Rotation2d()));
+    // driveController
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -driveController.getLeftY(),
+    //             () -> -driveController.getLeftX(),
+    //             () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
     driveController
@@ -233,10 +222,16 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    Command pathfindingCommand =
-        drive.pathfindToPose(new Pose2d(2.8, 4 - 0.1651, Rotation2d.fromDegrees(0)));
-    driveController.y().onTrue(pathfindingCommand);
-    driveController.y().onFalse(Commands.runOnce(() -> pathfindingCommand.cancel()));
+    driveController
+        .y()
+        .onTrue(
+            Commands.defer(
+                () ->
+                    drive.pathfindToPose(
+                        RobotState.getInstance()
+                            .getReefGoalPose(driveController.x().getAsBoolean())),
+                Set.of(drive)));
+    driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // RIGHT ON DPAD
     // operatorController
@@ -299,6 +294,19 @@ public class RobotContainer {
     driveController
         .pov(180)
         .whileTrue(Commands.startEnd(() -> arm.runVolts(-1.2), () -> arm.stop()));
+
+    // FINAL CONTROLS
+
+    // when in zone, pressing button, and elevator at goal, release coral
+    operatorController
+        .a()
+        .and(scoreTrigger)
+        .and(inZoneTrigger)
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(0.5),
+                () -> CoralManipulator.setOutake(0),
+                CoralManipulator));
   }
 
   /**

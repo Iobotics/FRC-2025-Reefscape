@@ -5,12 +5,12 @@ import frc.robot.Constants;
 public class AutoConstants {
   public static final Gains translationGains =
       switch (Constants.currentMode) {
-        case SIM -> new Gains(0.0, 0.0, 0.0);
+        case SIM -> new Gains(10.0, 0.0, 0.0);
         default -> new Gains(0.0, 0.0, 0.0);
       };
   public static final Gains rotationGains =
       switch (Constants.currentMode) {
-        case SIM -> new Gains(0.0, 0.0, 0.0);
+        case SIM -> new Gains(8.0, 0.0, 0.0);
         default -> new Gains(0.0, 0.0, 0.0);
       };
 

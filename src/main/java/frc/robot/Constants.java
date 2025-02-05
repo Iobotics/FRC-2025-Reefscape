@@ -14,8 +14,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -67,8 +66,7 @@ public final class Constants {
   public static class FieldConstants {
     // assumes all blue alliance
     public static Translation2d center =
-        new Translation2d(
-            Distance.ofBaseUnits(158.515, Units.Inch), Distance.ofBaseUnits(345.44, Units.Inch));
+        new Translation2d(Units.inchesToMeters(345.44), Units.inchesToMeters(158.515));
 
     public static Translation2d reef = center.plus(new Translation2d(-4.284788, 0.0));
   }

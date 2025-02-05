@@ -8,7 +8,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -25,6 +24,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.elevator.ElevatorConstants.motionMagicConstraints;
+import frc.robot.util.EqualsUtil;
 import frc.robot.util.PhoenixUtil;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -43,6 +43,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final List<StatusSignal<Temperature>> tempCelsius;
   private final List<StatusSignal<Double>> setpointRotations;
 
+  private double goalPositionRotations;
+
   // Control
   private final NeutralOut neutralOut = new NeutralOut();
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
@@ -51,12 +53,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final Follower followerControl = new Follower(19, false);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
 
-  private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl = 
-    new DynamicMotionMagicTorqueCurrentFOC(
-      0.0,
-      motionMagicConstraints.velocity(),
-      motionMagicConstraints.acceleration(),
-      motionMagicConstraints.jerk());
+  private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl =
+      new DynamicMotionMagicTorqueCurrentFOC(
+          0.0,
+          motionMagicConstraints.velocity(),
+          motionMagicConstraints.acceleration(),
+          motionMagicConstraints.jerk());
 
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -116,6 +118,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     main.optimizeBusUtilization(0, 1.0);
     follower.optimizeBusUtilization(0, 1.0);
+
+    goalPositionRotations = 0.0;
   }
 
   public void updateInputs(ElevatorIOInputs inputs) {
@@ -160,6 +164,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void stop() {
     main.setControl(neutralOut);
+  }
+
+  @Override
+  public boolean atGoal() {
+    return EqualsUtil.epsilonEquals(
+        main.getPosition().getValueAsDouble(), goalPositionRotations, 0.1);
   }
 
   @Override
@@ -221,6 +231,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void runSetpointMotionMagic(double setpointMeters, double feedforward) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+    goalPositionRotations = setpointRotations;
 
     main.setControl(
         motionMagicControl
