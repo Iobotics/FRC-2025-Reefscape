@@ -261,7 +261,7 @@ public class RobotContainer {
 
     // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
-    driveController
+    operatorController
         .rightBumper()
         .whileTrue(
             Commands.startEnd(() -> elevator.manualCurrent(55), () -> elevator.manualCurrent(0)));
@@ -281,8 +281,8 @@ public class RobotContainer {
         .y()
         .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> arm.stop()));
 
-    driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
-    driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
     // operatorController
     //     .leftBumper()
     //     .whileTrue(

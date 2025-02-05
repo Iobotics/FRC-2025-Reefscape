@@ -157,7 +157,7 @@ public class Elevator extends SubsystemBase {
 
     // motion magic setpoint code
     if (closedLoop) {
-      io.runSetpointMotionMagic(goalMeters, kG.get());
+      io.runSetpointMotionMagic(goalMeters, 0);
     }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
