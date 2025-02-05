@@ -266,7 +266,7 @@ public class RobotContainer {
 
     // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
-    driveController
+    operatorController
         .rightBumper()
         .whileTrue(
             Commands.startEnd(() -> elevator.manualCurrent(55), () -> elevator.manualCurrent(0)));

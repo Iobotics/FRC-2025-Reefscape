@@ -8,7 +8,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -18,7 +17,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -51,12 +49,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final Follower followerControl = new Follower(19, false);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
 
-  private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl = 
-    new DynamicMotionMagicTorqueCurrentFOC(
-      0.0,
-      motionMagicConstraints.velocity(),
-      motionMagicConstraints.acceleration(),
-      motionMagicConstraints.jerk());
+  private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl =
+      new DynamicMotionMagicTorqueCurrentFOC(
+          0.0,
+          motionMagicConstraints.velocity(),
+          motionMagicConstraints.acceleration(),
+          motionMagicConstraints.jerk());
 
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -126,7 +124,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 appliedVoltage.get(0),
                 supplyCurrent.get(0),
                 torqueCurrent.get(0),
-                tempCelsius.get(0))
+                tempCelsius.get(0),
+                setpointRotations.get(0))
             .isOK();
 
     inputs.followerMotorConnected =
@@ -135,7 +134,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 velocityRps.get(1),
                 supplyCurrent.get(1),
                 torqueCurrent.get(1),
-                tempCelsius.get(1))
+                tempCelsius.get(1),
+                setpointRotations.get(1))
             .isOK();
 
     inputs.positionRotations =
@@ -177,10 +177,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kP = p;
     config.Slot0.kI = i;
     config.Slot0.kD = d;
-    // config.Slot0.kS = s;
-    // config.Slot0.kV = v;
-    // config.Slot0.kA = a;
-    // config.Slot0.kG = g;
+    config.Slot0.kS = s;
+    config.Slot0.kV = v;
+    config.Slot0.kA = a;
+    config.Slot0.kG = g;
 
     PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
   }
@@ -200,16 +200,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runSetpoint(double setpointMeters, double feedforward) {
-    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+    double setpoint = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
 
-    Logger.recordOutput("Elevator/SetpointRotations", setpointRotations);
+    Logger.recordOutput("Elevator/SetpointRotations", setpoint);
     // main.setControl()
 
     main.setControl( // kG 0.5 kV 1000.
-        positionControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
-            .withEnableFOC(true)
-            .withFeedForward(feedforward));
+        positionControl.withPosition(setpoint).withEnableFOC(true).withFeedForward(feedforward));
 
     //
     // main.setControl(
@@ -221,10 +218,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void runSetpointMotionMagic(double setpointMeters, double feedforward) {
     double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
-
+    Logger.recordOutput("Elevator/SetpointRotations", setpointRotations);
     main.setControl(
         motionMagicControl
-            .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
+            .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)
             .withFeedForward(feedforward)
             .withSlot(0));
   }

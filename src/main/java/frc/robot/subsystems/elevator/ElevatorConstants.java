@@ -23,6 +23,7 @@ public class ElevatorConstants {
       new motionMagicConstraints(100.0, 100.0, 1000.0);
 
   public record motionMagicConstraints(double velocity, double acceleration, double jerk) {}
+
   public record Gains(
       double kP, double kI, double kD, double ffkS, double ffkV, double ffkA, double ffkG) {}
 }
