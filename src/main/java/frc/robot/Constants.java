@@ -13,9 +13,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import java.util.List;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -69,5 +72,16 @@ public final class Constants {
         new Translation2d(Units.inchesToMeters(345.44), Units.inchesToMeters(158.515));
 
     public static Translation2d reef = center.plus(new Translation2d(-4.284788, 0.0));
+
+    public static List<Pose2d> stations =
+        List.of(
+            new Pose2d(
+                Units.inchesToMeters(33.51),
+                Units.inchesToMeters(25.80),
+                new Rotation2d(Units.degreesToRadians(54 + 180))),
+            new Pose2d(
+                Units.inchesToMeters(33.51),
+                Units.inchesToMeters(291.20),
+                new Rotation2d(Units.degreesToRadians(306 + 180))));
   }
 }

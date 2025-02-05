@@ -4,6 +4,7 @@ import static edu.wpi.first.math.util.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.FieldConstants;
@@ -73,6 +74,20 @@ public class RobotState {
 
   public boolean atGoal() {
     return reefGoalPose.minus(estimatedPose).getTranslation().getNorm() < 0.1;
+  }
+
+  public Pose2d getStationGoalPose() {
+    List<Pose2d> stationGoals = new ArrayList<Pose2d>();
+    Transform2d offset =
+        new Transform2d(
+            new Translation2d(-0.5, 0.0),
+            new Rotation2d(Units.degreesToRadians(0)));
+    stationGoals.add(FieldConstants.stations.get(0).plus(offset));
+    stationGoals.add(FieldConstants.stations.get(1).plus(offset));
+    Pose2d[] loggedStationGoals = new Pose2d[stationGoals.size()];
+    loggedStationGoals = stationGoals.toArray(loggedStationGoals);
+    Logger.recordOutput("stationPositions", loggedStationGoals);
+    return estimatedPose.nearest(stationGoals);
   }
 
   // @Override
