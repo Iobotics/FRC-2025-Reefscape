@@ -59,7 +59,8 @@ public class Elevator extends SubsystemBase {
     SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.29)),
     SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.79)),
     SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.26)),
-    INTAKE(new LoggedTunableNumber("Elevator/Intake", 0.2)),
+    LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.4)),
+    UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.79)),
     ;
 
     private final DoubleSupplier elevatorSetpointSupplier;
@@ -169,7 +170,7 @@ public class Elevator extends SubsystemBase {
 
   @AutoLogOutput
   public boolean atGoal(double tolerance) {
-    return io.atGoal();
+    return io.atGoal() && goal != Goal.STOW;
   }
 
   public boolean atGoal() {

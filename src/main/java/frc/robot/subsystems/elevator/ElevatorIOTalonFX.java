@@ -72,7 +72,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // config.CurrentLimits.SupplyCurrentLowerLimit = 60;
     // config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = 0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -20;
+    config.TorqueCurrent.TorqueNeutralDeadband = 10;
     // config.CurrentLimits.StatorCurrentLimit = 160;
     config.HardwareLimitSwitch.ForwardLimitEnable = false;
     config.HardwareLimitSwitch.ReverseLimitEnable = false;
