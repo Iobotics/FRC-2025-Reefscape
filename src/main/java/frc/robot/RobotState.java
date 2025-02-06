@@ -55,13 +55,14 @@ public class RobotState {
     estimatedPose = pose;
   }
 
-  public Pose2d getReefGoalPose(boolean clockwise) {
+  public Pose2d getReefGoalPose(Pose2d robotPose, boolean clockwise) {
+    setEstimatedPose(robotPose);
     List<Pose2d> reefGoals = new ArrayList<Pose2d>();
     for (reefZone zone : reefZone.values())
       reefGoals.add(
           new Pose2d(
               FieldConstants.reef.plus(
-                  new Translation2d(1.4, 0.2 * (clockwise ? -1 : 1))
+                  new Translation2d(1.2, 0.138 * (clockwise ? -1 : 1))
                       .rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
     Pose2d[] reefGoalsArray = new Pose2d[reefGoals.size()];
@@ -79,9 +80,7 @@ public class RobotState {
   public Pose2d getStationGoalPose() {
     List<Pose2d> stationGoals = new ArrayList<Pose2d>();
     Transform2d offset =
-        new Transform2d(
-            new Translation2d(-0.5, 0.0),
-            new Rotation2d(Units.degreesToRadians(0)));
+        new Transform2d(new Translation2d(-0.5, 0.0), new Rotation2d(Units.degreesToRadians(0)));
     stationGoals.add(FieldConstants.stations.get(0).plus(offset));
     stationGoals.add(FieldConstants.stations.get(1).plus(offset));
     Pose2d[] loggedStationGoals = new Pose2d[stationGoals.size()];

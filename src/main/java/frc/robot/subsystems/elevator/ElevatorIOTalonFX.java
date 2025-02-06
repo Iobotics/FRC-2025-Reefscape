@@ -81,8 +81,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
     // motion magic configs
-    config.MotionMagic.MotionMagicAcceleration = 100;
-    config.MotionMagic.MotionMagicCruiseVelocity = 50;
+    config.MotionMagic.MotionMagicAcceleration = 10;
+    config.MotionMagic.MotionMagicCruiseVelocity = 20;
     config.MotionMagic.MotionMagicJerk = 1000;
 
     main.getClosedLoopReference();
