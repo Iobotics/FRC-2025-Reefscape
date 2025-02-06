@@ -208,14 +208,14 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    driveController
-        .a()
-        .onTrue(
-            Commands.defer(
-                () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
-                Set.of(drive)));
+    // driveController
+    //     .a()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
+    //             Set.of(drive)));
 
-    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // Reset gyro to 0° when B button is pressed
     driveController
@@ -228,16 +228,16 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // driveController
-    //     .y()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 drive.pathfindToPose(
-    //                     RobotState.getInstance()
-    //                         .getReefGoalPose(driveController.x().getAsBoolean())),
-    //             Set.of(drive)));
-    // driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController
+        .y()
+        .onTrue(
+            Commands.defer(
+                () ->
+                    drive.pathfindToPose(
+                        RobotState.getInstance()
+                            .getReefGoalPose(drive.getPose(), driveController.x().getAsBoolean())),
+                Set.of(drive)));
+    driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // RIGHT ON DPAD
     // operatorController
@@ -245,7 +245,7 @@ public class RobotContainer {
     //     .whileTrue()
 
     // == Elevator Controls ==
-    operatorController
+    driveController
         .a()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.returnToHome()));
@@ -253,11 +253,11 @@ public class RobotContainer {
         .b()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.returnToHome()));
-    driveController
+    operatorController
         .x()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
-    driveController
+    operatorController
         .y()
         .whileTrue(
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));

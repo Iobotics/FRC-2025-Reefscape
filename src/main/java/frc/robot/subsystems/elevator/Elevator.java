@@ -174,6 +174,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return atGoal(1e-6);
+    return atGoal(0.1);
   }
 }
