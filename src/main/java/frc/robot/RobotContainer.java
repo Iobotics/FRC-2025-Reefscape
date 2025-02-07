@@ -63,34 +63,34 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Subsystems
-    private final Drive drive;
-    private final Vision vision;
-    private final Elevator elevator;
-    private final Arm arm;
-    private final CoralManipulator CoralManipulator;
-    private final Sensor sensor;
-    private final LED LED;
-    // Controller
-    private final CommandXboxController driveController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
-    private final CommandXboxController operatorController2 =
-        new CommandXboxController(2); // temporary
-    // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+  // Subsystems
+  private final Drive drive;
+  private final Vision vision;
+  private final Elevator elevator;
+  private final Arm arm;
+  private final CoralManipulator CoralManipulator;
+  private final Sensor sensor;
+  private final LED LED;
+  // Controller
+  private final CommandXboxController driveController = new CommandXboxController(0);
+  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController operatorController2 =
+      new CommandXboxController(2); // temporary
+  // Dashboard inputs
+  private final LoggedDashboardChooser<Command> autoChooser;
 
-    private final Trigger scoreTrigger;
-    private final Trigger inZoneTrigger;
+  private final Trigger scoreTrigger;
+  private final Trigger inZoneTrigger;
 
-    public Command scoreL4; 
-    public Command scoreL3;
-    public Command scoreL2;
-    public Command intakeCoral;
+  public Command scoreL4;
+  public Command scoreL3;
+  public Command scoreL2;
+  public Command intakeCoral;
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    public RobotContainer() {
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
     switch (Constants.currentMode) {
-    case REAL:
+      case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -110,7 +110,7 @@ public class RobotContainer {
         LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
-    case SIM:
+      case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -132,7 +132,7 @@ public class RobotContainer {
         LED = new LED();
         break;
 
-    default:
+      default:
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -157,7 +157,6 @@ public class RobotContainer {
     scoreL4 = CoralCommands.scoreCoral(Goal.SCOREL4, elevator, CoralManipulator, arm);
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
-
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
 

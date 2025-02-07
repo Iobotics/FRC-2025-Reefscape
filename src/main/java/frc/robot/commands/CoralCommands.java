@@ -9,28 +9,25 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 
 public class CoralCommands {
-    private CoralCommands() {
-    }
+  private CoralCommands() {}
 
-    public static Command scoreCoral(Elevator.Goal goal, Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
-        return Commands.sequence(
-                elevator.getSetpointCommand(goal).withTimeout(2),
-                Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator)
-                    .withTimeout(0.3),
-                elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
-    }
+  public static Command scoreCoral(
+      Elevator.Goal goal, Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
+    return Commands.sequence(
+        elevator.getSetpointCommand(goal),
+        Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator).withTimeout(0.3),
+        Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
+  }
 
-    
-    public static Command scoreL4(Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
-        return Commands.sequence(
-            Commands.parallel(
-                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(2),
-                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4), arm)),
-            Commands.parallel(
-                Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator)
-                    .withTimeout(0.3),
-                Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT), arm)
-            ),
-            elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
-    }
+  public static Command scoreL4(Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
+    return Commands.sequence(
+        Commands.parallel(
+            elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(2),
+            Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4), arm)),
+        Commands.parallel(
+            Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator).withTimeout(0.3),
+            Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT), arm)),
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
+  }
 }

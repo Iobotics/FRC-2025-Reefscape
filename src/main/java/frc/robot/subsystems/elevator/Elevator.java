@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.EqualsUtil;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -62,8 +63,7 @@ public class Elevator extends SubsystemBase {
     SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.30)),
     LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.4)),
     UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.79)),
-    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0))
-    ;
+    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0));
 
     private final DoubleSupplier elevatorSetpointSupplier;
 
@@ -179,17 +179,13 @@ public class Elevator extends SubsystemBase {
 
       @Override
       public boolean isFinished() {
-        return atGoal();
+        return EqualsUtil.epsilonEquals(goal.getMeters(), inputs.positionMeters[0], 0.03);
       }
     };
   }
 
   @AutoLogOutput
-  public boolean atGoal(double tolerance) {
-    return io.atGoal();
-  }
-
   public boolean atGoal() {
-    return atGoal(0.1);
+    return io.atGoal();
   }
 }
