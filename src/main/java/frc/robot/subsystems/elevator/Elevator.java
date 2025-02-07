@@ -62,6 +62,7 @@ public class Elevator extends SubsystemBase {
     SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.30)),
     LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.4)),
     UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.79)),
+    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0))
     ;
 
     private final DoubleSupplier elevatorSetpointSupplier;
@@ -180,17 +181,12 @@ public class Elevator extends SubsystemBase {
       public boolean isFinished() {
         return atGoal();
       }
-
-      @Override
-      public void end(boolean interrupted) {
-        setGoal(Goal.STOW);
-      }
     };
   }
 
   @AutoLogOutput
   public boolean atGoal(double tolerance) {
-    return io.atGoal() && goal != Goal.STOW;
+    return io.atGoal();
   }
 
   public boolean atGoal() {

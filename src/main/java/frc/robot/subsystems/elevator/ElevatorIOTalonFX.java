@@ -235,7 +235,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)
             .withFeedForward(feedforward)
             .withSlot(0));
-    if (setpointRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.4) {
+    if (goalPositionRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.4) {
       main.setControl(neutralOut);
     }
   }

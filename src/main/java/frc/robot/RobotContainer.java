@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm.Arm;
@@ -62,33 +63,34 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Drive drive;
-  private final Vision vision;
-  private final Elevator elevator;
-  private final Arm arm;
-  private final CoralManipulator CoralManipulator; // SHOULD THIS BE PRIVATE FINAL????
-  private final Sensor sensor;
-  private final LED LED;
-  // Controller
-  private final CommandXboxController driveController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
-  private final CommandXboxController operatorController2 =
-      new CommandXboxController(2); // change name later
+    // Subsystems
+    private final Drive drive;
+    private final Vision vision;
+    private final Elevator elevator;
+    private final Arm arm;
+    private final CoralManipulator CoralManipulator;
+    private final Sensor sensor;
+    private final LED LED;
+    // Controller
+    private final CommandXboxController driveController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
+    private final CommandXboxController operatorController2 =
+        new CommandXboxController(2); // temporary
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+    private final Trigger scoreTrigger;
+    private final Trigger inZoneTrigger;
 
-  private final Trigger scoreTrigger;
-  private final Trigger inZoneTrigger;
+    public Command scoreL4; 
+    public Command scoreL3;
+    public Command scoreL2;
+    public Command intakeCoral;
 
-  public Command scoreL4;
-  public Command intakeCoral;
-
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
     switch (Constants.currentMode) {
-      case REAL:
+    case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -108,7 +110,7 @@ public class RobotContainer {
         LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
-      case SIM:
+    case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -130,7 +132,7 @@ public class RobotContainer {
         LED = new LED();
         break;
 
-      default:
+    default:
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -152,13 +154,10 @@ public class RobotContainer {
     scoreTrigger = new Trigger(elevator::atGoal);
     inZoneTrigger = new Trigger(RobotState.getInstance()::atGoal);
 
-    scoreL4 =
-        Commands.sequence(
-            Commands.parallel(
-                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.5),
-                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4), arm)),
-            Commands.runOnce(() -> CoralManipulator.setOutake(0.5), CoralManipulator)
-                .withTimeout(0.3));
+    scoreL4 = CoralCommands.scoreCoral(Goal.SCOREL4, elevator, CoralManipulator, arm);
+    scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
+    scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
+
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
 
@@ -258,8 +257,7 @@ public class RobotContainer {
     // == Elevator Controls ==
     driveController
         .a()
-        .whileTrue(
-            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL1), () -> elevator.returnToHome()));
+        .onTrue(CoralCommands.scoreCoral(Goal.CUSTOM, elevator, CoralManipulator, arm));
     operatorController
         .b()
         .whileTrue(
