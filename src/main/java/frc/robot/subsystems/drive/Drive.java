@@ -77,7 +77,7 @@ public class Drive extends SubsystemBase {
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = 74.088;
   private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
+  private static final double WHEEL_COF = 1.0;
   private static final RobotConfig PP_CONFIG =
       new RobotConfig(
           ROBOT_MASS_KG,
@@ -141,8 +141,6 @@ public class Drive extends SubsystemBase {
 
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
-
-    configureAutoBuilder();
 
     // Configure SysId
     sysId =
@@ -227,7 +225,7 @@ public class Drive extends SubsystemBase {
     // RobotState.getInstance().setEstimatedPose(getPose());
   }
 
-  private void configureAutoBuilder() {
+  public void configureAutoBuilder() {
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
         this::getPose,

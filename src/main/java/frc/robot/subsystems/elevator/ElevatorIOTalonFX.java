@@ -73,7 +73,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -20;
-    config.TorqueCurrent.TorqueNeutralDeadband = 10;
     // config.CurrentLimits.StatorCurrentLimit = 160;
     config.HardwareLimitSwitch.ForwardLimitEnable = false;
     config.HardwareLimitSwitch.ReverseLimitEnable = false;
@@ -171,7 +170,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public boolean atGoal() {
     return EqualsUtil.epsilonEquals(
-        main.getPosition().getValueAsDouble(), goalPositionRotations, 0.1);
+        main.getPosition().getValueAsDouble(), goalPositionRotations, 0.5);
   }
 
   @Override
@@ -229,8 +228,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runSetpointMotionMagic(double setpointMeters, double feedforward) {
-    double setpointRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
-    Logger.recordOutput("Elevator/SetpointRotations", setpointRotations);
+    goalPositionRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
+    Logger.recordOutput("Elevator/SetpointRotations", goalPositionRotations);
     main.setControl(
         motionMagicControl
             .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)

@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3964156539351842,
-        "y": 7.155846715856481
+        "x": 1.6569458912037027,
+        "y": 7.388833188657408
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9845160854985462,
-        "y": 6.792326990393684
+        "x": 2.243134219309101,
+        "y": 6.664383147471992
       },
       "isLocked": false,
       "linkedName": "closeStation"
     },
     {
       "anchor": {
-        "x": 3.5394137008101842,
-        "y": 5.447492766203704
+        "x": 3.686158492476851,
+        "y": 5.057745587384259
       },
       "prevControl": {
-        "x": 2.385227637892223,
-        "y": 6.408997127111961
+        "x": 2.6929216988399043,
+        "y": 6.140309836525332
       },
       "nextControl": {
-        "x": 3.764744109746336,
-        "y": 5.259779382895634
+        "x": 3.8913162737551357,
+        "y": 4.834136795535417
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.3964156539351842,
-        "y": 7.155846715856481
+        "x": 1.6569458912037027,
+        "y": 7.388833188657408
       },
       "prevControl": {
-        "x": 1.6978897446295549,
-        "y": 6.9208570650867784
+        "x": 1.8236086768194908,
+        "y": 7.202257952008189
       },
       "nextControl": null,
       "isLocked": false,
@@ -56,7 +56,7 @@
       "minWaypointRelativePos": 0.99,
       "maxWaypointRelativePos": 1.01,
       "constraints": {
-        "maxVelocity": 0.1,
+        "maxVelocity": 0.5,
         "maxAcceleration": 4.8,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -70,15 +70,15 @@
     {
       "name": "L4 score",
       "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
+      "endWaypointRelativePos": 1.0,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.8,
-    "maxAcceleration": 4.8,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 9.7,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 1216.0,
+    "maxAngularAcceleration": 719.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -81,6 +82,9 @@ public class RobotContainer {
   private final Trigger scoreTrigger;
   private final Trigger inZoneTrigger;
 
+  public Command scoreL4;
+  public Command intakeCoral;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -93,20 +97,11 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        // // CHANGE
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {});
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        // arm = new arm(new armIOSparkFlex());
         arm = new Arm(new ArmIOSparkFlex());
 
         sensor = new Sensor();
@@ -153,6 +148,25 @@ public class RobotContainer {
         LED = new LED();
         break;
     }
+
+    scoreTrigger = new Trigger(elevator::atGoal);
+    inZoneTrigger = new Trigger(RobotState.getInstance()::atGoal);
+
+    scoreL4 =
+        Commands.sequence(
+            Commands.parallel(
+                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.5),
+                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4), arm)),
+            Commands.runOnce(() -> CoralManipulator.setOutake(0.5), CoralManipulator)
+                .withTimeout(0.3));
+
+    intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
+
+    NamedCommands.registerCommand("Intake Coral", intakeCoral);
+    NamedCommands.registerCommand("L4 score", scoreL4);
+
+    drive.configureAutoBuilder();
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -171,9 +185,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    scoreTrigger = new Trigger(elevator::atGoal);
-    inZoneTrigger = new Trigger(RobotState.getInstance()::atGoal);
 
     // Configure the button bindings
     configureButtonBindings();

@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -166,6 +167,25 @@ public class Elevator extends SubsystemBase {
     // measuredVisualizer.update(inputs.positionMeters);
     setpointVisualizer.update(setpointState.position);
     goalVisualizer.update(goalMeters);
+  }
+
+  public Command getSetpointCommand(Goal goal) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        setGoal(goal);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return atGoal();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        setGoal(Goal.STOW);
+      }
+    };
   }
 
   @AutoLogOutput

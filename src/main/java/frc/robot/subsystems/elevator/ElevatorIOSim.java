@@ -6,7 +6,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
@@ -15,8 +14,8 @@ public class ElevatorIOSim implements ElevatorIO {
   ElevatorSim elevator =
       new ElevatorSim(
           LinearSystemId.createElevatorSystem(
-              DCMotor.getKrakenX60(2), 7.2, Units.inchesToMeters(1.5), reduction),
-          DCMotor.getKrakenX60(2),
+              DCMotor.getKrakenX60Foc(2), 7.2, drumDiameter / 2, reduction / 2),
+          DCMotor.getKrakenX60Foc(2),
           0.,
           ElevatorConstants.maxHeight,
           true,
@@ -75,6 +74,9 @@ public class ElevatorIOSim implements ElevatorIO {
     }
     runVolts(controller.calculate(elevator.getPositionMeters(), setpointMeters));
   }
+
+  @Override
+  public void runSetpointMotionMagic(double setpointMeters, double feedforward) {}
 
   // @Override
   // public void setPID(double p, double i, double d) {
