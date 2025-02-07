@@ -88,9 +88,4 @@ public class RobotState {
     Logger.recordOutput("stationPositions", loggedStationGoals);
     return estimatedPose.nearest(stationGoals);
   }
-
-  // @Override
-  // public void periodic() {
-  //   this.getReefGoalPose();
-  // }
 }
