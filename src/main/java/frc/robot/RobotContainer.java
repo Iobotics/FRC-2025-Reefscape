@@ -249,10 +249,6 @@ public class RobotContainer {
                 Set.of(drive)));
     driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
-    // RIGHT ON DPAD
-    // operatorController
-    //     .pov(90)
-    //     .whileTrue()
 
     // == Elevator Controls ==
     driveController
@@ -276,11 +272,6 @@ public class RobotContainer {
 
     // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
 
-    driveController
-        .rightBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.setOutake(-0.35), () -> CoralManipulator.setOutake(0)));
 
     driveController
         .leftStick()
