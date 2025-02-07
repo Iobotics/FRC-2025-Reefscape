@@ -170,7 +170,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public boolean atGoal() {
     return EqualsUtil.epsilonEquals(
-        main.getPosition().getValueAsDouble(), goalPositionRotations, 0.5);
+        main.getPosition().getValueAsDouble(), goalPositionRotations, 1.0);
   }
 
   @Override
@@ -235,6 +235,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)
             .withFeedForward(feedforward)
             .withSlot(0));
+    if (setpointRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.4) {
+      main.setControl(neutralOut);
+    }
   }
 
   // @Override
