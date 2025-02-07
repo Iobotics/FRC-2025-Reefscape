@@ -70,9 +70,9 @@ public final class Constants {
     public static Translation2d center =
         new Translation2d(Units.inchesToMeters(345.44), Units.inchesToMeters(158.515));
 
-    public static Translation2d reef = center.plus(new Translation2d(-4.284788, 0.0));
+    public static Translation2d centerToReef = new Translation2d(-4.284788, 0.0);
 
-    public static List<Pose2d> stations =
+    public static List<Pose2d> blueStations =
         List.of(
             new Pose2d(
                 Units.inchesToMeters(33.51),
@@ -82,5 +82,16 @@ public final class Constants {
                 Units.inchesToMeters(33.51),
                 Units.inchesToMeters(291.20),
                 new Rotation2d(Units.degreesToRadians(306 + 180))));
+
+    public static List<Pose2d> redStations =
+        List.of(
+            new Pose2d(
+                Units.inchesToMeters(657.37),
+                Units.inchesToMeters(25.80),
+                new Rotation2d(Units.degreesToRadians(126 + 180))),
+            new Pose2d(
+                Units.inchesToMeters(657.37),
+                Units.inchesToMeters(291.20),
+                new Rotation2d(Units.degreesToRadians(234 + 180))));
   }
 }
