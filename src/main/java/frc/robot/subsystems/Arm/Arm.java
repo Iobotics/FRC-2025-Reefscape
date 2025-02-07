@@ -105,14 +105,14 @@ public class Arm extends SubsystemBase {
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
 
-    double ffVolts = ff.calculate(Math.PI - setpointState.position, setpointState.velocity);
+    double ffVolts = ff.calculate(Math.PI / 2 - setpointState.position, setpointState.velocity);
 
     Logger.recordOutput("Arm/FFVolts", ffVolts);
     Logger.recordOutput("Arm/GoalAngle", goalAngle);
     Logger.recordOutput("Arm/SetpointAngle", setpointState.position);
 
     setBrakeMode(!coastSupplier.getAsBoolean());
-    // io.runSetpoint(Units.radiansToDegrees(setpointState.position), ffVolts);
+    io.runSetpoint(Units.radiansToDegrees(setpointState.position), ffVolts);
   }
 
   public void stop() {

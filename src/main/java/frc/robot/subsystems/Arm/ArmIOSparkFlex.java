@@ -57,10 +57,11 @@ public class ArmIOSparkFlex implements ArmIO {
     // Arm.getEncoder().setPosition(0);
     // motor.set(ControlType)
     config = new SparkFlexConfig();
-    config.inverted(false).idleMode(IdleMode.kBrake);
+    config.inverted(true).idleMode(IdleMode.kBrake);
     config
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+        .positionWrappingEnabled(true)
         .pid(kP, kI, kD)
         .outputRange(-1, 1);
     config.smartCurrentLimit(80);
@@ -93,7 +94,7 @@ public class ArmIOSparkFlex implements ArmIO {
   @Override
   public void runSetpoint(double setpointDegrees, double ffVolts) {
     double setpoint = Units.degreesToRotations(setpointDegrees);
-    pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVolts);
   }
 
   @Override
