@@ -55,10 +55,10 @@ public class Elevator extends SubsystemBase {
 
   public enum Goal {
     STOW(new LoggedTunableNumber("Elevator/Stow", 0.0)),
-    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.1)),
-    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.29)),
-    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.79)),
-    SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.26)),
+    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.0)),
+    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.32)),
+    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.70)),
+    SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.30)),
     INTAKE(new LoggedTunableNumber("Elevator/Intake", 0.2)),
     ;
 

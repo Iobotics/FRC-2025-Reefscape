@@ -282,9 +282,12 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.manualCurrent(55), () -> elevator.manualCurrent(0)));
 
     // == arm Controls ==
-    operatorController2
-        .a()
+    driveController
+        .pov(90)
         .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.SCOREL4), () -> arm.stop()));
+    driveController
+        .pov(270)
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> arm.stop()));
     operatorController2
         .b()
         .whileTrue(
