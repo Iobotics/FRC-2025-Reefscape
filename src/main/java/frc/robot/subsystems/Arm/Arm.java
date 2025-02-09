@@ -30,10 +30,10 @@ public class Arm extends SubsystemBase {
       new LoggedTunableNumber("Arm/Gains/kA", gains.ffkA());
   private static final LoggedTunableNumber kG =
       new LoggedTunableNumber("Arm/Gains/kG", gains.ffkG());
-  private static final LoggedTunableNumber lowerLimitDegrees =
-      new LoggedTunableNumber("Arm/LowerLimitDegrees", minAngle.getDegrees());
-  private static final LoggedTunableNumber upperLimitDegrees =
-      new LoggedTunableNumber("Arm/UpperLimitDegrees", maxAngle.getDegrees());
+  private static final LoggedTunableNumber Acceleration =
+      new LoggedTunableNumber("Arm/Acceleration", profileConstraints.maxAcceleration);
+  private static final LoggedTunableNumber Velocity =
+      new LoggedTunableNumber("Arm/Velocity", profileConstraints.maxVelocity);
 
   public enum Goalposition {
     DEFAULT(() -> 0),
@@ -101,18 +101,28 @@ public class Arm extends SubsystemBase {
         kG,
         kV,
         kA);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            profile =
+                new TrapezoidProfile(
+                    new TrapezoidProfile.Constraints(Velocity.get(), Acceleration.get())),
+        Velocity,
+        Acceleration);
     setpointState =
         profile.calculate(
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
 
-    double ffVolts = ff.calculate(Math.PI - setpointState.position, setpointState.velocity);
+    double ffVolts =
+        ff.calculate((Math.PI / 2) - setpointState.position + 0.5, setpointState.velocity);
 
     Logger.recordOutput("Arm/FFVolts", ffVolts);
     Logger.recordOutput("Arm/GoalAngle", goalAngle);
     Logger.recordOutput("Arm/SetpointAngle", setpointState.position);
 
     setBrakeMode(!coastSupplier.getAsBoolean());
-    // io.runSetpoint(Units.radiansToDegrees(setpointState.position), ffVolts);
+    io.runSetpoint(Units.radiansToDegrees(setpointState.position), ffVolts);
   }
 
   public void stop() {

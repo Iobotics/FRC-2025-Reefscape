@@ -61,9 +61,9 @@ public class Elevator extends SubsystemBase {
     SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.32)),
     SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.70)),
     SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.30)),
-    LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.4)),
-    UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.79)),
-    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0));
+    LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.6)),
+    UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.95)),
+    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.1));
 
     private final DoubleSupplier elevatorSetpointSupplier;
 
