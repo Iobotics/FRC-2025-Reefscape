@@ -11,21 +11,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "far-d"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
           }
         },
         {
@@ -35,21 +23,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "far b-end"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4 score"
           }
         }
       ]

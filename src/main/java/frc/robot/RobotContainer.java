@@ -53,6 +53,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -101,7 +102,8 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0));
+                new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0),
+                new VisionIOPhotonVision("funnelCamera", VisionConstants.robotToCamera1));
         elevator = new Elevator(new ElevatorIOTalonFX());
         arm = new Arm(new ArmIOSparkFlex());
 
@@ -160,7 +162,7 @@ public class RobotContainer {
     intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
 
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
-    NamedCommands.registerCommand("L4 score", scoreL4);
+    NamedCommands.registerCommand("L4 score", Commands.waitSeconds(0));
 
     drive.configureAutoBuilder();
 
@@ -240,8 +242,7 @@ public class RobotContainer {
             Commands.defer(
                 () ->
                     drive.pathfindToPose(
-                        RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), driveController.x().getAsBoolean())),
+                        RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
                 Set.of(drive)));
     driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
@@ -250,11 +251,11 @@ public class RobotContainer {
     //     .a()
     //     .onTrue(CoralCommands.scoreCoral(Goal.CUSTOM, elevator, CoralManipulator, arm));
     driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
-    driveController
-        .a()
-        .whileTrue(
-            Commands.startEnd(
-                () -> elevator.setGoal(Goal.LOWERALGAE), () -> elevator.returnToHome()));
+    // driveController
+    //     .a()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> elevator.setGoal(Goal.LOWERALGAE), () -> elevator.returnToHome()));
     operatorController
         .y()
         .whileTrue(
