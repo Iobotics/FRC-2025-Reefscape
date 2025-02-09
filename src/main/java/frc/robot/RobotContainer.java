@@ -249,8 +249,14 @@ public class RobotContainer {
 
     driveController
         .y()
-        .whileTrue(
-            Commands.startEnd(() -> elevator.setGoal(Goal.CUSTOM), () -> elevator.returnToHome()));
+        .onTrue(
+            Commands.defer(
+                () ->
+                    drive.pathfindToPose(
+                        RobotState.getInstance()
+                            .getReefGoalPose(drive.getPose(), driveController.x().getAsBoolean())),
+                Set.of(drive)));
+    driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // == Elevator Controls ==
     // driveController

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.FieldConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +59,16 @@ public class RobotState {
   public Pose2d getReefGoalPose(Pose2d robotPose, boolean clockwise) {
     setEstimatedPose(robotPose);
     List<Pose2d> reefGoals = new ArrayList<Pose2d>();
+    Translation2d reef =
+        FieldConstants.center.plus(
+            DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+                ? FieldConstants.centerToReef
+                : FieldConstants.centerToReef.times(-1));
     for (reefZone zone : reefZone.values())
       reefGoals.add(
           new Pose2d(
-              FieldConstants.reef.plus(
+              reef.plus(
                   new Translation2d(1.2, 0.138 * (clockwise ? -1 : 1))
                       .rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
@@ -81,8 +88,13 @@ public class RobotState {
     List<Pose2d> stationGoals = new ArrayList<Pose2d>();
     Transform2d offset =
         new Transform2d(new Translation2d(-0.5, 0.0), new Rotation2d(Units.degreesToRadians(0)));
-    stationGoals.add(FieldConstants.stations.get(0).plus(offset));
-    stationGoals.add(FieldConstants.stations.get(1).plus(offset));
+    var stations =
+        DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+            ? FieldConstants.blueStations
+            : FieldConstants.redStations;
+    stationGoals.add(stations.get(0).plus(offset));
+    stationGoals.add(stations.get(1).plus(offset));
     Pose2d[] loggedStationGoals = new Pose2d[stationGoals.size()];
     loggedStationGoals = stationGoals.toArray(loggedStationGoals);
     Logger.recordOutput("stationPositions", loggedStationGoals);
