@@ -121,7 +121,7 @@ public class Arm extends SubsystemBase {
 
   @AutoLogOutput(key = "Arm/AtGoal")
   public boolean atGoal() {
-    return EqualsUtil.epsilonEquals(setpointState.position, goalAngle, 1e-3);
+    return EqualsUtil.epsilonEquals(setpointState.position, goalAngle, 0.1);
   }
 
   public void setBrakeMode(boolean enabled) {
@@ -132,6 +132,20 @@ public class Arm extends SubsystemBase {
 
   public void runVolts(double volts) {
     io.setVoltage(volts);
+  }
+
+  public Command getSetpointCommand(Goalposition goal) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        setGoal(goal);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return atGoal();
+      }
+    };
   }
 
   // --------------------------------------------------------------

@@ -204,28 +204,6 @@ public class RobotContainer {
             () -> -driveController.getLeftX(),
             () -> -driveController.getRightX()));
 
-    // Lock to 0° when A button is held
-    // driveController
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -driveController.getLeftY(),
-    //             () -> -driveController.getLeftX(),
-    //             () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    // driveController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // driveController
-    //     .a()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
-    //             Set.of(drive)));
-
-    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
     // Reset gyro to 0° when B button is pressed
     driveController
         .b()
@@ -236,6 +214,15 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    driveController
+        .a()
+        .onTrue(
+            Commands.defer(
+                () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
+                Set.of(drive)));
+
+    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
         .y()
