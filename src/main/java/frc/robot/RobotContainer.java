@@ -53,7 +53,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -237,29 +236,32 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    // driveController
+    //     .y()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
+    //             // driveController.rightBumper().getAsBoolean())),
+    //             Set.of(drive)));
+    // driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
     driveController
         .y()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), driveController.x().getAsBoolean())),
-                Set.of(drive)));
-    driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.CUSTOM), () -> elevator.returnToHome()));
 
     // == Elevator Controls ==
+    // driveController
+    //     .a()
+    //     .onTrue(CoralCommands.scoreCoral(Goal.CUSTOM, elevator, CoralManipulator, arm));
+    driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
     driveController
         .a()
-        .onTrue(CoralCommands.scoreCoral(Goal.CUSTOM, elevator, CoralManipulator, arm));
-    operatorController
-        .b()
         .whileTrue(
-            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL2), () -> elevator.returnToHome()));
-    operatorController
-        .x()
-        .whileTrue(
-            Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL3), () -> elevator.returnToHome()));
+            Commands.startEnd(
+                () -> elevator.setGoal(Goal.LOWERALGAE), () -> elevator.returnToHome()));
     operatorController
         .y()
         .whileTrue(
@@ -278,10 +280,13 @@ public class RobotContainer {
     // == arm Controls ==
     driveController
         .pov(90)
-        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.SCOREL4), () -> arm.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.SCOREL4), () -> {}));
     driveController
         .pov(270)
-        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> arm.stop()));
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> {}));
+    driveController
+        .pov(180)
+        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.CUSTOM), () -> {}));
     operatorController2
         .b()
         .whileTrue(
@@ -303,9 +308,15 @@ public class RobotContainer {
 
     driveController.pov(0).whileTrue(Commands.startEnd(() -> arm.runVolts(1.2), () -> arm.stop()));
 
+    // driveController
+    //     .pov(180)
+    //     .whileTrue(Commands.startEnd(() -> arm.runVolts(-1.2), () -> arm.stop()));
+
     driveController
-        .pov(180)
-        .whileTrue(Commands.startEnd(() -> arm.runVolts(-1.2), () -> arm.stop()));
+        .rightBumper()
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(-0.35), () -> CoralManipulator.setOutake(0)));
 
     // FINAL CONTROLS
 

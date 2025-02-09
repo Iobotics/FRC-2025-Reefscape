@@ -33,7 +33,7 @@ public class ArmConstants {
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        default -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        default -> new Gains(0.6, 0.001, 0.0, 0.4, 0.35, 0.2, -0.4);
       };
 
   // public static TrapezoidProfile.Constraints profileConstraints =
@@ -41,7 +41,7 @@ public class ArmConstants {
 
   // for tuning
   public static TrapezoidProfile.Constraints profileConstraints =
-      new TrapezoidProfile.Constraints(Math.PI / 2, 5);
+      new TrapezoidProfile.Constraints(Math.PI / 2, 8);
 
   public record Gains(
       double kP, double kI, double kD, double ffkS, double ffkV, double ffkA, double ffkG) {}

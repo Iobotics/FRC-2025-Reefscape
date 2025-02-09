@@ -51,6 +51,8 @@ public class CoralManipulatorIOSpark implements CoralManipulatorIO {
 
     topConfig.inverted(true).idleMode(IdleMode.kBrake);
     topConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pid(kP, kI, kD);
+    topConfig.idleMode(IdleMode.kBrake);
+    topConfig.smartCurrentLimit(40);
 
     topCoralManipulator.configure(
         topConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

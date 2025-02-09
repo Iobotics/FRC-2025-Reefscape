@@ -15,7 +15,7 @@ public class CoralCommands {
       Elevator.Goal goal, Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
     return Commands.sequence(
         elevator.getSetpointCommand(goal),
-        Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator).withTimeout(0.3),
+        Commands.run(() -> coralManipulator.setOutake(0.8), coralManipulator).withTimeout(0.15),
         Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
         elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
   }
@@ -26,8 +26,9 @@ public class CoralCommands {
             elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(2),
             Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4), arm)),
         Commands.parallel(
-            Commands.run(() -> coralManipulator.setOutake(0.5), coralManipulator).withTimeout(0.3),
+            Commands.run(() -> coralManipulator.setOutake(0.8), coralManipulator).withTimeout(0.5),
             Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT), arm)),
+        Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
         elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
   }
 }
