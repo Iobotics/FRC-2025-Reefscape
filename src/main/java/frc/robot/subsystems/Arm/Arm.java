@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Arm;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static frc.robot.subsystems.Arm.ArmConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -115,7 +116,9 @@ public class Arm extends SubsystemBase {
             Constants.loopPeriodSecs, setpointState, new TrapezoidProfile.State(goalAngle, 0.0));
 
     double ffVolts =
-        ff.calculate((Math.PI / 2) - setpointState.position + 0.5, setpointState.velocity);
+        ff.calculate(
+            (Math.PI / 2) + degreesToRadians(20.2) - setpointState.position,
+            setpointState.velocity);
 
     Logger.recordOutput("Arm/FFVolts", ffVolts);
     Logger.recordOutput("Arm/GoalAngle", goalAngle);
@@ -158,12 +161,6 @@ public class Arm extends SubsystemBase {
     };
   }
 
-  // --------------------------------------------------------------
-  /*
-    public void runSetpoint(double percentVolts) {
-      io.setVoltage(percentVolts * 12);
-    }
-  */
   public Command runTeleop(DoubleSupplier forward, DoubleSupplier reverse) {
     return runEnd(
         () -> io.setVoltage((forward.getAsDouble() - reverse.getAsDouble()) * 12.0),

@@ -97,11 +97,12 @@ public class ArmIOSparkFlex implements ArmIO {
   @Override
   public void runSetpoint(double setpointDegrees, double ffVolts) {
     double setpoint = Units.degreesToRotations(setpointDegrees);
-    if (setpoint == 0 && encoder.getPosition() < 0.005) {
-      Arm.stopMotor();
-      return;
-    }
     pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVolts);
+  }
+
+  @Override
+  public void resetClosedLoop() {
+    pid.setIAccum(0);
   }
 
   @Override

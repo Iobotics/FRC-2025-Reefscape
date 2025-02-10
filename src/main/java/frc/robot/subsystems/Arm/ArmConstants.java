@@ -27,15 +27,14 @@ public class ArmConstants {
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(360);
   public static final int ArmCANID = 12;
   public static final int currentLimit = 40;
-  public static final double GearRatio = 75.0;
+  public static final double GearRatio = 25.0;
 
   public static final double Armlength = Units.inchesToMeters(10.0);
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        default -> new Gains(0.6, 0.001, 0.0, 0.4, 0.35, 0.2, -0.4);
+        default -> new Gains(0.0, 0.0, 0.0, 0.0, 0.42, 0.01, -0.57);
       };
-
   // public static TrapezoidProfile.Constraints profileConstraints =
   //     new TrapezoidProfile.Constraints(2 * Math.PI, 15);
 

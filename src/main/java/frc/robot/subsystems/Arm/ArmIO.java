@@ -45,6 +45,8 @@ public interface ArmIO {
   /** Set brake mode enabled */
   public default void setBrakeMode(boolean enabled) {}
 
+  public default void resetClosedLoop() {}
+
   /** Set PID values */
   public default void setPID(double p, double i, double d) {}
 

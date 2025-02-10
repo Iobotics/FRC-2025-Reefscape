@@ -16,24 +16,29 @@ package frc.robot.subsystems.Arm;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Constants;
 import frc.robot.subsystems.Arm.ArmConstants.*;
 
 public class ArmIOSim implements ArmIO {
   private static final double autoStartAngle = Units.degreesToRadians(80.0);
   private double appliedVolts = 0.0;
 
-  private final DCMotorSim sim =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.04, ArmConstants.GearRatio),
-          DCMotor.getNeoVortex(1));
+  private final SingleJointedArmSim sim =
+      new SingleJointedArmSim(
+          DCMotor.getNeoVortex(1),
+          ArmConstants.GearRatio,
+          0.1404,
+          Units.inchesToMeters(5.927),
+          Units.degreesToRadians(-180),
+          Units.degreesToRadians(110.2),
+          true,
+          Units.degreesToRadians(110.2));
 
   private final PIDController controller;
-  private double appliedVoltage = 0.0;
-  private double positionOffset = 0.0;
+  private double positionOffset = Units.degreesToRadians(110.2);
 
   private boolean controllerNeedsReset = false;
   private boolean closedLoop = true;
@@ -46,8 +51,6 @@ public class ArmIOSim implements ArmIO {
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    sim.setInput(appliedVolts);
-    sim.update(0.02);
     // sim.update(Constants.loopPeriodSecs);
     if (DriverStation.isDisabled()) {
       controllerNeedsReset = true;
@@ -60,17 +63,34 @@ public class ArmIOSim implements ArmIO {
     }
     wasNotAuto = !DriverStation.isAutonomousEnabled();
 
-    inputs.positionRad = sim.getAngularPositionRad() + positionOffset;
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.positionRad = positionOffset - sim.getAngleRads();
+    inputs.velocityRadPerSec = sim.getVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = sim.getCurrentDrawAmps();
 
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps = sim.getCurrentDrawAmps();
+    sim.update(Constants.loopPeriodSecs);
+    sim.setInputVoltage(0);
+  }
+
+  @Override
+  public void runSetpoint(double setpointDegrees, double feedfoward) {
+    double setpoint = positionOffset - Units.degreesToRadians(setpointDegrees);
+
+    double output = controller.calculate(sim.getAngleRads(), setpoint);
+    appliedVolts = output - feedfoward;
+    setVoltage(appliedVolts);
+  }
+
+  @Override
+  public void setPID(double p, double i, double d) {
+    controller.setPID(p, i, d);
   }
 
   @Override
   public void setVoltage(double volts) {
     appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+    sim.setInputVoltage(appliedVolts);
   }
 }
