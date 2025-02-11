@@ -20,23 +20,20 @@ public class CoralCommands {
         elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
   }
 
-  /**
-   * elevator auto moves
-   */
+  /** elevator auto moves */
   public static Command scoreL4(Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
     return Commands.sequence(
-        elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(2),
-        arm.getSetpointCommand(Goalposition.SCOREL4).withTimeout(0.5),
         Commands.parallel(
-            Commands.run(() -> coralManipulator.setOutake(0.8), coralManipulator).withTimeout(0.5),
-            arm.getSetpointCommand(Goalposition.DEFAULT).withTimeout(0.5)),
-        Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
+            elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(2),
+            Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))),
+        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.3),
+        Commands.parallel(
+            Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT)),
+            Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator)),
         elevator.getSetpointCommand(Goal.STOW).withTimeout(2));
   }
 
-  /**
-   * doesnt lift elevator
-   */
+  /** doesnt lift elevator */
   public static Command scoreL4(CoralManipulator coralManipulator, Arm arm) {
     return Commands.sequence(
         arm.getSetpointCommand(Goalposition.SCOREL4).withTimeout(0.5),

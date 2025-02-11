@@ -237,14 +237,16 @@ public class RobotContainer {
 
     driveController
         .a()
-        .whileTrue(Commands.startEnd(()->elevator.setGoal(Goal.CUSTOM),()->elevator.returnToHome()));
+        .whileTrue(
+            Commands.startEnd(() -> elevator.setGoal(Goal.CUSTOM), () -> elevator.returnToHome()));
 
     // driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
     // operatorController
     //     .y()
     //     .whileTrue(
-    //         Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
+    //         Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () ->
+    // elevator.returnToHome()));
 
     // == arm Controls ==
     driveController
@@ -257,11 +259,7 @@ public class RobotContainer {
         .pov(180)
         .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.CUSTOM), () -> {}));
 
-    driveController
-        .pov(270)
-        .whileTrue(Commands.startEnd(()->CoralManipulator.setOutake(1),()->CoralManipulator.setOutake(0)));
-    
-    
+    driveController.pov(270).onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
     driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
     driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
@@ -271,8 +269,6 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(
                 () -> CoralManipulator.setOutake(-0.35), () -> CoralManipulator.setOutake(0)));
-
-
   }
 
   /**

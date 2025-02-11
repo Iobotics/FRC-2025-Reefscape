@@ -16,7 +16,7 @@ public class ElevatorConstants {
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(20.0, 0.0, 5.0, 0.0, 0.115, 0.0, 0.0);
-        default -> new Gains(60.0, 1.0, 3.0, 3.0, 1.8, 0.8, 15.0);
+        default -> new Gains(60.0, 1.0, 3.0, 3.0, 1.6, 0.4, 15.0);
       };
 
   public static final motionMagicConstraints motionMagicConstraints =
