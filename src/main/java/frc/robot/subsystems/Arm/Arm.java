@@ -38,9 +38,10 @@ public class Arm extends SubsystemBase {
 
   public enum Goalposition {
     DEFAULT(() -> 0),
-    SCOREL4(new LoggedTunableNumber("Arm/ScoreL4", 25.0)),
-    INTAKEALGAE(new LoggedTunableNumber("Arm/IntakeAlgae", 45.0)),
-    CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
+    SCOREL4(new LoggedTunableNumber("Arm/Positions/ScoreL4", 33.0)),
+    INTAKEALGAE(new LoggedTunableNumber("Arm/Positions/IntakeAlgae", 120.0)),
+    HOLDALGAE(new LoggedTunableNumber("Arm/Positions/HoldAlgae", 90.0)),
+    CUSTOM(new LoggedTunableNumber("Arm/Positions/CustomSetpoint", 20.0));
 
     private final DoubleSupplier armSetpointSupplier;
 

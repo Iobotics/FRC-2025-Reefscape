@@ -216,14 +216,14 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driveController
-        .x()
-        .onTrue(
-            Commands.defer(
-                () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
-                Set.of(drive)));
+    // driveController
+    //     .x()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
+    //             Set.of(drive)));
 
-    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
         .y()
@@ -251,13 +251,29 @@ public class RobotContainer {
     // == arm Controls ==
     driveController
         .pov(0)
-        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.DEFAULT), () -> {}));
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.DEFAULT);
+                  elevator.setGoal(Goal.STOW);
+                }));
+
     driveController
         .pov(90)
-        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.SCOREL4), () -> {}));
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.INTAKEALGAE);
+                  elevator.setGoal(Goal.UPPERALGAE);
+                }));
     driveController
         .pov(180)
-        .whileTrue(Commands.startEnd(() -> arm.setGoal(Goalposition.CUSTOM), () -> {}));
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.HOLDALGAE);
+                  elevator.setGoal(Goal.HOLDALGAE);
+                }));
 
     driveController.pov(270).onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
@@ -268,7 +284,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.startEnd(
-                () -> CoralManipulator.setOutake(-0.35), () -> CoralManipulator.setOutake(0)));
+                () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
   }
 
   /**

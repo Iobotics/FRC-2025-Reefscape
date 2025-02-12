@@ -42,4 +42,36 @@ public class CoralCommands {
             arm.getSetpointCommand(Goalposition.DEFAULT).withTimeout(0.5)),
         Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));
   }
+
+  public static Command intakeUpperAlgae(
+      Elevator elevator, CoralManipulator coralManipulator, Arm arm) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        elevator.setGoal(Goal.UPPERALGAE);
+        arm.setGoal(Goalposition.INTAKEALGAE);
+        coralManipulator.setOutake(-0.5);
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        elevator.setGoal(Goal.HOLDALGAE);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return false;
+      }
+    };
+  }
+
+  public static Command releaseAlgae(
+      CoralManipulator coralManipulator, Elevator elevator, Arm arm) {
+    return Commands.sequence(
+        Commands.run(() -> coralManipulator.setOutake(0.8), coralManipulator).withTimeout(0.5),
+        Commands.parallel(
+            Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
+            Commands.runOnce(() -> elevator.setGoal(Goal.STOW)),
+            Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT))));
+  }
 }
