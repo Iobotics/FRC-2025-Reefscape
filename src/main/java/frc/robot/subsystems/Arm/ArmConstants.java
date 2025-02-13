@@ -33,14 +33,14 @@ public class ArmConstants {
   public static final Gains gains =
       switch (Constants.getRobot()) {
         case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        default -> new Gains(0.5, 0.0, 0.0, 0.7, 0.0, 0.0, -0.69);
+        default -> new Gains(1.51, 0.0, 0.0, 0.7, 0.0, 0.0, -0.46);
       };
   // public static TrapezoidProfile.Constraints profileConstraints =
   //     new TrapezoidProfile.Constraints(2 * Math.PI, 15);
 
   // for tuning
   public static TrapezoidProfile.Constraints profileConstraints =
-      new TrapezoidProfile.Constraints(20, 30);
+      new TrapezoidProfile.Constraints(20, 80);
 
   public record Gains(
       double kP, double kI, double kD, double ffkS, double ffkV, double ffkA, double ffkG) {}
