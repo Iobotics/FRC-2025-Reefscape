@@ -68,4 +68,20 @@ public class CoralManipulator extends SubsystemBase {
       }
     };
   }
+
+  public Command Outake(LED led) {
+    return new Command() {
+      @Override
+      public void execute() {
+        setOutake(0.35);
+        led.applyLED(led.yellow);
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        setOutake(0);
+        led.applyLED(led.red);
+      }
+    };
+  }
 }

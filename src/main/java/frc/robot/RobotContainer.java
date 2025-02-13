@@ -30,9 +30,6 @@ import frc.robot.subsystems.Algae.Algae.Goalposition;
 import frc.robot.subsystems.Algae.AlgaeIO;
 import frc.robot.subsystems.Algae.AlgaeIOSim;
 import frc.robot.subsystems.Algae.AlgaeIOSparkFlex;
-import frc.robot.subsystems.CoralFunnel.CoralFunnel;
-import frc.robot.subsystems.CoralFunnel.CoralFunnelIO;
-import frc.robot.subsystems.CoralFunnel.CoralFunnelIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
@@ -265,9 +262,9 @@ public class RobotContainer {
             Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () -> elevator.returnToHome()));
 
     // == Coral Manipulator Controls ==
-    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor));
+    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
 
-    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.runOutake(0)));
+    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
 
     operatorController
         .rightBumper()
@@ -291,15 +288,9 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(() -> algae.setGoal(Goalposition.DEFAULT), () -> algae.stop()));
 
-    operatorController
-        .rightBumper()
-        .whileTrue(CoralManipulator.getCommand(sensor, LED));
-    operatorController
-        .leftBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.setOutake(.35), () -> CoralManipulator.setOutake(0)));
-    
+    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController.leftBumper().whileTrue(CoralManipulator.Outake(LED));
+
     operatorController
         .pov(0)
         .whileTrue(Commands.startEnd(() -> algae.runVolts(1.2), () -> algae.stop()));
