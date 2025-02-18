@@ -30,8 +30,10 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   // Hardware
-  private final TalonFX main;
-  private final TalonFX follower;
+  private final TalonFX motor1;
+  private final TalonFX motor2;
+  private final TalonFX motor3;
+  private final TalonFX motor4;
 
   // Status Signals
   private final List<StatusSignal<Angle>> positionRotations;
@@ -62,8 +64,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
   public ElevatorIOTalonFX() {
-    main = new TalonFX(19, "Carnivore");
-    follower = new TalonFX(20, "Carnivore");
+    motor1 = new TalonFX(19, "Carnivore");
+    motor2 = new TalonFX(20, "Carnivore");
+    motor3 = new TalonFX(21, "Carnivore");
+    motor4 = new TalonFX(22, "Carnivore");
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -85,44 +89,67 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotionMagic.MotionMagicCruiseVelocity = 20;
     config.MotionMagic.MotionMagicJerk = 1000;
 
-    main.getClosedLoopReference();
+    motor1.getClosedLoopReference();
 
-    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
-    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor1.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor2.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor3.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor4.getConfigurator().apply(config));
 
-    follower.setControl(followerControl);
+    motor2.setControl(followerControl);
+    motor3.setControl(followerControl);
+    motor4.setControl(followerControl);
 
-    positionRotations = List.of(main.getPosition(), follower.getPosition());
-    velocityRps = List.of(main.getVelocity(), follower.getVelocity());
-    appliedVoltage = List.of(main.getMotorVoltage(), follower.getMotorVoltage());
-    supplyCurrent = List.of(main.getSupplyCurrent(), follower.getSupplyCurrent());
-    torqueCurrent = List.of(main.getTorqueCurrent(), follower.getTorqueCurrent());
-    tempCelsius = List.of(main.getDeviceTemp(), follower.getDeviceTemp());
-    setpointRotations = List.of(main.getClosedLoopReference(), follower.getClosedLoopReference());
+    positionRotations = List.of(motor1.getPosition(), motor2.getPosition(),motor3.getPosition(),motor4.getPosition());
+    velocityRps = List.of(motor1.getVelocity(), motor2.getVelocity(), motor3.getVelocity(), motor4.getVelocity());
+    appliedVoltage = List.of(motor1.getMotorVoltage(), motor2.getMotorVoltage(), motor3.getMotorVoltage(), motor4.getMotorVoltage());
+    supplyCurrent = List.of(motor1.getSupplyCurrent(), motor2.getSupplyCurrent(), motor3.getSupplyCurrent(), motor4.getSupplyCurrent());
+    torqueCurrent = List.of(motor1.getTorqueCurrent(), motor2.getTorqueCurrent(), motor3.getTorqueCurrent(), motor4.getTorqueCurrent());
+    tempCelsius = List.of(motor1.getDeviceTemp(), motor2.getDeviceTemp(), motor3.getDeviceTemp(), motor4.getDeviceTemp());
+    setpointRotations = List.of(motor1.getClosedLoopReference(), motor2.getClosedLoopReference(), motor3.getClosedLoopReference(), motor4.getClosedLoopReference());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
         positionRotations.get(0),
         positionRotations.get(1),
+        positionRotations.get(2),
+        positionRotations.get(3),
+
         velocityRps.get(0),
         velocityRps.get(1),
+        velocityRps.get(2),
+        velocityRps.get(3),
+
         appliedVoltage.get(0),
         appliedVoltage.get(1),
+        appliedVoltage.get(2),
+        appliedVoltage.get(3),
+
         supplyCurrent.get(0),
         supplyCurrent.get(1),
+        supplyCurrent.get(2),
+        supplyCurrent.get(3),
+
         torqueCurrent.get(0),
         torqueCurrent.get(1),
-        tempCelsius.get(0),
-        tempCelsius.get(1));
+        torqueCurrent.get(2),
+        torqueCurrent.get(3),
 
-    main.optimizeBusUtilization(0, 1.0);
-    follower.optimizeBusUtilization(0, 1.0);
+        tempCelsius.get(0),
+        tempCelsius.get(1),
+        tempCelsius.get(2),
+        tempCelsius.get(3));
+
+    motor1.optimizeBusUtilization(0, 1.0);
+    motor2.optimizeBusUtilization(0, 1.0);
+    motor3.optimizeBusUtilization(0, 1.0);
+    motor4.optimizeBusUtilization(0, 1.0);
 
     goalPositionRotations = 0.0;
   }
 
   public void updateInputs(ElevatorIOInputs inputs) {
-    inputs.leaderMotorConnected =
+    inputs.motor1Connected =
         BaseStatusSignal.refreshAll(
                 positionRotations.get(0),
                 velocityRps.get(0),
@@ -133,7 +160,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 setpointRotations.get(0))
             .isOK();
 
-    inputs.followerMotorConnected =
+    inputs.motor2Connected =
         BaseStatusSignal.refreshAll(
                 appliedVoltage.get(1),
                 velocityRps.get(1),
@@ -141,6 +168,25 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 torqueCurrent.get(1),
                 tempCelsius.get(1),
                 setpointRotations.get(1))
+            .isOK();
+
+    inputs.motor3Connected =
+    BaseStatusSignal.refreshAll(
+            appliedVoltage.get(2),
+            velocityRps.get(2),
+            supplyCurrent.get(2),
+            torqueCurrent.get(2),
+            tempCelsius.get(2),
+            setpointRotations.get(2))
+        .isOK();
+    inputs.motor4Connected =
+        BaseStatusSignal.refreshAll(
+                appliedVoltage.get(3),
+                velocityRps.get(3),
+                supplyCurrent.get(3),
+                torqueCurrent.get(3),
+                tempCelsius.get(3),
+                setpointRotations.get(3))
             .isOK();
 
     inputs.positionRotations =
@@ -164,23 +210,23 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void stop() {
-    main.setControl(neutralOut);
+    motor1.setControl(neutralOut);
   }
 
   @Override
   public boolean atGoal() {
     return EqualsUtil.epsilonEquals(
-        main.getPosition().getValueAsDouble(), goalPositionRotations, 1.0);
+        motor1.getPosition().getValueAsDouble(), goalPositionRotations, 1.0);
   }
 
   @Override
   public void runVolts(double volts) {
-    main.setControl(voltageControl.withOutput(volts));
+    motor1.setControl(voltageControl.withOutput(volts));
   }
 
   @Override
   public void runCurrent(double amps) {
-    main.setControl(currentControl.withOutput(amps).withMaxAbsDutyCycle(0.2));
+    motor1.setControl(currentControl.withOutput(amps).withMaxAbsDutyCycle(0.2));
   }
 
   @Override
@@ -193,7 +239,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kA = a;
     config.Slot0.kG = g;
 
-    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor1.getConfigurator().apply(config));
   }
 
   @Override
@@ -202,7 +248,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotionMagic.MotionMagicCruiseVelocity = velocity;
     config.MotionMagic.MotionMagicJerk = jerk;
 
-    PhoenixUtil.tryUntilOk(5, () -> main.getConfigurator().apply(config));
+    PhoenixUtil.tryUntilOk(5, () -> motor1.getConfigurator().apply(config));
 
     motionMagicControl.Velocity = velocity;
     motionMagicControl.Acceleration = acceleration;
@@ -214,13 +260,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     double setpoint = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
 
     Logger.recordOutput("Elevator/SetpointRotations", setpoint);
-    // main.setControl()
+    // motor1.setControl()
 
-    main.setControl( // kG 0.5 kV 1000.
+    motor1.setControl( // kG 0.5 kV 1000.
         positionControl.withPosition(setpoint).withEnableFOC(true).withFeedForward(feedforward));
 
     //
-    // main.setControl(
+    // motor1.setControl(
     //     positionCurrentControl
     //         .withPosition(Angle.ofBaseUnits(setpointRotations, Units.Rotations))
     //         .withFeedForward(feedforward));
@@ -230,13 +276,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void runSetpointMotionMagic(double setpointMeters, double feedforward) {
     goalPositionRotations = (setpointMeters / ElevatorConstants.rotationsToMeters) * reduction;
     Logger.recordOutput("Elevator/SetpointRotations", goalPositionRotations);
-    main.setControl(
+    motor1.setControl(
         motionMagicControl
             .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)
             .withFeedForward(feedforward)
             .withSlot(0));
     if (goalPositionRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.4) {
-      main.setControl(neutralOut);
+      motor1.setControl(neutralOut);
     }
   }
 

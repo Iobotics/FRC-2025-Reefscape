@@ -5,8 +5,10 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
   @AutoLog
   class ElevatorIOInputs {
-    public boolean leaderMotorConnected = true;
-    public boolean followerMotorConnected = true;
+    public boolean motor1Connected = true;
+    public boolean motor2Connected = true;
+    public boolean motor3Connected = true;
+    public boolean motor4Connected = true;
     public double[] positionRotations = new double[] {};
     public double[] positionMeters = new double[] {};
     public double[] velocityMeters = new double[] {};
