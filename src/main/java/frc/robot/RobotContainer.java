@@ -302,35 +302,30 @@ public class RobotContainer {
     //     .onTrue(CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm));
 
     operatorController
-                .x()
-                .whileTrue(
-                    Commands.startEnd(
-                        () -> elevator.setGoal(Goal.SCOREL2),
-                        () -> elevator.setGoal(Goal.STOW)));
+        .x()
+        .whileTrue(
+            Commands.startEnd(
+                () -> elevator.setGoal(Goal.SCOREL2), () -> elevator.setGoal(Goal.STOW)));
 
     operatorController
-                .a()
-                .whileTrue(
-                    Commands.startEnd(
-                        ()->elevator.setGoal(Goal.SCOREL3),
-                        ()->elevator.setGoal(Goal.STOW)));
+        .a()
+        .whileTrue(
+            Commands.startEnd(
+                () -> elevator.setGoal(Goal.SCOREL3), () -> elevator.setGoal(Goal.STOW)));
 
     operatorController
-                .b()
-                .onTrue(
-                    Commands.sequence(
-                        elevator.getSetpointCommand(Goal.SCOREL4),
-                        Commands.runOnce(()-> arm.setGoal(Goalposition.SCOREL4)))
-                );
+        .b()
+        .onTrue(
+            Commands.sequence(
+                elevator.getSetpointCommand(Goal.SCOREL4),
+                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
 
     operatorController
-                .b()
-                .onFalse(
-                    Commands.sequence(
-                        Commands.run(()->arm.setGoal(Goalposition.DEFAULT)),
-                        Commands.runOnce(()->elevator.setGoal(Goal.STOW))
-                    )
-                );
+        .b()
+        .onFalse(
+            Commands.sequence(
+                Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)),
+                Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
     operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
@@ -342,10 +337,10 @@ public class RobotContainer {
                 () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
 
     operatorController
-                .leftTrigger(0.2)
-                .whileTrue(Commands.startEnd(
-                    ()->CoralManipulator.setOutake(1),
-                    ()->CoralManipulator.setOutake(0)));
+        .leftTrigger(0.2)
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(1), () -> CoralManipulator.setOutake(0)));
 
     // MANUAL CONTROLS
   }
