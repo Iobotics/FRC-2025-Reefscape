@@ -17,6 +17,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
@@ -212,16 +214,21 @@ public class RobotContainer {
     //     DriveCommands.joystickDrive(
     //         drive, () -> -joystick1.getY(), () -> -joystick1.getX(), () -> -joystick2.getX()));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when Y button is pressed
     driveController
         .y()
         .onTrue(
             Commands.runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d(
+                                (DriverStation.getAlliance().isPresent()
+                                    && DriverStation.getAlliance().get() == Alliance.Red
+                                ? 0 : Math.PI)
+                            ))),
                     drive)
                 .ignoringDisable(true));
+
 
     // driveController
     //     .a()
