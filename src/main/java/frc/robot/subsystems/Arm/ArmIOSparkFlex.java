@@ -67,7 +67,7 @@ public class ArmIOSparkFlex implements ArmIO {
         .iZone(1)
         .outputRange(-1, 1);
     config.smartCurrentLimit(40);
-    config.absoluteEncoder.zeroOffset(0.7453073);
+    config.absoluteEncoder.zeroOffset(0.5899142);
     tryUntilOk(
         Arm,
         5,
@@ -97,6 +97,10 @@ public class ArmIOSparkFlex implements ArmIO {
   @Override
   public void runSetpoint(double setpointDegrees, double ffVolts) {
     double setpoint = Units.degreesToRotations(setpointDegrees);
+    if (setpoint == 0 && encoder.getPosition() < 0.05) {
+      Arm.setVoltage(-0.8);
+      return;
+    }
     pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVolts);
   }
 

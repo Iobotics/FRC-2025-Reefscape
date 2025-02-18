@@ -41,6 +41,8 @@ public class Arm extends SubsystemBase {
     SCOREL4(new LoggedTunableNumber("Arm/Positions/ScoreL4", 33.0)),
     INTAKEALGAE(new LoggedTunableNumber("Arm/Positions/IntakeAlgae", 145.0)),
     HOLDALGAE(new LoggedTunableNumber("Arm/Positions/HoldAlgae", 90.0)),
+    SCOREL1(new LoggedTunableNumber("Arm/Positions/ScoreL1", 120)),
+    SCOREL3(new LoggedTunableNumber("Arm/Positions/ScoreL3", 10)),
     CUSTOM(new LoggedTunableNumber("Arm/Positions/CustomSetpoint", 20.0));
 
     private final DoubleSupplier armSetpointSupplier;

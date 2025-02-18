@@ -20,7 +20,7 @@ public class ElevatorConstants {
       };
 
   public static final motionMagicConstraints motionMagicConstraints =
-      new motionMagicConstraints(170.0, 240.0, 420.0);
+      new motionMagicConstraints(200.0, 280.0, 560.0);
 
   public record motionMagicConstraints(double velocity, double acceleration, double jerk) {}
 

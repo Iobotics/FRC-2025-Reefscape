@@ -19,11 +19,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
@@ -79,9 +79,6 @@ public class RobotContainer {
   private final CommandJoystick joystick2 = new CommandJoystick(3);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-
-  private final Trigger scoreTrigger;
-  private final Trigger inZoneTrigger;
 
   public Command scoreL4;
   public Command scoreL3;
@@ -153,9 +150,6 @@ public class RobotContainer {
         break;
     }
 
-    scoreTrigger = new Trigger(elevator::atGoal);
-    inZoneTrigger = new Trigger(RobotState.getInstance()::atGoal);
-
     scoreL4 = CoralCommands.scoreCoral(Goal.SCOREL4, elevator, CoralManipulator, arm);
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
@@ -163,7 +157,8 @@ public class RobotContainer {
     intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
 
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
-    NamedCommands.registerCommand("L4 score", Commands.waitSeconds(0));
+    NamedCommands.registerCommand(
+        "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
     drive.configureAutoBuilder();
 
@@ -202,23 +197,24 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driveController.getLeftY(),
-            () -> -driveController.getLeftX(),
-            () -> -driveController.getRightX()));
+            () ->
+                -driveController.getLeftY()
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1),
+            () ->
+                -driveController.getLeftX()
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1),
+            () ->
+                -driveController.getRightX()
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1)));
 
     // UNCOMMENT BELOW FOR JOYSTICK
     // drive.setDefaultCommand(
     //     DriveCommands.joystickDrive(
-    //         drive,
-    //         () -> -joystick1.getY(),
-    //         () -> -joystick1.getX(),
-    //         () -> -joystick2.getX()
-    //     )
-    // );
+    //         drive, () -> -joystick1.getY(), () -> -joystick1.getX(), () -> -joystick2.getX()));
 
     // Reset gyro to 0° when B button is pressed
     driveController
-        .b()
+        .y()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -237,15 +233,15 @@ public class RobotContainer {
     // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
-        .y()
+        .b()
         .onTrue(
             Commands.defer(
                 () ->
                     drive.pathfindToPose(
                         RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), driveController.x().getAsBoolean())),
+                            .getReefGoalPose(drive.getPose(), driveController.a().getAsBoolean())),
                 Set.of(drive)));
-    driveController.y().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
@@ -302,35 +298,46 @@ public class RobotContainer {
     //     .onTrue(CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm));
 
     operatorController
-                .x()
-                .whileTrue(
-                    Commands.startEnd(
-                        () -> elevator.setGoal(Goal.SCOREL2),
-                        () -> elevator.setGoal(Goal.STOW)));
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.SCOREL1);
+                  elevator.setGoal(Goal.SCOREL1);
+                }));
 
     operatorController
-                .a()
-                .whileTrue(
-                    Commands.startEnd(
-                        ()->elevator.setGoal(Goal.SCOREL3),
-                        ()->elevator.setGoal(Goal.STOW)));
+        .x()
+        .whileTrue(
+            Commands.startEnd(
+                () -> elevator.setGoal(Goal.SCOREL2), () -> elevator.setGoal(Goal.STOW)));
 
     operatorController
-                .b()
-                .onTrue(
-                    Commands.sequence(
-                        elevator.getSetpointCommand(Goal.SCOREL4),
-                        Commands.runOnce(()-> arm.setGoal(Goalposition.SCOREL4)))
-                );
+        .a()
+        .whileTrue(
+            Commands.startEnd(
+                () -> {
+                  elevator.setGoal(Goal.SCOREL3);
+                  arm.setGoal(Goalposition.SCOREL3);
+                },
+                () -> {
+                  elevator.setGoal(Goal.STOW);
+                  arm.setGoal(Goalposition.DEFAULT);
+                }));
 
     operatorController
-                .b()
-                .onFalse(
-                    Commands.sequence(
-                        Commands.run(()->arm.setGoal(Goalposition.DEFAULT)),
-                        Commands.runOnce(()->elevator.setGoal(Goal.STOW))
-                    )
-                );
+        .b()
+        .onTrue(
+            Commands.sequence(
+                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.7),
+                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
+
+    operatorController
+        .b()
+        .onFalse(
+            Commands.sequence(
+                Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.3),
+                Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
     operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
@@ -342,12 +349,99 @@ public class RobotContainer {
                 () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
 
     operatorController
-                .leftTrigger(0.2)
-                .whileTrue(Commands.startEnd(
-                    ()->CoralManipulator.setOutake(1),
-                    ()->CoralManipulator.setOutake(0)));
+        .leftTrigger(0.2)
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(1),
+                () -> {
+                  CoralManipulator.setOutake(0);
+                  LED.setColor(Color.kRed);
+                }));
 
     // MANUAL CONTROLS
+
+    driveController
+        .pov(0)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.DEFAULT);
+                  elevator.setGoal(Goal.STOW);
+                }));
+
+    // ONE DRIVE CONTROLS
+
+    // driveController
+    //     .pov(90)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.INTAKEALGAE);
+    //               elevator.setGoal(Goal.UPPERALGAE);
+    //             }));
+
+    // driveController
+    //     .pov(180)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.INTAKEALGAE);
+    //               elevator.setGoal(Goal.LOWERALGAE);
+    //             }));
+
+    // driveController
+    //     .pov(270)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.INTAKEALGAE);
+    //               elevator.setGoal(Goal.HOLDALGAE);
+    //             }));
+
+    // driveController
+    //     .x()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> elevator.setGoal(Goal.SCOREL2), () -> elevator.setGoal(Goal.STOW)));
+
+    // driveController
+    //     .a()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> elevator.setGoal(Goal.SCOREL3), () -> elevator.setGoal(Goal.STOW)));
+
+    // driveController
+    //     .b()
+    //     .onTrue(
+    //         Commands.sequence(
+    //             elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.7),
+    //             Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
+
+    // driveController
+    //     .b()
+    //     .onFalse(
+    //         Commands.sequence(
+    //             Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.4),
+    //             Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
+
+    // driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+
+    // driveController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
+
+    // driveController
+    //     .leftTrigger(0.2)
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.setOutake(1),
+    //             () -> {
+    //               CoralManipulator.setOutake(0);
+    //               LED.setColor(Color.kRed);
+    //             }));
   }
 
   /**

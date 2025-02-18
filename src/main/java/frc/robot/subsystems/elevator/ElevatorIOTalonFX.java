@@ -71,8 +71,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // config.CurrentLimits.SupplyCurrentLimitEnable = true;
     // config.CurrentLimits.SupplyCurrentLowerLimit = 60;
     // config.CurrentLimits.SupplyCurrentLowerTime = 0.0;
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -20;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 100;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -40;
     // config.CurrentLimits.StatorCurrentLimit = 160;
     config.HardwareLimitSwitch.ForwardLimitEnable = false;
     config.HardwareLimitSwitch.ReverseLimitEnable = false;
@@ -81,9 +81,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
     // motion magic configs
-    config.MotionMagic.MotionMagicAcceleration = 10;
-    config.MotionMagic.MotionMagicCruiseVelocity = 20;
-    config.MotionMagic.MotionMagicJerk = 1000;
+    config.MotionMagic.MotionMagicAcceleration = 280;
+    config.MotionMagic.MotionMagicCruiseVelocity = 200;
+    config.MotionMagic.MotionMagicJerk = 560;
 
     main.getClosedLoopReference();
 
@@ -235,7 +235,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withPosition((setpointMeters / ElevatorConstants.rotationsToMeters) * reduction)
             .withFeedForward(feedforward)
             .withSlot(0));
-    if (goalPositionRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.4) {
+    if (goalPositionRotations == 0 && positionRotations.get(0).getValueAsDouble() < 0.5) {
       main.setControl(neutralOut);
     }
   }
