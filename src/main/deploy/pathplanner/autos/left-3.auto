@@ -11,9 +11,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "L4 score"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "J-close"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Coral"
           }
         },
         {
@@ -23,21 +35,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "close-k"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "close-a"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Close-I-end"
+            "name": "L4 score"
           }
         }
       ]

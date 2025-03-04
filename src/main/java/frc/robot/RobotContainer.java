@@ -159,7 +159,7 @@ public class RobotContainer {
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
 
-    intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(0.4);
+    intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(2);
 
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand(
@@ -204,13 +204,13 @@ public class RobotContainer {
             drive,
             () ->
                 -driveController.getLeftY()
-                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1),
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.8 : 1),
             () ->
                 -driveController.getLeftX()
-                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1),
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.8 : 1),
             () ->
                 -driveController.getRightX()
-                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.5 : 1)));
+                    * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.8 : 1)));
 
     // UNCOMMENT BELOW FOR JOYSTICK
     // drive.setDefaultCommand(
@@ -234,14 +234,14 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // driveController
-    //     .a()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
-    //             Set.of(drive)));
+    driveController
+        .a()
+        .onTrue(
+            Commands.defer(
+                () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
+                Set.of(drive)));
 
-    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
         .b()
@@ -321,7 +321,14 @@ public class RobotContainer {
         .x()
         .whileTrue(
             Commands.startEnd(
-                () -> elevator.setGoal(Goal.SCOREL2), () -> elevator.setGoal(Goal.STOW)));
+                () -> {
+                  elevator.setGoal(Goal.SCOREL2);
+                  LED.setColor(Color.kYellow);
+                },
+                () -> {
+                  elevator.setGoal(Goal.STOW);
+                  LED.setColor(Color.kRed);
+                }));
 
     operatorController
         .a()
@@ -330,16 +337,19 @@ public class RobotContainer {
                 () -> {
                   elevator.setGoal(Goal.SCOREL3);
                   arm.setGoal(Goalposition.SCOREL3);
+                  LED.setColor(Color.kYellow);
                 },
                 () -> {
                   elevator.setGoal(Goal.STOW);
                   arm.setGoal(Goalposition.DEFAULT);
+                  LED.setColor(Color.kRed);
                 }));
 
     operatorController
         .b()
         .onTrue(
             Commands.sequence(
+                Commands.runOnce(() -> LED.setColor(Color.kYellow)),
                 elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.7),
                 Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
 
@@ -347,6 +357,7 @@ public class RobotContainer {
         .b()
         .onFalse(
             Commands.sequence(
+                Commands.runOnce(() -> LED.setColor(Color.kRed)),
                 Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.3),
                 Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 

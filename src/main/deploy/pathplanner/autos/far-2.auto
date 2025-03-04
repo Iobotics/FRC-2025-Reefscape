@@ -39,6 +39,30 @@
           "data": {
             "name": "L4 score"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "d-station"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "station-c"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4 score"
+          }
         }
       ]
     }

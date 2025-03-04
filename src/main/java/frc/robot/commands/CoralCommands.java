@@ -26,11 +26,11 @@ public class CoralCommands {
         Commands.sequence(
             elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.7),
             Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.5)),
-        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.4),
+        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.5),
         Commands.parallel(
-            Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.3),
+            Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.4),
             Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator)),
-        elevator.getSetpointCommand(Goal.STOW).withTimeout(0.5));
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(0.7));
   }
 
   /** doesnt lift elevator */
