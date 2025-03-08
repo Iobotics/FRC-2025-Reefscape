@@ -159,11 +159,13 @@ public class RobotContainer {
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
 
-    intakeCoral = CoralManipulator.getCommand(sensor, LED).withTimeout(2);
+    intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand(
         "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
+    NamedCommands.registerCommand(
+        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator));
 
     drive.configureAutoBuilder();
 
@@ -235,13 +237,13 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driveController
-        .a()
+        .x()
         .onTrue(
             Commands.defer(
                 () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
                 Set.of(drive)));
 
-    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
         .b()
@@ -391,6 +393,22 @@ public class RobotContainer {
                   elevator.setGoal(Goal.STOW);
                 }));
 
+    driveController
+        .pov(90)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.CUSTOM);
+                  elevator.setGoal(Goal.SCOREL4);
+                }));
+
+    driveController
+        .pov(180)
+        .onTrue(
+            Commands.sequence(
+                Commands.run(() -> arm.setGoal(Goalposition.HOLDALGAE)).withTimeout(0.2),
+                Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.8),
+                Commands.runOnce(() -> CoralManipulator.setOutake(0))));
     // ONE DRIVE CONTROLS
 
     // driveController

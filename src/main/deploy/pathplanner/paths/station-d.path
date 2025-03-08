@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3821232778132508,
-        "y": 1.030708957738316
+        "x": 1.4070571232738418,
+        "y": 0.9725723274288903
       },
       "isLocked": false,
       "linkedName": "farStation"
     },
     {
       "anchor": {
-        "x": 3.686504424778762,
-        "y": 3.0429203539823004
+        "x": 4.018551136363637,
+        "y": 2.878267045454545
       },
       "prevControl": {
-        "x": 2.6865044247787617,
-        "y": 1.3108695464134232
+        "x": 3.268551136363637,
+        "y": 1.5792289397778871
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "score-c"
+      "linkedName": "score-d"
     }
   ],
   "rotationTargets": [],
@@ -45,19 +45,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "L4 score",
-      "waypointRelativePos": 0.9,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "L4 score"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 2.0,
     "maxAcceleration": 2.0,

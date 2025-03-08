@@ -3,36 +3,36 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1666761363636364,
-        "y": 0.9038920454545439
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 1.3821232778132508,
-        "y": 1.030708957738316
-      },
-      "isLocked": false,
-      "linkedName": "farStation"
-    },
-    {
-      "anchor": {
         "x": 3.686504424778762,
         "y": 3.0429203539823004
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0799209199882567,
+        "y": 2.4953353442355763
+      },
+      "isLocked": false,
+      "linkedName": "score-c"
+    },
+    {
+      "anchor": {
+        "x": 1.1666761363636364,
+        "y": 0.9038920454545439
+      },
       "prevControl": {
-        "x": 2.6865044247787617,
-        "y": 1.3108695464134232
+        "x": 2.2680402617515956,
+        "y": 1.7901061006032903
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "score-c"
+      "linkedName": "farStation"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.9,
+      "minWaypointRelativePos": 0.8,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 2.0,
@@ -45,19 +45,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "L4 score",
-      "waypointRelativePos": 0.9,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "L4 score"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 2.0,
     "maxAcceleration": 2.0,
@@ -68,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 54.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }

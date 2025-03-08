@@ -69,7 +69,7 @@ public class RobotState {
       reefGoals.add(
           new Pose2d(
               reef.plus(
-                  new Translation2d(1.2, 0.138 * (clockwise ? -1 : 1))
+                  new Translation2d(1.3, 0.188 * (clockwise ? -1 : 1))
                       .rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
     Pose2d[] reefGoalsArray = new Pose2d[reefGoals.size()];
