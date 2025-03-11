@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Sensor;
 
-import java.io.ObjectInputFilter.Status;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -13,9 +12,10 @@ import com.ctre.phoenix6.hardware.CANrange;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil;
 
-public class RangeSensor {
+public class RangeSensor extends SubsystemBase{
     CANrange left = new CANrange(33);
     CANrange center = new CANrange(34);
     CANrange right = new CANrange(35);
@@ -26,8 +26,30 @@ public class RangeSensor {
     
     CANrangeConfiguration sideConfig = new CANrangeConfiguration();
     CANrangeConfiguration centerConfig = new CANrangeConfiguration();
+
+    LoggedTunableNumber centerDistance = new LoggedTunableNumber(
+        "RangeSensor/Center/Distance", 0.4);
+    LoggedTunableNumber centerX = new LoggedTunableNumber(
+        "RangeSensor/Center/XFOV", 27);
+    LoggedTunableNumber centerY = new LoggedTunableNumber(
+        "RangeSensor/Center/YFOV", 27);
+    
+    LoggedTunableNumber sideDistance = new LoggedTunableNumber(
+        "RangeSensor/Side/Distance", 0.4);
+    LoggedTunableNumber sideX = new LoggedTunableNumber(
+        "RangeSensor/Side/XFOV", 27);
+    LoggedTunableNumber sideY = new LoggedTunableNumber(
+        "RangeSensor/Side/YFOV", 27);
+
     public RangeSensor() {
-        
+        centerConfig.ProximityParams.ProximityThreshold = centerDistance.getAsDouble();
+        centerConfig.FovParams.FOVRangeX = centerX.getAsDouble();
+        centerConfig.FovParams.FOVRangeY = centerY.getAsDouble();
+
+        sideConfig.ProximityParams.ProximityThreshold = sideDistance.getAsDouble();
+        sideConfig.FovParams.FOVRangeX = sideX.getAsDouble();
+        sideConfig.FovParams.FOVRangeY = sideY.getAsDouble();
+
         PhoenixUtil.tryUntilOk(5, () -> left.getConfigurator().apply(sideConfig));
         PhoenixUtil.tryUntilOk(5, () -> center.getConfigurator().apply(centerConfig));
         PhoenixUtil.tryUntilOk(5, () -> right.getConfigurator().apply(sideConfig));
@@ -72,10 +94,35 @@ public class RangeSensor {
         return sensorDistance.get(sensor).getValueAsDouble();
     }
 
-    /**
-     * call every period to update shuffleboard values
-     */
-    public void updateInputs() {
+    @Override
+    public void periodic() {
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            () -> {
+                centerConfig.ProximityParams.ProximityThreshold = centerDistance.getAsDouble();
+                centerConfig.FovParams.FOVRangeX = centerX.getAsDouble();
+                centerConfig.FovParams.FOVRangeY = centerY.getAsDouble();
+                PhoenixUtil.tryUntilOk(5, () -> center.getConfigurator().apply(centerConfig));
+            },
+            centerDistance,
+            centerX,
+            centerY
+        );
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            () -> {
+                sideConfig.ProximityParams.ProximityThreshold = sideDistance.getAsDouble();
+                sideConfig.FovParams.FOVRangeX = sideX.getAsDouble();
+                sideConfig.FovParams.FOVRangeY = sideY.getAsDouble();
+                PhoenixUtil.tryUntilOk(5, () -> left.getConfigurator().apply(sideConfig));
+                PhoenixUtil.tryUntilOk(5, () -> right.getConfigurator().apply(sideConfig));
+            },
+            sideDistance,
+            sideX,
+            sideY
+        );
+
         Logger.recordOutput("RangeSensor/Distance", 
             sensorDistance.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray());
         Logger.recordOutput("RangeSensor/IsDetected", 

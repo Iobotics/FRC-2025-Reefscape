@@ -39,6 +39,7 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.IntakeSensor;
+import frc.robot.subsystems.Sensor.RangeSensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -71,6 +72,7 @@ public class RobotContainer {
   private final Elevator elevator;
   private final Arm arm;
   private final CoralManipulator CoralManipulator;
+  private final RangeSensor rangeSensor;
   private final IntakeSensor sensor;
   private final LED LED;
   // Controller
@@ -109,6 +111,7 @@ public class RobotContainer {
         arm = new Arm(new ArmIOSparkFlex());
 
         sensor = new IntakeSensor();
+        rangeSensor = new RangeSensor();
         LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
@@ -134,6 +137,7 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new IntakeSensor();
         LED = new LED();
+        rangeSensor = new RangeSensor();
         break;
 
       default:
@@ -152,6 +156,7 @@ public class RobotContainer {
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new IntakeSensor();
         LED = new LED();
+        rangeSensor = new RangeSensor();
         break;
     }
 
