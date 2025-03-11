@@ -11,9 +11,15 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "L4 score"
+            "name": "L4 Release"
           }
         },
         {
@@ -25,19 +31,38 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "Wait for Coral"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "far-d"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "station-d"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4 score"
+            "name": "L4 Release"
           }
         },
         {
@@ -59,9 +84,15 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "L4 score"
+            "name": "L4 Release"
           }
         }
       ]

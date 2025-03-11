@@ -68,4 +68,36 @@ public class CoralManipulator extends SubsystemBase {
       }
     };
   }
+
+  public Command waitForCoral(IntakeSensor sensor) {
+    return new Command() {
+      @Override
+      public boolean isFinished() {
+        return !sensor.getSwitch();
+      }
+    };
+  }
+
+  /**
+   * assumes coral is already in the manipulator
+  */ 
+  public Command alignCoral(IntakeSensor sensor) {
+    return new Command() {
+      @Override
+      public void execute() {
+        setOutake(0.7);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return sensor.getSwitch();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        setOutake(0);
+      }
+    };
+  }
+
 }

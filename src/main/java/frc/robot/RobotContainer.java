@@ -167,11 +167,12 @@ public class RobotContainer {
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
+    NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand(
         "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
     NamedCommands.registerCommand(
-        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator));
+        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.0));
 
     drive.configureAutoBuilder();
 
