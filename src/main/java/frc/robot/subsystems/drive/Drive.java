@@ -24,7 +24,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -49,7 +48,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -60,7 +58,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
-
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -218,16 +215,6 @@ public class Drive extends SubsystemBase {
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
 
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> configureAutoBuilder(),
-        translationkP,
-        translationkI,
-        translationkD,
-        rotationkP,
-        rotationkI,
-        rotationkD);
-
     // RobotState.getInstance().setEstimatedPose(getPose());
   }
 
@@ -317,19 +304,19 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  public Command pathfindToPose(Pose2d targetPose) {
+  public Command pathfindToPose(Pose2d targetPose, Rotation2d finalHeading) {
     PathConstraints constraints =
-        new PathConstraints(1.5, 2.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+        new PathConstraints(2.5, 2.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(getPose(), targetPose);
-    PathPlannerPath path = new PathPlannerPath(
-      waypoints,
-      constraints,
-      null,
-      new GoalEndState(0.0, targetPose.getRotation())
-    );
+    PathPlannerPath path =
+        new PathPlannerPath(waypoints, constraints, null, new GoalEndState(0.0, finalHeading));
     path.preventFlipping = true;
     return AutoBuilder.followPath(path);
+  }
+
+  public Command pathfindToPose(Pose2d targetPose) {
+    return pathfindToPose(targetPose, targetPose.getRotation());
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -245,7 +246,10 @@ public class RobotContainer {
         .x()
         .onTrue(
             Commands.defer(
-                () -> drive.pathfindToPose(RobotState.getInstance().getStationGoalPose()),
+                () ->
+                    drive.pathfindToPose(
+                        RobotState.getInstance().getStationGoalPose(),
+                        new Rotation2d(Units.degreesToRadians(54))),
                 Set.of(drive)));
 
     driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
@@ -256,8 +260,7 @@ public class RobotContainer {
             Commands.defer(
                 () ->
                     drive.pathfindToPose(
-                        RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), false)),
+                        RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
                 Set.of(drive)));
     driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
@@ -267,8 +270,7 @@ public class RobotContainer {
             Commands.defer(
                 () ->
                     drive.pathfindToPose(
-                        RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), true)),
+                        RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
                 Set.of(drive)));
     driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
