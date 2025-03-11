@@ -44,9 +44,32 @@ public class RobotState {
   }
 
   public Pose2d reefGoalPose;
+  private List<Pose2d> reefGoalsCW;
+  private List<Pose2d> reefGoalsCCW;
 
   private RobotState() {
     reefGoalPose = new Pose2d();
+
+    Translation2d reef =
+        FieldConstants.center.plus(
+            DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+                ? FieldConstants.centerToReef
+                : FieldConstants.centerToReef.times(-1));
+    for (reefZone zone : reefZone.values()) {
+      reefGoalsCW.add(
+          new Pose2d(
+              reef.plus(
+                  new Translation2d(1.3, 0.188 * -1)
+                      .rotateBy(new Rotation2d(zone.getRads()))),
+              new Rotation2d(zone.getRads() + Math.PI)));
+      reefGoalsCCW.add(
+        new Pose2d(
+            reef.plus(
+                new Translation2d(1.3, 0.188)
+                    .rotateBy(new Rotation2d(zone.getRads()))),
+            new Rotation2d(zone.getRads() + Math.PI)));
+    }
   }
 
   private Pose2d odometryPose = new Pose2d();
@@ -58,26 +81,7 @@ public class RobotState {
 
   public Pose2d getReefGoalPose(Pose2d robotPose, boolean clockwise) {
     setEstimatedPose(robotPose);
-    List<Pose2d> reefGoals = new ArrayList<Pose2d>();
-    Translation2d reef =
-        FieldConstants.center.plus(
-            DriverStation.getAlliance().isPresent()
-                    && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
-                ? FieldConstants.centerToReef
-                : FieldConstants.centerToReef.times(-1));
-    for (reefZone zone : reefZone.values())
-      reefGoals.add(
-          new Pose2d(
-              reef.plus(
-                  new Translation2d(1.3, 0.188 * (clockwise ? -1 : 1))
-                      .rotateBy(new Rotation2d(zone.getRads()))),
-              new Rotation2d(zone.getRads() + Math.PI)));
-    Pose2d[] reefGoalsArray = new Pose2d[reefGoals.size()];
-    reefGoalsArray = reefGoals.toArray(reefGoalsArray);
-    Logger.recordOutput("RobotState/reefPositions", reefGoalsArray);
-    reefGoalPose = estimatedPose.nearest(reefGoals);
-    Logger.recordOutput("RobotState/goalPose", reefGoalPose);
-    return estimatedPose.nearest(reefGoals);
+    return estimatedPose.nearest(clockwise ? reefGoalsCW : reefGoalsCCW);
   }
 
   public boolean atGoal() {
