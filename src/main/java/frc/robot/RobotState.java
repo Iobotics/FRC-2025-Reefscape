@@ -87,7 +87,7 @@ public class RobotState {
   public Pose2d getStationGoalPose() {
     List<Pose2d> stationGoals = new ArrayList<Pose2d>();
     Transform2d offset =
-        new Transform2d(new Translation2d(-0.5, 0.0), new Rotation2d(Units.degreesToRadians(0)));
+        new Transform2d(new Translation2d(0.0, 0.0), new Rotation2d(Units.degreesToRadians(0)));
     var stations =
         DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue

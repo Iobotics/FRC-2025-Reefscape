@@ -57,9 +57,9 @@ public class Elevator extends SubsystemBase {
 
   public enum Goal {
     STOW(new LoggedTunableNumber("Elevator/Stow", 0.0)),
-    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.3)),
-    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.32)),
-    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.73)),
+    SCOREL1(new LoggedTunableNumber("Elevator/ScoreL1", 0.34)),
+    SCOREL2(new LoggedTunableNumber("Elevator/ScoreL2", 0.35)),
+    SCOREL3(new LoggedTunableNumber("Elevator/ScoreL3", 0.75)),
     SCOREL4(new LoggedTunableNumber("Elevator/ScoreL4", 1.38)),
     LOWERALGAE(new LoggedTunableNumber("Elevator/LowerAlgae", 0.58)),
     UPPERALGAE(new LoggedTunableNumber("Elevator/UpperAlgae", 0.95)),
@@ -75,6 +75,12 @@ public class Elevator extends SubsystemBase {
     private double getMeters() {
       return elevatorSetpointSupplier.getAsDouble();
     }
+  }
+
+  private boolean distanceOffset = false;
+
+  public void setDistanceOffset(boolean a) {
+    distanceOffset = a;
   }
 
   @AutoLogOutput private Goal goal = Goal.STOW;
@@ -161,7 +167,10 @@ public class Elevator extends SubsystemBase {
 
     // motion magic setpoint code
     if (closedLoop) {
-      io.runSetpointMotionMagic(goalMeters, 0);
+      io.runSetpointMotionMagic(
+          goalMeters
+              + ((distanceOffset && (goal == Goal.SCOREL2 || goal == Goal.SCOREL3)) ? 0.05 : 0),
+          0);
     }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);

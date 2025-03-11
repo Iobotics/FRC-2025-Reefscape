@@ -74,10 +74,7 @@ public final class Constants {
 
     public static List<Pose2d> blueStations =
         List.of(
-            new Pose2d(
-                Units.inchesToMeters(33.51),
-                Units.inchesToMeters(25.80),
-                new Rotation2d(Units.degreesToRadians(54))),
+            new Pose2d(1.167, 0.904, new Rotation2d(Units.degreesToRadians(54))),
             new Pose2d(
                 Units.inchesToMeters(33.51),
                 Units.inchesToMeters(291.20),

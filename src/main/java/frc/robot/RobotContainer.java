@@ -300,6 +300,14 @@ public class RobotContainer {
                   elevator.setGoal(Goal.HOLDALGAE);
                 }));
 
+    operatorController
+        .rightTrigger(0.2)
+        .onTrue(Commands.runOnce(() -> elevator.setDistanceOffset(true)));
+
+    operatorController
+        .rightTrigger(0.2)
+        .onFalse(Commands.runOnce(() -> elevator.setDistanceOffset(false)));
+
     // operatorController.b().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
     // operatorController
@@ -370,7 +378,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.startEnd(
-                () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
+                () -> CoralManipulator.setOutake(-0.2), () -> CoralManipulator.setOutake(0)));
 
     operatorController
         .leftTrigger(0.2)

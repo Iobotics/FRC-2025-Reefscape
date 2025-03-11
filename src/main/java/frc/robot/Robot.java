@@ -121,13 +121,6 @@ public class Robot extends LoggedRobot {
     // Switch thread to high priority to improve loop timing
     Threads.setCurrentThreadPriority(true, 99);
 
-    float busUtil = bus.getStatus().BusUtilization;
-    Logger.recordOutput("CANBus/Utilization", busUtil);
-
-    if (busUtil > 0.8) {
-      canAlert.set(true);
-    }
-
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
     // finished or interrupted commands, and running subsystem periodic() methods.
