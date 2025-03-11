@@ -38,7 +38,7 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.LED.LED;
-import frc.robot.subsystems.Sensor.Sensor;
+import frc.robot.subsystems.Sensor.IntakeSensor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -71,7 +71,7 @@ public class RobotContainer {
   private final Elevator elevator;
   private final Arm arm;
   private final CoralManipulator CoralManipulator;
-  private final Sensor sensor;
+  private final IntakeSensor sensor;
   private final LED LED;
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
@@ -108,7 +108,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOTalonFX());
         arm = new Arm(new ArmIOSparkFlex());
 
-        sensor = new Sensor();
+        sensor = new IntakeSensor();
         LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
         break;
@@ -132,7 +132,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOSim());
         arm = new Arm(new ArmIOSim());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
-        sensor = new Sensor();
+        sensor = new IntakeSensor();
         LED = new LED();
         break;
 
@@ -150,7 +150,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
         arm = new Arm(new ArmIO() {});
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
-        sensor = new Sensor();
+        sensor = new IntakeSensor();
         LED = new LED();
         break;
     }
@@ -252,9 +252,20 @@ public class RobotContainer {
                 () ->
                     drive.pathfindToPose(
                         RobotState.getInstance()
-                            .getReefGoalPose(drive.getPose(), driveController.a().getAsBoolean())),
+                            .getReefGoalPose(drive.getPose(), false)),
                 Set.of(drive)));
     driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    driveController
+        .a()
+        .onTrue(
+            Commands.defer(
+                () ->
+                    drive.pathfindToPose(
+                        RobotState.getInstance()
+                            .getReefGoalPose(drive.getPose(), true)),
+                Set.of(drive)));
+    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 

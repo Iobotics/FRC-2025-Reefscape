@@ -21,8 +21,11 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.RotationTarget;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -46,6 +49,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -56,6 +60,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
+
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -312,17 +318,18 @@ public class Drive extends SubsystemBase {
   }
 
   public Command pathfindToPose(Pose2d targetPose) {
-    // Create the constraints to use while pathfinding
     PathConstraints constraints =
         new PathConstraints(1.5, 2.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
 
-    // Since AutoBuilder is configured, we can use it to build pathfinding commands
-    Command pathfindingCommand =
-        AutoBuilder.pathfindToPose(
-            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
-            );
-    pathfindingCommand.addRequirements(this);
-    return pathfindingCommand;
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(getPose(), targetPose);
+    PathPlannerPath path = new PathPlannerPath(
+      waypoints,
+      constraints,
+      null,
+      new GoalEndState(0.0, targetPose.getRotation())
+    );
+    path.preventFlipping = true;
+    return AutoBuilder.followPath(path);
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
