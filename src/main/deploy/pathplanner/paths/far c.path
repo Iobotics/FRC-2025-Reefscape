@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5835418701171875,
-        "y": 0.5912466866629461
+        "x": 1.2065624999999998,
+        "y": 0.8640056818181825
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2876593503837954,
-        "y": 1.0841963081393382
+        "x": 1.9106799802666077,
+        "y": 1.3569553032945745
       },
       "isLocked": false,
       "linkedName": "farStation"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 1.5835418701171875,
-        "y": 0.5912466866629461
+        "x": 1.2065624999999998,
+        "y": 0.8640056818181825
       },
       "prevControl": {
-        "x": 2.4594095305484496,
-        "y": 1.2234925846463642
+        "x": 2.0824301604312616,
+        "y": 1.4962515798016005
       },
       "nextControl": null,
       "isLocked": false,
@@ -75,7 +75,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.5,
     "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,

@@ -172,7 +172,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
     NamedCommands.registerCommand(
-        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.0));
+        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6));
 
     drive.configureAutoBuilder();
 
@@ -274,6 +274,10 @@ public class RobotContainer {
                         RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
                 Set.of(drive)));
     driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    // driveController.leftStick().whileTrue(Commands.runOnce(() -> arm.runVolts(2)));
+
+    // driveController.leftStick().onFalse(Commands.runOnce(() -> arm.runVolts(0)));
 
     // driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
 
@@ -387,7 +391,7 @@ public class RobotContainer {
         .onFalse(
             Commands.sequence(
                 Commands.runOnce(() -> LED.setColor(Color.kRed)),
-                Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.3),
+                Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.1),
                 Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));

@@ -78,9 +78,7 @@ public class CoralManipulator extends SubsystemBase {
     };
   }
 
-  /**
-   * assumes coral is already in the manipulator
-  */ 
+  /** assumes coral is already in the manipulator */
   public Command alignCoral(IntakeSensor sensor) {
     return new Command() {
       @Override
@@ -99,5 +97,4 @@ public class CoralManipulator extends SubsystemBase {
       }
     };
   }
-
 }

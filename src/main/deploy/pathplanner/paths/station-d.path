@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5835418701171875,
-        "y": 0.5912466866629461
+        "x": 1.2065624999999998,
+        "y": 0.8640056818181825
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8239228570273929,
-        "y": 0.6599269686372925
+        "x": 1.4469434869102051,
+        "y": 0.9326859637925289
       },
       "isLocked": false,
       "linkedName": "farStation"
@@ -48,13 +48,18 @@
   "eventMarkers": [
     {
       "name": "L4 score",
-      "waypointRelativePos": 0.9033385660046733,
+      "waypointRelativePos": 0.85,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "L4 score"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.5,
     "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,
