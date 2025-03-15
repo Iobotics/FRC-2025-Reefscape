@@ -383,7 +383,7 @@ public class RobotContainer {
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> LED.setColor(Color.kYellow)),
-                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.7),
+                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
                 Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
 
     operatorController
