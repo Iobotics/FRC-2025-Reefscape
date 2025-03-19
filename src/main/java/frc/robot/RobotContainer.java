@@ -165,12 +165,19 @@ public class RobotContainer {
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
 
+    Command raiseL4 =
+        Commands.sequence(
+            Commands.runOnce(() -> LED.setColor(Color.kYellow)),
+            elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
+            Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4)));
+
     intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
     NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand(
         "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
+    NamedCommands.registerCommand("Raise L4", raiseL4);
     NamedCommands.registerCommand(
         "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6));
 

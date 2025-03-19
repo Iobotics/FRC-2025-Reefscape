@@ -74,19 +74,69 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "Wait for Coral"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "station-c"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "station-c"
+                }
+              }
+            ]
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4 Release"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "c-station"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait for Coral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "station-b"
+                }
+              }
+            ]
           }
         },
         {

@@ -35,7 +35,7 @@ public class CoralCommands {
 
   public static Command releaseL4(Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
     return Commands.sequence(
-        Commands.runOnce(() -> coralManipulator.setOutake(1.0), coralManipulator),
+        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.1),
         Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.3),
         elevator.getSetpointCommand(Goal.STOW).withTimeout(0.2),
         Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));

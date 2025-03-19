@@ -306,7 +306,7 @@ public class Drive extends SubsystemBase {
 
   public Command pathfindToPose(Pose2d targetPose, Rotation2d finalHeading) {
     PathConstraints constraints =
-        new PathConstraints(2.5, 2.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+        new PathConstraints(2.5, 5.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(getPose(), targetPose);
     PathPlannerPath path =
