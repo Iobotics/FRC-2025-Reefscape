@@ -5,7 +5,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 public class ElevatorConstants {
-  public static final double reduction = 22; // change to actual reduction
+  public static final double reduction = 5; // change to actual reduction
   public static final double drumDiameter = Units.inchesToMeters(1.5);
   public static final double rotationsToMeters = Math.PI * drumDiameter * 2;
   public static final double maxHeight = Units.inchesToMeters(72);

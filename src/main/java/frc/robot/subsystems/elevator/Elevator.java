@@ -160,9 +160,9 @@ public class Elevator extends SubsystemBase {
     // }
 
     // motion magic setpoint code
-    if (closedLoop) {
-      io.runSetpointMotionMagic(goalMeters, 0);
-    }
+    // if (closedLoop) {
+    //   io.runSetpointMotionMagic(goalMeters, 0);
+    // }
 
     Logger.recordOutput("Elevator/SetpointPos", setpointState.position);
     Logger.recordOutput("Elevator/GoalPos", goalMeters);

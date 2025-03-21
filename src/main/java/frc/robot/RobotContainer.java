@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -31,7 +30,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Arm.Goalposition;
 import frc.robot.subsystems.Arm.ArmIO;
-import frc.robot.subsystems.Arm.ArmIOSim;
 import frc.robot.subsystems.Arm.ArmIOSparkFlex;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
@@ -75,8 +73,9 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
-  private final CommandJoystick joystick1 = new CommandJoystick(2);
-  private final CommandJoystick joystick2 = new CommandJoystick(3);
+  private final CommandXboxController testController = new CommandXboxController(2);
+  //   private final CommandJoystick joystick1 = new CommandJoystick(2);
+  //   private final CommandJoystick joystick2 = new CommandJoystick(3);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -106,7 +105,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision("frontCamera", VisionConstants.robotToCamera0),
                 new VisionIOPhotonVision("funnelCamera", VisionConstants.robotToCamera1));
         elevator = new Elevator(new ElevatorIOTalonFX());
-        arm = new Arm(new ArmIOSparkFlex());
+        arm = new Arm(new ArmIO() {});
 
         sensor = new Sensor();
         LED = new LED();
@@ -128,7 +127,7 @@ public class RobotContainer {
                     "camera", VisionConstants.robotToCamera0, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
-        arm = new Arm(new ArmIOSim());
+        arm = new Arm(new ArmIOSparkFlex());
         CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
         sensor = new Sensor();
         LED = new LED();
@@ -343,6 +342,15 @@ public class RobotContainer {
                 () -> CoralManipulator.setOutake(1), () -> CoralManipulator.setOutake(0)));
 
     // MANUAL CONTROLS
+    testController
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(() -> elevator.manualCurrent(10), () -> elevator.manualCurrent(0)));
+
+    testController
+        .rightBumper()
+        .whileTrue(
+            Commands.startEnd(() -> elevator.manualCurrent(-10), () -> elevator.manualCurrent(0)));
   }
 
   /**

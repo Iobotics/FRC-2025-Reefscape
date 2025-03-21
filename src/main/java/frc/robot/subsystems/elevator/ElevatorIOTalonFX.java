@@ -51,7 +51,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final PositionVoltage positionControl = new PositionVoltage(0.0);
   private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0);
   private final VoltageOut voltageControl = new VoltageOut(0.0);
-  private final Follower followerControl = new Follower(19, false);
+  private final Follower followerControl = new Follower(17, false);
   private final PositionTorqueCurrentFOC positionCurrentControl = new PositionTorqueCurrentFOC(0.0);
 
   private final DynamicMotionMagicTorqueCurrentFOC motionMagicControl =
@@ -64,13 +64,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private TalonFXConfiguration config = new TalonFXConfiguration();
 
   public ElevatorIOTalonFX() {
-    motor1 = new TalonFX(19, "Carnivore");
-    motor2 = new TalonFX(20, "Carnivore");
-    motor3 = new TalonFX(21, "Carnivore");
-    motor4 = new TalonFX(22, "Carnivore");
+    motor1 = new TalonFX(17, "Carnivore");
+    motor2 = new TalonFX(18, "Carnivore");
+    motor3 = new TalonFX(19, "Carnivore");
+    motor4 = new TalonFX(20, "Carnivore");
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     // config.CurrentLimits.SupplyCurrentLimit = 100; // change later
     // config.CurrentLimits.SupplyCurrentLimitEnable = true;
     // config.CurrentLimits.SupplyCurrentLowerLimit = 60;
@@ -100,13 +100,42 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     motor3.setControl(followerControl);
     motor4.setControl(followerControl);
 
-    positionRotations = List.of(motor1.getPosition(), motor2.getPosition(),motor3.getPosition(),motor4.getPosition());
-    velocityRps = List.of(motor1.getVelocity(), motor2.getVelocity(), motor3.getVelocity(), motor4.getVelocity());
-    appliedVoltage = List.of(motor1.getMotorVoltage(), motor2.getMotorVoltage(), motor3.getMotorVoltage(), motor4.getMotorVoltage());
-    supplyCurrent = List.of(motor1.getSupplyCurrent(), motor2.getSupplyCurrent(), motor3.getSupplyCurrent(), motor4.getSupplyCurrent());
-    torqueCurrent = List.of(motor1.getTorqueCurrent(), motor2.getTorqueCurrent(), motor3.getTorqueCurrent(), motor4.getTorqueCurrent());
-    tempCelsius = List.of(motor1.getDeviceTemp(), motor2.getDeviceTemp(), motor3.getDeviceTemp(), motor4.getDeviceTemp());
-    setpointRotations = List.of(motor1.getClosedLoopReference(), motor2.getClosedLoopReference(), motor3.getClosedLoopReference(), motor4.getClosedLoopReference());
+    positionRotations =
+        List.of(
+            motor1.getPosition(), motor2.getPosition(), motor3.getPosition(), motor4.getPosition());
+    velocityRps =
+        List.of(
+            motor1.getVelocity(), motor2.getVelocity(), motor3.getVelocity(), motor4.getVelocity());
+    appliedVoltage =
+        List.of(
+            motor1.getMotorVoltage(),
+            motor2.getMotorVoltage(),
+            motor3.getMotorVoltage(),
+            motor4.getMotorVoltage());
+    supplyCurrent =
+        List.of(
+            motor1.getSupplyCurrent(),
+            motor2.getSupplyCurrent(),
+            motor3.getSupplyCurrent(),
+            motor4.getSupplyCurrent());
+    torqueCurrent =
+        List.of(
+            motor1.getTorqueCurrent(),
+            motor2.getTorqueCurrent(),
+            motor3.getTorqueCurrent(),
+            motor4.getTorqueCurrent());
+    tempCelsius =
+        List.of(
+            motor1.getDeviceTemp(),
+            motor2.getDeviceTemp(),
+            motor3.getDeviceTemp(),
+            motor4.getDeviceTemp());
+    setpointRotations =
+        List.of(
+            motor1.getClosedLoopReference(),
+            motor2.getClosedLoopReference(),
+            motor3.getClosedLoopReference(),
+            motor4.getClosedLoopReference());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
@@ -114,27 +143,22 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         positionRotations.get(1),
         positionRotations.get(2),
         positionRotations.get(3),
-
         velocityRps.get(0),
         velocityRps.get(1),
         velocityRps.get(2),
         velocityRps.get(3),
-
         appliedVoltage.get(0),
         appliedVoltage.get(1),
         appliedVoltage.get(2),
         appliedVoltage.get(3),
-
         supplyCurrent.get(0),
         supplyCurrent.get(1),
         supplyCurrent.get(2),
         supplyCurrent.get(3),
-
         torqueCurrent.get(0),
         torqueCurrent.get(1),
         torqueCurrent.get(2),
         torqueCurrent.get(3),
-
         tempCelsius.get(0),
         tempCelsius.get(1),
         tempCelsius.get(2),
@@ -171,14 +195,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .isOK();
 
     inputs.motor3Connected =
-    BaseStatusSignal.refreshAll(
-            appliedVoltage.get(2),
-            velocityRps.get(2),
-            supplyCurrent.get(2),
-            torqueCurrent.get(2),
-            tempCelsius.get(2),
-            setpointRotations.get(2))
-        .isOK();
+        BaseStatusSignal.refreshAll(
+                appliedVoltage.get(2),
+                velocityRps.get(2),
+                supplyCurrent.get(2),
+                torqueCurrent.get(2),
+                tempCelsius.get(2),
+                setpointRotations.get(2))
+            .isOK();
     inputs.motor4Connected =
         BaseStatusSignal.refreshAll(
                 appliedVoltage.get(3),

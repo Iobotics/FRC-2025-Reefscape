@@ -67,7 +67,7 @@ public class ArmIOSparkFlex implements ArmIO {
         .iZone(1)
         .outputRange(-1, 1);
     config.smartCurrentLimit(40);
-    config.absoluteEncoder.zeroOffset(0.7453073);
+    config.absoluteEncoder.zeroOffset(0.9297381);
     tryUntilOk(
         Arm,
         5,
