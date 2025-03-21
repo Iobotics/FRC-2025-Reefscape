@@ -62,11 +62,11 @@ public class RobotState {
       reefGoalsCW.add(
           new Pose2d(
               reef.plus(
-                  new Translation2d(1.28, 0.1875 * -1).rotateBy(new Rotation2d(zone.getRads()))),
+                  new Translation2d(1.28, 0.12 * -1).rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
       reefGoalsCCW.add(
           new Pose2d(
-              reef.plus(new Translation2d(1.28, 0.1805).rotateBy(new Rotation2d(zone.getRads()))),
+              reef.plus(new Translation2d(1.28, 0.17).rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
     }
   }
