@@ -59,6 +59,9 @@ public class IntakeIOTalonFX implements IntakeIO {
   public void setVoltage(double voltage) {}
 
   @Override
+  public void stop() {}
+
+  @Override
   public void updateInputs(IntakeIOInputs inputs) {
     inputs.motorConnected = leftMotor.isConnected() && rightMotor.isConnected();
   }

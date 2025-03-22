@@ -14,6 +14,10 @@ public class Pivot {
     io.setVoltage(voltage);
   }
 
+  public void stop() {
+    io.setVoltage(0.0);
+  }
+
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Climb/Pivot", inputs);

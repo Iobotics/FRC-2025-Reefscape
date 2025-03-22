@@ -23,6 +23,9 @@ public class PivotIOSparkFlex implements PivotIO {
   }
 
   @Override
+  public void stop() {}
+
+  @Override
   public void updateInputs(PivotIOInputs inputs) {
     inputs.positionRadians = motor.getEncoder().getPosition();
     inputs.appliedVoltage = motor.getAppliedOutput() * 12;

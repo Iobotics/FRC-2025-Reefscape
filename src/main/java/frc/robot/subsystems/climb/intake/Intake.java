@@ -13,6 +13,10 @@ public class Intake {
     io.setVoltage(voltage);
   }
 
+  public void stop() {
+    io.setVoltage(0.0);
+  }
+
   public void periodic() {
     io.updateInputs(inputs);
   }

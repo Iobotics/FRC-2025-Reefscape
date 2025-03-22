@@ -21,6 +21,14 @@ public class Climb extends SubsystemBase {
     pivot.setVoltage(voltage);
   }
 
+  public void stopPivot() {
+    pivot.setVoltage(0.0);
+  }
+
+  public void stopIntake() {
+    intake.setVoltage(0.0);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
