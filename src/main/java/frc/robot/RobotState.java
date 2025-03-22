@@ -66,7 +66,7 @@ public class RobotState {
               new Rotation2d(zone.getRads() + Math.PI)));
       reefGoalsCCW.add(
           new Pose2d(
-              reef.plus(new Translation2d(1.28, 0.17).rotateBy(new Rotation2d(zone.getRads()))),
+              reef.plus(new Translation2d(1.28, 0.192).rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
     }
   }
@@ -82,6 +82,11 @@ public class RobotState {
     setEstimatedPose(robotPose);
     return estimatedPose.nearest(clockwise ? reefGoalsCW : reefGoalsCCW);
   }
+
+  // public void displayReefPose() {
+  //   Logger.recordOutput("reef", reefGoalsCCW.toArray(new Pose2d[reefGoalsCCW.size()]));
+  //   Logger.recordOutput("reefc", reefGoalsCW.toArray(new Pose2d[reefGoalsCW.size()]));
+  // }
 
   public boolean atGoal() {
     return reefGoalPose.minus(estimatedPose).getTranslation().getNorm() < 0.1;
