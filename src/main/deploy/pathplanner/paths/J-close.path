@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.995767045454546,
-        "y": 5.151789772727272
+        "x": 4.985795454545454,
+        "y": 5.206633522727272
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9996203542474227,
-        "y": 5.770506290371
+        "x": 4.517130681818181,
+        "y": 5.919602272727272
       },
       "isLocked": false,
       "linkedName": "reef-J"
@@ -20,8 +20,8 @@
         "y": 7.174778761061947
       },
       "prevControl": {
-        "x": 2.1623887912111344,
-        "y": 6.45665702822343
+        "x": 1.7051420454545454,
+        "y": 6.50294034090909
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 5.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,
     "nominalVoltage": 12.0,
@@ -47,7 +47,7 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true

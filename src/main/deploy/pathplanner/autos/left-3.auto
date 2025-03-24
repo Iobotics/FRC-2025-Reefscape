@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "L4 score"
+            "name": "L4 Release"
           }
         },
         {
@@ -25,19 +25,32 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "Wait for Coral"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "close-L"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "close-L"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Coral"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4 score"
+            "name": "L4 Release"
           }
         }
       ]

@@ -20,28 +20,23 @@
         "y": 5.057745587384259
       },
       "prevControl": {
-        "x": 2.610254576568618,
-        "y": 6.0501681282633
+        "x": 3.420255681818182,
+        "y": 5.535696022727272
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": -59.99999999999999
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.99,
+      "minWaypointRelativePos": 0.7955801104972398,
       "maxWaypointRelativePos": 1,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 4.8,
+        "maxVelocity": 1.5,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -52,15 +47,20 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "L4 score",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": 1.0,
-      "command": null
+      "name": "Raise L4",
+      "waypointRelativePos": 0.7576953433307015,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Raise L4"
+        }
+      }
     }
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 5.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,
     "nominalVoltage": 12.0,
