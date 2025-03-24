@@ -28,7 +28,7 @@ import java.util.List;
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = true;
-  public static final Mode simMode = Mode.SIM;
+  public static final Mode simMode = Mode.REPLAY;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   // motor controller IDs
@@ -69,8 +69,8 @@ public final class Constants {
     // assumes all blue alliance
     public static Translation2d center =
         new Translation2d(Units.inchesToMeters(345.44), Units.inchesToMeters(158.515));
-
-    public static Translation2d centerToReef = new Translation2d(-4.234788, 0.0);
+    // 4.240788
+    public static Translation2d centerToReef = new Translation2d(-4.280788, 0.0);
 
     public static List<Pose2d> blueStations =
         List.of(
