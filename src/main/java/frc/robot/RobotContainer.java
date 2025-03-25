@@ -455,7 +455,11 @@ public class RobotContainer {
                 Commands.runOnce(() -> CoralManipulator.setOutake(0))));
 
     autoRelease.onTrue(
-        Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.2));
+        Commands.startEnd(
+            ()->CoralManipulator.setOutake(1), 
+            ()->CoralManipulator.setOutake(0), 
+            CoralManipulator
+        ).withTimeout(0.1));
     // ONE DRIVE CONTROLS
 
     // driveController
