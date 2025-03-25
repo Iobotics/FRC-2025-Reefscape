@@ -92,6 +92,10 @@ public class Elevator extends SubsystemBase {
     goal = newGoal;
   }
 
+  public Goal getGoal() {
+    return goal;
+  }
+
   public void returnToHome() {
     goal = Goal.STOW;
   }

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -88,6 +89,8 @@ public class RobotContainer {
   public Command scoreL3;
   public Command scoreL2;
   public Command intakeCoral;
+
+  public Trigger autoRelease;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -185,6 +188,9 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    autoRelease = new Trigger(
+        ()->rangeSensor.isDetected(1) && elevator.atGoal() && elevator.getGoal() == Goal.SCOREL4);
 
     // // Set up SysId routines
     // autoChooser.addOption(
@@ -447,6 +453,9 @@ public class RobotContainer {
                 Commands.run(() -> arm.setGoal(Goalposition.HOLDALGAE)).withTimeout(0.2),
                 Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.8),
                 Commands.runOnce(() -> CoralManipulator.setOutake(0))));
+
+    autoRelease.onTrue(
+        Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.2));
     // ONE DRIVE CONTROLS
 
     // driveController
