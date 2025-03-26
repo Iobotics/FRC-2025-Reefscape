@@ -3,7 +3,7 @@ package frc.robot.subsystems.Sensor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.littletonrobotics.junction.AutoLogOutput;
 
-public class Sensor {
+public class IntakeSensor {
   // Sensor
   public final DigitalInput coralSwitch = new DigitalInput(0);
 

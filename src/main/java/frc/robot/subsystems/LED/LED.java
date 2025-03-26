@@ -69,4 +69,8 @@ public class LED extends SubsystemBase {
   public Command onGreen() {
     return run(() -> applyLED(this.green));
   }
+
+  public void setColor(Color color) {
+    applyLED(LEDPattern.solid(color));
+  }
 }

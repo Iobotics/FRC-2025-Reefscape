@@ -21,8 +21,10 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -56,6 +58,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -212,16 +215,6 @@ public class Drive extends SubsystemBase {
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
 
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> configureAutoBuilder(),
-        translationkP,
-        translationkI,
-        translationkD,
-        rotationkP,
-        rotationkI,
-        rotationkD);
-
     // RobotState.getInstance().setEstimatedPose(getPose());
   }
 
@@ -311,18 +304,19 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  public Command pathfindToPose(Pose2d targetPose) {
-    // Create the constraints to use while pathfinding
+  public Command pathfindToPose(Pose2d targetPose, Rotation2d finalHeading) {
     PathConstraints constraints =
-        new PathConstraints(1.5, 2.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+        new PathConstraints(2.5, 5.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
 
-    // Since AutoBuilder is configured, we can use it to build pathfinding commands
-    Command pathfindingCommand =
-        AutoBuilder.pathfindToPose(
-            targetPose, constraints, 0.0 // Goal end velocity in meters/sec
-            );
-    pathfindingCommand.addRequirements(this);
-    return pathfindingCommand;
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(getPose(), targetPose);
+    PathPlannerPath path =
+        new PathPlannerPath(waypoints, constraints, null, new GoalEndState(0.0, finalHeading));
+    path.preventFlipping = true;
+    return AutoBuilder.followPath(path);
+  }
+
+  public Command pathfindToPose(Pose2d targetPose) {
+    return pathfindToPose(targetPose, targetPose.getRotation());
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

@@ -3,7 +3,7 @@ package frc.robot.subsystems.CoralManipulator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.LED.LED;
-import frc.robot.subsystems.Sensor.Sensor;
+import frc.robot.subsystems.Sensor.IntakeSensor;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -40,7 +40,7 @@ public class CoralManipulator extends SubsystemBase {
         () -> io.setVoltage(0.0));
   }
 
-  public Command getCommand(Sensor coralSwitch, LED led) {
+  public Command getCommand(IntakeSensor coralSwitch, LED led) {
     return new Command() {
       @Override
       public void execute() {
@@ -65,6 +65,35 @@ public class CoralManipulator extends SubsystemBase {
         touchingManipulator = false;
         setOutake(0);
         led.applyLED(led.green);
+      }
+    };
+  }
+
+  public Command waitForCoral(IntakeSensor sensor) {
+    return new Command() {
+      @Override
+      public boolean isFinished() {
+        return !sensor.getSwitch();
+      }
+    };
+  }
+
+  /** assumes coral is already in the manipulator */
+  public Command alignCoral(IntakeSensor sensor) {
+    return new Command() {
+      @Override
+      public void execute() {
+        setOutake(0.7);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return sensor.getSwitch();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        setOutake(0);
       }
     };
   }
