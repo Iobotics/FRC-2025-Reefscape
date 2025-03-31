@@ -28,7 +28,7 @@ import java.util.List;
 public final class Constants {
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = true;
-  public static final Mode simMode = Mode.REPLAY;
+  public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   // motor controller IDs

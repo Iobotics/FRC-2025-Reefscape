@@ -78,15 +78,19 @@ public class RobotState {
     estimatedPose = pose;
   }
 
+  public Pose2d getReefGoalPose(int index) {
+    return reefGoalsCCW.get(index);
+  }
+
   public Pose2d getReefGoalPose(Pose2d robotPose, boolean clockwise) {
     setEstimatedPose(robotPose);
     return estimatedPose.nearest(clockwise ? reefGoalsCW : reefGoalsCCW);
   }
 
-  // public void displayReefPose() {
-  //   Logger.recordOutput("reef", reefGoalsCCW.toArray(new Pose2d[reefGoalsCCW.size()]));
-  //   Logger.recordOutput("reefc", reefGoalsCW.toArray(new Pose2d[reefGoalsCW.size()]));
-  // }
+  public void displayReefPose() {
+    Logger.recordOutput("reef", reefGoalsCCW.toArray(new Pose2d[reefGoalsCCW.size()]));
+    Logger.recordOutput("reefc", reefGoalsCW.toArray(new Pose2d[reefGoalsCW.size()]));
+  }
 
   public boolean atGoal() {
     return reefGoalPose.minus(estimatedPose).getTranslation().getNorm() < 0.1;

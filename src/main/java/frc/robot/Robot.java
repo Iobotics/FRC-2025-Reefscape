@@ -170,7 +170,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // RobotState.getInstance().displayReefPose();
+    RobotState.getInstance().displayReefPose();
   }
 
   /** This function is called once when test mode is enabled. */
