@@ -52,7 +52,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     var cameraProperties = new SimCameraProperties();
     cameraProperties.setCalibration(640, 480, new Rotation2d(Units.degreesToRadians(128.2)));
 
-    cameraProperties.setCalibError(0.25, 0.08);
+    // cameraProperties.setCalibError(0.25, 0.08);
     cameraProperties.setFPS(20);
 
     cameraProperties.setAvgLatencyMs(35);

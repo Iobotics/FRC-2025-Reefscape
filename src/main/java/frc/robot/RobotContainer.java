@@ -91,6 +91,9 @@ public class RobotContainer {
   public Command scoreL2;
   public Command intakeCoral;
 
+
+  public Command raiseL4;
+
   public Trigger driveRightStickActive =
       new Trigger(
           () ->
@@ -173,7 +176,7 @@ public class RobotContainer {
     scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
     scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
 
-    Command raiseL4 =
+    raiseL4 =
         Commands.sequence(
             Commands.runOnce(() -> LED.setColor(Color.kYellow)),
             elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
@@ -282,24 +285,45 @@ public class RobotContainer {
     driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
-        .b()
-        .onTrue(
+        .a()
+        .whileTrue(
             Commands.defer(
                 () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
+                    DriveCommands.joystickDriveAtAngle(
+                        drive,
+                        () -> -driveController.getLeftY(),
+                        () -> -driveController.getLeftX(),
+                        () -> RobotState.getInstance().getReefGoalPose(1).getRotation()),
                 Set.of(drive)));
-    driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     driveController
-        .a()
+        .b()
         .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
-                Set.of(drive)));
-    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+            DriveCommands.autoAlignCoral(
+                drive,
+                RobotState.getInstance().getReefGoalPose(1),
+                raiseL4,
+                CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)));
+
+    // driveController
+    //     .b()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
+    //             Set.of(drive)));
+    // driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    // driveController
+    //     .a()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
+    //             Set.of(drive)));
+    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController.leftStick().whileTrue(Commands.runOnce(() -> arm.runVolts(2)));
 
@@ -466,6 +490,7 @@ public class RobotContainer {
                 Commands.run(() -> arm.setGoal(Goalposition.HOLDALGAE)).withTimeout(0.2),
                 Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.8),
                 Commands.runOnce(() -> CoralManipulator.setOutake(0))));
+
     // ONE DRIVE CONTROLS
 
     // driveController

@@ -13,6 +13,7 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -48,6 +50,9 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
+  private static PhoenixPIDController xController = new PhoenixPIDController(3.0, 0, 0);
+  private static PhoenixPIDController yController = new PhoenixPIDController(3.0, 0, 0);
+
   private DriveCommands() {}
 
   @AutoLogOutput
@@ -63,6 +68,50 @@ public class DriveCommands {
     return new Pose2d(new Translation2d(), linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
         .getTranslation();
+  }
+
+  public static Command autoAlignCoral(
+      Drive drive, Pose2d target, Command raiseCommand, Command endCommand) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        raiseCommand.schedule();
+        xController.reset();
+        yController.reset();
+        drive.runVelocity(new ChassisSpeeds(0, 0, 0));
+      }
+
+      @Override
+      public void execute() {
+        SlewRateLimiter limiter = new SlewRateLimiter(0.5);
+        System.out.println("X: " + drive.getPose().getX() + " Y: " + drive.getPose().getY());
+        System.out.println("Target X: " + target.getX() + " Target Y: " + target.getY());
+        ChassisSpeeds speeds =
+            new ChassisSpeeds(
+                xController.calculate(
+                    drive.getPose().getX(), target.getX(), Timer.getFPGATimestamp()),
+                yController.calculate(
+                    drive.getPose().getY(), target.getY(), Timer.getFPGATimestamp()),
+                0);
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, target.getRotation());
+        speeds = ChassisSpeeds.discretize(speeds, Constants.loopPeriodSecs);
+
+        drive.runVelocity(speeds);
+      }
+
+      @Override
+      public boolean isFinished() {
+        return Math.abs(
+                drive.getPose().getTranslation().getNorm() - target.getTranslation().getNorm())
+            < 0.001;
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        drive.runVelocity(new ChassisSpeeds(0, 0, 0));
+        endCommand.schedule();
+      }
+    };
   }
 
   /**
