@@ -17,7 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -58,7 +58,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -189,8 +188,12 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    autoRelease = new Trigger(
-        ()->rangeSensor.isDetected(1) && elevator.atGoal() && elevator.getGoal() == Goal.SCOREL4);
+    autoRelease =
+        new Trigger(
+            () ->
+                rangeSensor.isDetected(1)
+                    && elevator.atGoal()
+                    && elevator.getGoal() == Goal.SCOREL4);
 
     // // Set up SysId routines
     // autoChooser.addOption(
@@ -257,36 +260,43 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driveController
-        .x()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getStationGoalPose(),
-                        new Rotation2d(Units.degreesToRadians(54))),
-                Set.of(drive)));
-
-    driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
-    driveController
-        .b()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
-                Set.of(drive)));
-    driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
-    driveController
         .a()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
-                Set.of(drive)));
-    driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+        .whileTrue(
+            Commands.runEnd(
+                () -> drive.runVelocity(new ChassisSpeeds(0, 0.5, 0)),
+                () -> drive.runVelocity(new ChassisSpeeds(0, 0, 0))));
+
+    // driveController
+    //     .x()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getStationGoalPose(),
+    //                     new Rotation2d(Units.degreesToRadians(54))),
+    //             Set.of(drive)));
+
+    // driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    // driveController
+    //     .b()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
+    //             Set.of(drive)));
+    // driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    // driveController
+    //     .a()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
+    //             Set.of(drive)));
+    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController.leftStick().whileTrue(Commands.runOnce(() -> arm.runVolts(2)));
 
@@ -456,10 +466,10 @@ public class RobotContainer {
 
     autoRelease.onTrue(
         Commands.startEnd(
-            ()->CoralManipulator.setOutake(1), 
-            ()->CoralManipulator.setOutake(0), 
-            CoralManipulator
-        ).withTimeout(0.1));
+                () -> CoralManipulator.setOutake(1),
+                () -> CoralManipulator.setOutake(0),
+                CoralManipulator)
+            .withTimeout(0.1));
     // ONE DRIVE CONTROLS
 
     // driveController
