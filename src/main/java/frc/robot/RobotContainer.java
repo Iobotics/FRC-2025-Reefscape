@@ -25,8 +25,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -57,6 +57,8 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.ControllerUtil;
+
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -79,8 +81,8 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
-  private final CommandJoystick joystick1 = new CommandJoystick(2);
-  private final CommandJoystick joystick2 = new CommandJoystick(3);
+  //   private final CommandJoystick joystick1 = new CommandJoystick(2);
+  //   private final CommandJoystick joystick2 = new CommandJoystick(3);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -88,6 +90,12 @@ public class RobotContainer {
   public Command scoreL3;
   public Command scoreL2;
   public Command intakeCoral;
+
+  public Trigger driveRightStickActive =
+      new Trigger(
+          () ->
+              Math.abs(driveController.getRightX()) > 0.1
+                  || Math.abs(driveController.getRightY()) > 0.1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -228,10 +236,21 @@ public class RobotContainer {
                 -driveController.getRightX()
                     * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.8 : 1)));
 
-    // UNCOMMENT BELOW FOR JOYSTICK
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive, () -> -joystick1.getY(), () -> -joystick1.getX(), () -> -joystick2.getX()));
+    driveController
+        .rightBumper()
+        .and(driveRightStickActive)
+        .whileTrue(
+            Commands.defer(
+                () ->
+                    DriveCommands.joystickDriveAtAngle(
+                        drive,
+                        () -> -driveController.getLeftY(),
+                        () -> -driveController.getLeftX(),
+                        () ->
+                            ControllerUtil.snapToReef(
+                                driveController.getRightX(), -driveController.getRightY())
+                                ),
+                Set.of(drive)));
 
     // Reset gyro to 0° when Y button is pressed
     driveController
