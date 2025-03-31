@@ -57,7 +57,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.ControllerUtil;
-
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -89,7 +88,6 @@ public class RobotContainer {
   public Command scoreL3;
   public Command scoreL2;
   public Command intakeCoral;
-
 
   public Command raiseL4;
 
@@ -239,7 +237,7 @@ public class RobotContainer {
                     * (driveController.rightTrigger(0.2).getAsBoolean() ? 0.8 : 1)));
 
     driveController
-        .rightBumper()
+        .leftBumper()
         .and(driveRightStickActive)
         .whileTrue(
             Commands.defer(
@@ -250,8 +248,7 @@ public class RobotContainer {
                         () -> -driveController.getLeftX(),
                         () ->
                             ControllerUtil.snapToReef(
-                                driveController.getRightX(), -driveController.getRightY())
-                                ),
+                                driveController.getRightX(), -driveController.getRightY())),
                 Set.of(drive)));
 
     // Reset gyro to 0° when Y button is pressed
@@ -276,6 +273,18 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> drive.displayArbPose(RobotState.getInstance().cycleSelectedSide())));
+
+    driveController
+        .b()
+        .onTrue(
+            Commands.defer(()->
+                DriveCommands.autoAlignCoral(
+                    drive, 
+                    RobotState.getInstance().getSelectedSidePose(false), 
+                    raiseL4,
+                    CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)),
+                Set.of(drive)));
+
 
     // driveController
     //     .x()
