@@ -29,6 +29,10 @@ public class RobotState {
       this.angle = angle;
     }
 
+    private reefZone next() {
+      return reefZone.values()[(this.ordinal() + 1) % reefZone.values().length];
+    }
+
     private double getRads() {
       return Units.degreesToRadians(angle);
     }
@@ -42,6 +46,8 @@ public class RobotState {
     }
     return instance;
   }
+
+  private reefZone selectedSide = reefZone.AB;
 
   public Pose2d reefGoalPose;
   private List<Pose2d> reefGoalsCW;
@@ -73,6 +79,11 @@ public class RobotState {
 
   private Pose2d odometryPose = new Pose2d();
   private Pose2d estimatedPose = new Pose2d();
+
+  public Pose2d cycleSelectedSide() {
+    selectedSide = selectedSide.next();
+    return reefGoalsCCW.get(selectedSide.ordinal());
+  }
 
   public void setEstimatedPose(Pose2d pose) {
     estimatedPose = pose;

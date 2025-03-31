@@ -49,6 +49,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -126,6 +128,8 @@ public class Drive extends SubsystemBase {
       new LoggedTunableNumber("Drive/rotationkI", AutoConstants.rotationGains.kI());
   private static final LoggedTunableNumber rotationkD =
       new LoggedTunableNumber("Drive/rotationkD", AutoConstants.rotationGains.kD());
+
+  private static final Field2d field = new Field2d();
 
   public Drive(
       GyroIO gyroIO,
@@ -215,7 +219,15 @@ public class Drive extends SubsystemBase {
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
 
+    // Update field
+    field.setRobotPose(getPose());
+    SmartDashboard.putData("Field", field);
+
     // RobotState.getInstance().setEstimatedPose(getPose());
+  }
+
+  public void displayArbPose(Pose2d pose) {
+    field.getObject("setpoint").setPose(pose);
   }
 
   public void configureAutoBuilder() {
@@ -304,7 +316,7 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  public Command pathfindToPose(Pose2d targetPose, Rotation2d finalHeading) {
+  public Command generatePathCommand(Pose2d targetPose, Rotation2d finalHeading) {
     PathConstraints constraints =
         new PathConstraints(2.5, 5.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
 
@@ -315,8 +327,8 @@ public class Drive extends SubsystemBase {
     return AutoBuilder.followPath(path);
   }
 
-  public Command pathfindToPose(Pose2d targetPose) {
-    return pathfindToPose(targetPose, targetPose.getRotation());
+  public Command generatePathCommand(Pose2d targetPose) {
+    return generatePathCommand(targetPose, targetPose.getRotation());
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

@@ -17,7 +17,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -57,7 +56,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -253,37 +251,43 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driveController
-        .x()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    drive.pathfindToPose(
-                        RobotState.getInstance().getStationGoalPose(),
-                        new Rotation2d(Units.degreesToRadians(54))),
-                Set.of(drive)));
-
-    driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
-    driveController
         .a()
-        .whileTrue(
-            Commands.defer(
-                () ->
-                    DriveCommands.joystickDriveAtAngle(
-                        drive,
-                        () -> -driveController.getLeftY(),
-                        () -> -driveController.getLeftX(),
-                        () -> RobotState.getInstance().getReefGoalPose(1).getRotation()),
-                Set.of(drive)));
-
-    driveController
-        .b()
         .onTrue(
-            DriveCommands.autoAlignCoral(
-                drive,
-                RobotState.getInstance().getReefGoalPose(1),
-                raiseL4,
-                CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)));
+            Commands.runOnce(
+                () -> drive.displayArbPose(RobotState.getInstance().cycleSelectedSide())));
+
+    // driveController
+    //     .x()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 drive.pathfindToPose(
+    //                     RobotState.getInstance().getStationGoalPose(),
+    //                     new Rotation2d(Units.degreesToRadians(54))),
+    //             Set.of(drive)));
+
+    // driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    // driveController
+    //     .a()
+    //     .whileTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 DriveCommands.joystickDriveAtAngle(
+    //                     drive,
+    //                     () -> -driveController.getLeftY(),
+    //                     () -> -driveController.getLeftX(),
+    //                     () -> RobotState.getInstance().getReefGoalPose(1).getRotation()),
+    //             Set.of(drive)));
+
+    // driveController
+    //     .b()
+    //     .onTrue(
+    //         DriveCommands.autoAlignCoral(
+    //             drive,
+    //             RobotState.getInstance().getReefGoalPose(1),
+    //             raiseL4,
+    //             CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)));
 
     // driveController
     //     .b()
