@@ -277,14 +277,16 @@ public class RobotContainer {
     driveController
         .b()
         .onTrue(
-            Commands.defer(()->
-                DriveCommands.autoAlignCoral(
-                    drive, 
-                    RobotState.getInstance().getSelectedSidePose(false), 
-                    raiseL4,
-                    CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)),
+            Commands.defer(
+                () ->
+                    DriveCommands.autoAlignCoral(
+                        drive,
+                        RobotState.getInstance().getSelectedSidePose(false),
+                        raiseL4,
+                        CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.0)),
                 Set.of(drive)));
 
+    driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController
     //     .x()

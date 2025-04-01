@@ -86,7 +86,9 @@ public class RobotState {
   }
 
   public Pose2d getSelectedSidePose(boolean clockwise) {
-    return clockwise ? reefGoalsCW.get(selectedSide.ordinal()) : reefGoalsCCW.get(selectedSide.ordinal());
+    return clockwise
+        ? reefGoalsCW.get(selectedSide.ordinal())
+        : reefGoalsCCW.get(selectedSide.ordinal());
   }
 
   public void setEstimatedPose(Pose2d pose) {
