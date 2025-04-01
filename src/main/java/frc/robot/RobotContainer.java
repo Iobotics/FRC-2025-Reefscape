@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Arm.Goalposition;
@@ -274,17 +275,22 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> drive.displayArbPose(RobotState.getInstance().cycleSelectedSide())));
 
+    // driveController
+    //     .b()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () ->
+    //                 DriveCommands.autoAlignCoral(
+    //                     drive,
+    //                     RobotState.getInstance().getSelectedSidePose(false),
+    //                     raiseL4,
+    //                     CoralCommands.releaseL4(elevator, arm,
+    // CoralManipulator).withTimeout(1.0)),
+    //             Set.of(drive)));
+
     driveController
         .b()
-        .onTrue(
-            Commands.defer(
-                () ->
-                    DriveCommands.autoAlignCoral(
-                        drive,
-                        RobotState.getInstance().getSelectedSidePose(false),
-                        raiseL4,
-                        CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.0)),
-                Set.of(drive)));
+        .onTrue(new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose(false)));
 
     driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
