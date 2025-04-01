@@ -2,7 +2,6 @@
  * drive to pose command, uses single pid controller for x and y to prevent curving to target
  * instead calculates vector and uses that to drive straight to target
  */
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -19,7 +18,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class DriveToPose extends Command {
@@ -85,13 +83,7 @@ public class DriveToPose extends Command {
   public void initialize() {
     currentPose = drive.getPose();
     currentState =
-        new State(
-            target
-                .get()
-                .getTranslation()
-                .minus(currentPose.getTranslation())
-                .getNorm(),
-            0.0);
+        new State(target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0.0);
     thetaController.reset(currentPose.getRotation().getRadians());
     driveController.reset();
   }
@@ -137,27 +129,23 @@ public class DriveToPose extends Command {
     Logger.recordOutput("DriveToPose/target", target.get());
     Logger.recordOutput("DriveToPose/angle", direction.getAngle());
     Logger.recordOutput("DriveToPose/currentState", currentState.position);
-    Logger.recordOutput("DriveToPose/currentPose", target
-    .get()
-    .getTranslation()
-    .minus(currentPose.getTranslation())
-    .getNorm());
+    Logger.recordOutput(
+        "DriveToPose/currentPose",
+        target.get().getTranslation().minus(currentPose.getTranslation()).getNorm());
 
     currentPose = drive.getPose();
 
-    double driveSpeed = -driveController.calculate(
-        target
-            .get()
-            .getTranslation()
-            .minus(currentPose.getTranslation())
-            .getNorm(), currentState.position);
+    double driveSpeed =
+        -driveController.calculate(
+            target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(),
+            currentState.position);
 
     Logger.recordOutput("DriveToPose/driveSpeed", driveSpeed);
 
     Translation2d driveVelocity =
         new Translation2d(
-                driveSpeed * direction.getX() / direction.getNorm(),
-                driveSpeed * direction.getY() / direction.getNorm());
+            driveSpeed * direction.getX() / direction.getNorm(),
+            driveSpeed * direction.getY() / direction.getNorm());
 
     drive.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
