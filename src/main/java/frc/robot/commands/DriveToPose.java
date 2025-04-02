@@ -27,33 +27,33 @@ public class DriveToPose extends Command {
   private Pose2d currentPose;
 
   private static final LoggedTunableNumber driveP =
-      new LoggedTunableNumber("DriveToPose/Drive/kP", 5.0);
+      new LoggedTunableNumber("DriveToPose/Drive/kP", 7.0);
   private static final LoggedTunableNumber driveI =
       new LoggedTunableNumber("DriveToPose/Drive/kI", 0);
   private static final LoggedTunableNumber driveD =
       new LoggedTunableNumber("DriveToPose/Drive/kD", 0);
 
   private static final LoggedTunableNumber thetaP =
-      new LoggedTunableNumber("DriveToPose/Theta/kP", 0);
+      new LoggedTunableNumber("DriveToPose/Theta/kP", 2.0);
   private static final LoggedTunableNumber thetaI =
       new LoggedTunableNumber("DriveToPose/Theta/kI", 0);
   private static final LoggedTunableNumber thetaD =
       new LoggedTunableNumber("DriveToPose/Theta/kD", 0);
 
   private static final LoggedTunableNumber driveTolerance =
-      new LoggedTunableNumber("DriveToPose/Drive/Tolerance", 0.01);
+      new LoggedTunableNumber("DriveToPose/Drive/Tolerance", 0.05);
   private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("DriveToPose/Theta/Tolerance", Units.degreesToRadians(1.0));
+      new LoggedTunableNumber("DriveToPose/Theta/Tolerance", Units.degreesToRadians(2.5));
 
   private static final LoggedTunableNumber driveMaxSpeed =
-      new LoggedTunableNumber("DriveToPose/Drive/MaxSpeed", 0.5);
+      new LoggedTunableNumber("DriveToPose/Drive/MaxSpeed", 1.0);
   private static final LoggedTunableNumber driveMaxAcceleration =
-      new LoggedTunableNumber("DriveToPose/Drive/MaxAcceleration", 0.5);
+      new LoggedTunableNumber("DriveToPose/Drive/MaxAcceleration", 3.0);
 
   private static final LoggedTunableNumber thetaMaxSpeed =
-      new LoggedTunableNumber("DriveToPose/Theta/maxSpeed", 0.5);
+      new LoggedTunableNumber("DriveToPose/Theta/maxSpeed", 1);
   private static final LoggedTunableNumber thetaMaxAcceleration =
-      new LoggedTunableNumber("DriveToPose/Theta/maxAcceleration", 0.5);
+      new LoggedTunableNumber("DriveToPose/Theta/maxAcceleration", 1.5);
 
   private final PIDController driveController =
       new PIDController(driveP.get(), driveI.get(), driveD.get());
@@ -161,8 +161,16 @@ public class DriveToPose extends Command {
   }
 
   @Override
+  public void end(boolean interrupted) {
+    drive.runVelocity(new ChassisSpeeds());
+  }
+
+  @Override
   public boolean isFinished() {
     return EqualsUtil.epsilonEquals(
-        target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0, 0.1);
+            target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(),
+            0,
+            driveTolerance.get())
+        && thetaController.atGoal();
   }
 }

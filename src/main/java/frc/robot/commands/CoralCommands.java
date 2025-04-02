@@ -41,6 +41,14 @@ public class CoralCommands {
         Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));
   }
 
+  public static Command releaseL3(Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
+    return Commands.sequence(
+        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.1),
+        Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT)),
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(0.2),
+        Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));
+  }
+
   /** doesnt lift elevator */
   public static Command scoreL4(CoralManipulator coralManipulator, Arm arm) {
     return Commands.sequence(

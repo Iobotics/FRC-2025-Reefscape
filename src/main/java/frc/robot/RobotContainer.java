@@ -178,7 +178,7 @@ public class RobotContainer {
         Commands.sequence(
             Commands.runOnce(() -> LED.setColor(Color.kYellow)),
             elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
-            Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4)));
+            Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.2));
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
@@ -288,11 +288,48 @@ public class RobotContainer {
     // CoralManipulator).withTimeout(1.0)),
     //             Set.of(drive)));
 
-    driveController
-        .b()
-        .onTrue(new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()));
+    
 
     driveController.x().onTrue(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+
+    operatorController
+        .b()
+        .onTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
+                    raiseL4),
+                CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.1)));
+
+    operatorController
+        .a()
+        .onTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
+                    Commands.run(
+                            () -> {
+                              elevator.setGoal(Goal.SCOREL3);
+                              arm.setGoal(Goalposition.SCOREL3);
+                              LED.setColor(Color.kYellow);
+                            })
+                        .withTimeout(0.5)),
+                CoralCommands.releaseL3(elevator, arm, CoralManipulator).withTimeout(1.1)));
+
+    operatorController
+        .x()
+        .onTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
+                    Commands.run(
+                            () -> {
+                                elevator.setGoal(Goal.SCOREL2);
+                                LED.setColor(Color.kYellow);
+                            })
+                        .withTimeout(0.2)),
+                CoralCommands.releaseL3(elevator, arm, CoralManipulator).withTimeout(1.1)));
+                        
 
     // driveController
     //     .x()
@@ -421,50 +458,6 @@ public class RobotContainer {
                   arm.setGoal(Goalposition.SCOREL1);
                   elevator.setGoal(Goal.SCOREL1);
                 }));
-
-    operatorController
-        .x()
-        .whileTrue(
-            Commands.startEnd(
-                () -> {
-                  elevator.setGoal(Goal.SCOREL2);
-                  LED.setColor(Color.kYellow);
-                },
-                () -> {
-                  elevator.setGoal(Goal.STOW);
-                  LED.setColor(Color.kRed);
-                }));
-
-    operatorController
-        .a()
-        .whileTrue(
-            Commands.startEnd(
-                () -> {
-                  elevator.setGoal(Goal.SCOREL3);
-                  arm.setGoal(Goalposition.SCOREL3);
-                  LED.setColor(Color.kYellow);
-                },
-                () -> {
-                  elevator.setGoal(Goal.STOW);
-                  arm.setGoal(Goalposition.DEFAULT);
-                  LED.setColor(Color.kRed);
-                }));
-
-    operatorController
-        .b()
-        .onTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> LED.setColor(Color.kYellow)),
-                elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
-                Commands.runOnce(() -> arm.setGoal(Goalposition.SCOREL4))));
-
-    operatorController
-        .b()
-        .onFalse(
-            Commands.sequence(
-                Commands.runOnce(() -> LED.setColor(Color.kRed)),
-                Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.1),
-                Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 
     operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
     operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
