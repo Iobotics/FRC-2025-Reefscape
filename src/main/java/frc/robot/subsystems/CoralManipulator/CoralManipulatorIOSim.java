@@ -24,8 +24,8 @@ public class CoralManipulatorIOSim implements CoralManipulatorIO {
 
   private DCMotorSim sim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, motorReduction),
-          DCMotor.getCIM(1));
+          LinearSystemId.createDCMotorSystem(DCMotor.getNeoVortex(1), 0.004, motorReduction),
+          DCMotor.getNeoVortex(1));
 
   private double appliedVolts = 0.0;
 

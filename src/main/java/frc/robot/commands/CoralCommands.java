@@ -8,7 +8,7 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 
-public class CoralCommands {
+public final class CoralCommands {
   private CoralCommands() {}
 
   public static Command scoreCoral(
@@ -49,6 +49,13 @@ public class CoralCommands {
         Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));
   }
 
+  public static Command releaseL2(Elevator elevator, CoralManipulator coralManipulator) {
+    return Commands.sequence(
+        Commands.run(() -> coralManipulator.setOutake(1.0), coralManipulator).withTimeout(0.1),
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(0.2),
+        Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator));
+  }
+
   /** doesnt lift elevator */
   public static Command scoreL4(CoralManipulator coralManipulator, Arm arm) {
     return Commands.sequence(
@@ -81,13 +88,76 @@ public class CoralCommands {
     };
   }
 
-  public static Command releaseAlgae(
-      CoralManipulator coralManipulator, Elevator elevator, Arm arm) {
+  public static Command raiseL4(Elevator elevator, Arm arm) {
     return Commands.sequence(
-        Commands.run(() -> coralManipulator.setOutake(0.8), coralManipulator).withTimeout(0.5),
-        Commands.parallel(
-            Commands.runOnce(() -> coralManipulator.setOutake(0), coralManipulator),
-            Commands.runOnce(() -> elevator.setGoal(Goal.STOW)),
-            Commands.runOnce(() -> arm.setGoal(Goalposition.DEFAULT))));
+        elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
+        Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.2));
+  }
+
+  public static Command raiseL3(Elevator elevator, Arm arm) {
+    return Commands.run(
+            () -> {
+              elevator.setGoal(Goal.SCOREL3);
+              arm.setGoal(Goalposition.SCOREL3);
+            })
+        .withTimeout(0.5);
+  }
+
+  public static Command raiseL2(Elevator elevator) {
+    return elevator.getSetpointCommand(Goal.SCOREL2).withTimeout(0.2);
+  }
+
+  public static Command stow(Elevator elevator, Arm arm) {
+    return Commands.sequence(
+        Commands.run(() -> arm.setGoal(Goalposition.DEFAULT)).withTimeout(0.2),
+        elevator.getSetpointCommand(Goal.STOW).withTimeout(0.2));
+  }
+
+  public static Command removeHighAlgae(
+      Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
+    return Commands.runOnce(
+        () -> {
+          elevator.setGoal(Goal.UPPERALGAE);
+          arm.setGoal(Goalposition.INTAKEALGAE);
+          coralManipulator.setOutake(-0.5);
+        });
+  }
+
+  public static Command removeLowAlgae(
+      Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
+    return Commands.runOnce(
+        () -> {
+          elevator.setGoal(Goal.LOWERALGAE);
+          arm.setGoal(Goalposition.INTAKEALGAE);
+          coralManipulator.setOutake(-0.5);
+        });
+  }
+
+  public static Command holdAlgae(Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
+    return Commands.runOnce(
+        () -> {
+          elevator.setGoal(Goal.HOLDALGAE);
+          arm.setGoal(Goalposition.HOLDALGAE);
+          coralManipulator.setOutake(0);
+        });
+  }
+
+  public static Command releaseAlgae(
+      Elevator elevator, Arm arm, CoralManipulator coralManipulator) {
+    return Commands.sequence(
+        Commands.run(
+                () -> {
+                  elevator.setGoal(Goal.HOLDALGAE);
+                  arm.setGoal(Goalposition.HOLDALGAE);
+                  coralManipulator.setOutake(0);
+                })
+            .withTimeout(0.3),
+        Commands.run(() -> coralManipulator.setOutake(0.4)).withTimeout(0.3),
+        Commands.runOnce(
+            () -> {
+              elevator.setGoal(Goal.STOW);
+              arm.setGoal(Goalposition.DEFAULT);
+              coralManipulator.setOutake(0);
+            }));
   }
 }

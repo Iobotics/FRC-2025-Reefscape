@@ -309,7 +309,8 @@ public class Drive extends SubsystemBase {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-      // Create a path following command using AutoBuilder. This will also trigger event markers.
+      // Create a path following command using AutoBuilder. This will also trigger event
+      // markers.
       return AutoBuilder.followPath(path);
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -318,10 +319,8 @@ public class Drive extends SubsystemBase {
   }
 
   public Command pathFindToPose(Pose2d targetPose) {
-    PathConstraints constraints =
-        new PathConstraints(2.5, 5.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
-    AutoBuilder.pathfindToPose(targetPose, constraints);
-    return Commands.none();
+    PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
+    return AutoBuilder.pathfindToPose(targetPose, constraints, 1.5);
   }
 
   public Command generatePathCommand(Pose2d targetPose, Rotation2d finalHeading) {

@@ -2,13 +2,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.FieldConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotState {
@@ -53,7 +53,7 @@ public class RobotState {
     }
 
     /**
-     * Get the reef zone's pose for the bot to score
+     * Get the reef zone's pose for the bot to score coral
      *
      * @param clockwise true will return the pose for the higher letter of the two, AB -> B, false
      *     will return the lower letter, AB -> A
@@ -61,6 +61,43 @@ public class RobotState {
      */
     private Pose2d getPose(boolean clockwise) {
       return getPose(clockwise, REEF_GOAL_OFFSET);
+    }
+
+    /**
+     * Get the reef zone's center pose for the bot to remove algae
+     *
+     * @param offset
+     * @return
+     */
+    public Pose2d getCenterPose(double offset) {
+      return new Pose2d(
+          FieldConstants.center
+              .plus(
+                  FieldConstants.centerToReef.times(
+                      DriverStation.getAlliance().isPresent()
+                              && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+                          ? 1
+                          : -1))
+              .plus(new Translation2d(offset, 0).rotateBy(this.getAngle())),
+          getParallelAngle());
+    }
+
+    /**
+     * Get the reef zone's center pose for the bot to remove algae
+     *
+     * @return the pose object representing the reef zone
+     */
+    public Pose2d getCenterPose() {
+      return getCenterPose(REEF_GOAL_OFFSET);
+    }
+
+    /**
+     * get if the algae is high on the reef zone
+     *
+     * @return true if the algae is high
+     */
+    public boolean isAlgaeHigh() {
+      return this == reefZone.AB || this == reefZone.EF || this == reefZone.IJ;
     }
 
     /**
@@ -171,6 +208,30 @@ public class RobotState {
     return selectedSide.getPose(selectedDirectionClockwise);
   }
 
+  /**
+   * Get the reef zone's pose for the bot to score
+   *
+   * @param offset the distance from the center of the reef structure to the goal, the default for
+   *     the bot is 1.28 (up against the reef)
+   * @return
+   */
+  public Pose2d getSelectedSidePose(double offset) {
+    return selectedSide.getPose(selectedDirectionClockwise, offset);
+  }
+
+  /**
+   * Get the reef zone's center pose for the bot to remove algae
+   *
+   * @return the pose object representing the reef zone
+   */
+  public Pose2d getSelectedSideAlgaePose(double offset) {
+    return selectedSide.getCenterPose(offset);
+  }
+
+  public boolean isSelectedSideAlgaeHigh() {
+    return selectedSide.isAlgaeHigh();
+  }
+
   public void setEstimatedPose(Pose2d pose) {
     estimatedPose = pose;
   }
@@ -193,20 +254,21 @@ public class RobotState {
     return reefGoalPose.minus(estimatedPose).getTranslation().getNorm() < 0.1;
   }
 
-  public Pose2d getStationGoalPose() {
-    List<Pose2d> stationGoals = new ArrayList<Pose2d>();
-    Transform2d offset =
-        new Transform2d(new Translation2d(0.0, 0.0), new Rotation2d(Units.degreesToRadians(0)));
-    var stations =
-        DriverStation.getAlliance().isPresent()
-                && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
-            ? FieldConstants.blueStations
-            : FieldConstants.redStations;
-    stationGoals.add(stations.get(0).plus(offset));
-    stationGoals.add(stations.get(1).plus(offset));
-    Pose2d[] loggedStationGoals = new Pose2d[stationGoals.size()];
-    loggedStationGoals = stationGoals.toArray(loggedStationGoals);
-    Logger.recordOutput("stationPositions", loggedStationGoals);
-    return estimatedPose.nearest(stationGoals);
+  public Rotation2d getSelectedSideParallelAngle() {
+    return selectedSide.getParallelAngle();
+  }
+
+  public double getStationAngle(Supplier<Pose2d> pose) {
+    if (pose.get().getY() > 4.0) {
+      return -(DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+          ? 126
+          : 54);
+    } else {
+      return DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+          ? 126
+          : 54;
+    }
   }
 }

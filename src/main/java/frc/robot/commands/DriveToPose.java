@@ -26,6 +26,8 @@ public class DriveToPose extends Command {
   private Supplier<Pose2d> target;
   private Pose2d currentPose;
 
+  private boolean tuning = true;
+
   private static final LoggedTunableNumber driveP =
       new LoggedTunableNumber("DriveToPose/Drive/kP", 7.0);
   private static final LoggedTunableNumber driveI =
@@ -80,48 +82,58 @@ public class DriveToPose extends Command {
     addRequirements(drive);
   }
 
+  public DriveToPose(
+      Drive drive, Supplier<Pose2d> target, double driveMaxSpeed, double driveMaxAcceleration) {
+    this(drive, target);
+    tuning = false;
+    driveProfile = new TrapezoidProfile(new Constraints(driveMaxSpeed, driveMaxAcceleration));
+  }
+
   @Override
   public void initialize() {
     currentPose = drive.getPose();
     currentState =
-        new State(target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0.0);
+        new State(
+            target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), -1.5);
     thetaController.reset(currentPose.getRotation().getRadians());
     driveController.reset();
   }
 
   @Override
   public void execute() {
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> driveController.setPID(driveP.get(), driveI.get(), driveD.get()),
-        driveP,
-        driveI,
-        driveD);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> thetaController.setPID(thetaP.get(), thetaI.get(), thetaD.get()),
-        thetaP,
-        thetaI,
-        thetaD);
-    LoggedTunableNumber.ifChanged(
-        hashCode(), () -> driveController.setTolerance(driveTolerance.get()), driveTolerance);
-    LoggedTunableNumber.ifChanged(
-        hashCode(), () -> thetaController.setTolerance(thetaTolerance.get()), thetaTolerance);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () ->
-            driveProfile =
-                new TrapezoidProfile(
-                    new Constraints(driveMaxSpeed.get(), driveMaxAcceleration.get())),
-        driveMaxSpeed,
-        driveMaxAcceleration);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () ->
-            thetaController.setConstraints(
-                new Constraints(thetaMaxSpeed.get(), thetaMaxAcceleration.get())),
-        thetaMaxSpeed,
-        thetaMaxAcceleration);
+    if (tuning) {
+      LoggedTunableNumber.ifChanged(
+          hashCode(),
+          () -> driveController.setPID(driveP.get(), driveI.get(), driveD.get()),
+          driveP,
+          driveI,
+          driveD);
+      LoggedTunableNumber.ifChanged(
+          hashCode(),
+          () -> thetaController.setPID(thetaP.get(), thetaI.get(), thetaD.get()),
+          thetaP,
+          thetaI,
+          thetaD);
+      LoggedTunableNumber.ifChanged(
+          hashCode(), () -> driveController.setTolerance(driveTolerance.get()), driveTolerance);
+      LoggedTunableNumber.ifChanged(
+          hashCode(), () -> thetaController.setTolerance(thetaTolerance.get()), thetaTolerance);
+      LoggedTunableNumber.ifChanged(
+          hashCode(),
+          () ->
+              driveProfile =
+                  new TrapezoidProfile(
+                      new Constraints(driveMaxSpeed.get(), driveMaxAcceleration.get())),
+          driveMaxSpeed,
+          driveMaxAcceleration);
+      LoggedTunableNumber.ifChanged(
+          hashCode(),
+          () ->
+              thetaController.setConstraints(
+                  new Constraints(thetaMaxSpeed.get(), thetaMaxAcceleration.get())),
+          thetaMaxSpeed,
+          thetaMaxAcceleration);
+    }
 
     Translation2d direction = target.get().getTranslation().minus(currentPose.getTranslation());
     currentState = driveProfile.calculate(Constants.loopPeriodSecs, currentState, new State());

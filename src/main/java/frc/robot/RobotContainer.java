@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,9 +27,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoScore;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Arm.Goalposition;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.Arm.ArmIOSim;
 import frc.robot.subsystems.Arm.ArmIOSparkFlex;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
+import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
 import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.IntakeSensor;
@@ -144,7 +146,7 @@ public class RobotContainer {
 
         elevator = new Elevator(new ElevatorIOSim());
         arm = new Arm(new ArmIOSim());
-        CoralManipulator = new CoralManipulator(new CoralManipulatorIO() {});
+        CoralManipulator = new CoralManipulator(new CoralManipulatorIOSim());
         sensor = new IntakeSensor();
         LED = new LED();
         rangeSensor = new RangeSensor();
@@ -197,9 +199,11 @@ public class RobotContainer {
 
     // // Set up SysId routines
     // autoChooser.addOption(
-    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    //     "Drive Wheel Radius Characterization",
+    // DriveCommands.wheelRadiusCharacterization(drive));
     // autoChooser.addOption(
-    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    //     "Drive Simple FF Characterization",
+    // DriveCommands.feedforwardCharacterization(drive));
     // autoChooser.addOption(
     //     "Drive SysId (Quasistatic Forward)",
     //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -207,9 +211,11 @@ public class RobotContainer {
     //     "Drive SysId (Quasistatic Reverse)",
     //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //     "Drive SysId (Dynamic Forward)",
+    // drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //     "Drive SysId (Dynamic Reverse)",
+    // drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -247,9 +253,7 @@ public class RobotContainer {
                         drive,
                         () -> -driveController.getLeftY(),
                         () -> -driveController.getLeftX(),
-                        () ->
-                            ControllerUtil.snapToReef(
-                                driveController.getRightX(), -driveController.getRightY())),
+                        () -> RobotState.getInstance().getSelectedSideParallelAngle()),
                 Set.of(drive)));
 
     // Reset gyro to 0° when Y button is pressed
@@ -275,128 +279,46 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> drive.displayArbPose(RobotState.getInstance().cycleSelectedSide())));
 
-    // driveController
-    //     .b()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 DriveCommands.autoAlignCoral(
-    //                     drive,
-    //                     RobotState.getInstance().getSelectedSidePose(false),
-    //                     raiseL4,
-    //                     CoralCommands.releaseL4(elevator, arm,
-    // CoralManipulator).withTimeout(1.0)),
-    //             Set.of(drive)));
-
-    
-
-    driveController.x().onTrue(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
-    operatorController
-        .b()
-        .onTrue(
-            Commands.sequence(
-                Commands.parallel(
-                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
-                    raiseL4),
-                CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(1.1)));
-
-    operatorController
-        .a()
-        .onTrue(
-            Commands.sequence(
-                Commands.parallel(
-                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
-                    Commands.run(
-                            () -> {
-                              elevator.setGoal(Goal.SCOREL3);
-                              arm.setGoal(Goalposition.SCOREL3);
-                              LED.setColor(Color.kYellow);
-                            })
-                        .withTimeout(0.5)),
-                CoralCommands.releaseL3(elevator, arm, CoralManipulator).withTimeout(1.1)));
-
-    operatorController
+    driveController
         .x()
         .onTrue(
-            Commands.sequence(
-                Commands.parallel(
-                    new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()),
-                    Commands.run(
-                            () -> {
-                                elevator.setGoal(Goal.SCOREL2);
-                                LED.setColor(Color.kYellow);
-                            })
-                        .withTimeout(0.2)),
-                CoralCommands.releaseL3(elevator, arm, CoralManipulator).withTimeout(1.1)));
-                        
+            Commands.runOnce(
+                () -> {
+                  drive.getCurrentCommand().cancel();
+                  try {
+                    elevator.getCurrentCommand().cancel();
+                  } catch (Exception e) {
+                    // Do nothing
+                  }
+                  try {
+                    arm.getCurrentCommand().cancel();
+                  } catch (Exception e) {
+                    // Do nothing
+                  }
+                  CoralManipulator.setOutake(0);
+                  CoralCommands.stow(elevator, arm);
+                }));
 
-    // driveController
-    //     .x()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 drive.pathfindToPose(
-    //                     RobotState.getInstance().getStationGoalPose(),
-    //                     new Rotation2d(Units.degreesToRadians(54))),
-    //             Set.of(drive)));
+    driveController
+        .rightBumper()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -driveController.getLeftY(),
+                () -> -driveController.getLeftX(),
+                () ->
+                    new Rotation2d(
+                        Units.degreesToRadians(
+                            RobotState.getInstance().getStationAngle(drive::getPose)))));
 
-    // driveController.x().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController.b().onTrue(AutoScore.removeAlgae(drive, elevator, arm, CoralManipulator));
 
-    // driveController
-    //     .a()
-    //     .whileTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 DriveCommands.joystickDriveAtAngle(
-    //                     drive,
-    //                     () -> -driveController.getLeftY(),
-    //                     () -> -driveController.getLeftX(),
-    //                     () -> RobotState.getInstance().getReefGoalPose(1).getRotation()),
-    //             Set.of(drive)));
+    operatorController.b().onTrue(AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator));
 
-    // driveController
-    //     .b()
-    //     .onTrue(
-    //         DriveCommands.autoAlignCoral(
-    //             drive,
-    //             RobotState.getInstance().getReefGoalPose(1),
-    //             raiseL4,
-    //             CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6)));
+    operatorController.a().onTrue(AutoScore.autoScoreL3(drive, elevator, arm, CoralManipulator));
 
-    // driveController
-    //     .b()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 drive.pathfindToPose(
-    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), false)),
-    //             Set.of(drive)));
-    // driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    operatorController.x().onTrue(AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator));
 
-    // driveController
-    //     .a()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () ->
-    //                 drive.pathfindToPose(
-    //                     RobotState.getInstance().getReefGoalPose(drive.getPose(), true)),
-    //             Set.of(drive)));
-    // driveController.a().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
-
-    // driveController.leftStick().whileTrue(Commands.runOnce(() -> arm.runVolts(2)));
-
-    // driveController.leftStick().onFalse(Commands.runOnce(() -> arm.runVolts(0)));
-
-    // driveController.x().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
-
-    // operatorController
-    //     .y()
-    //     .whileTrue(
-    //         Commands.startEnd(() -> elevator.setGoal(Goal.SCOREL4), () ->
-    // elevator.returnToHome()));
-
-    // == arm Controls ==
     operatorController
         .pov(0)
         .onTrue(
@@ -439,16 +361,6 @@ public class RobotContainer {
     operatorController
         .rightTrigger(0.2)
         .onFalse(Commands.runOnce(() -> elevator.setDistanceOffset(false)));
-
-    // operatorController.b().onTrue(CoralCommands.scoreL4(elevator, CoralManipulator, arm));
-
-    // operatorController
-    //     .a()
-    //     .onTrue(CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm));
-
-    // operatorController
-    //     .x()
-    //     .onTrue(CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm));
 
     operatorController
         .y()
@@ -562,13 +474,15 @@ public class RobotContainer {
     //             Commands.runOnce(() -> elevator.setGoal(Goal.STOW))));
 
     // driveController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
-    // driveController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+    // driveController.leftBumper().onFalse(Commands.runOnce(() ->
+    // CoralManipulator.setOutake(0)));
 
     // driveController
     //     .rightBumper()
     //     .whileTrue(
     //         Commands.startEnd(
-    //             () -> CoralManipulator.setOutake(-0.5), () -> CoralManipulator.setOutake(0)));
+    //             () -> CoralManipulator.setOutake(-0.5), () ->
+    // CoralManipulator.setOutake(0)));
 
     // driveController
     //     .leftTrigger(0.2)
