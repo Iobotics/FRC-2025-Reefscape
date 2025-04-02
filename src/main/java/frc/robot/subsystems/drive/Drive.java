@@ -164,8 +164,8 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
-    // gyroIO.updateInputs(gyroInputs);
-    //  Logger.processInputs("Drive/Gyro", gyroInputs);
+    gyroIO.updateInputs(gyroInputs);
+    Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
     }
@@ -227,6 +227,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void displayArbPose(Pose2d pose) {
+    Logger.recordOutput("ArbPose", pose);
     field.getObject("setpoint").setPose(pose);
   }
 
@@ -314,6 +315,13 @@ public class Drive extends SubsystemBase {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
       return Commands.none();
     }
+  }
+
+  public Command pathFindToPose(Pose2d targetPose) {
+    PathConstraints constraints =
+        new PathConstraints(2.5, 5.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+    AutoBuilder.pathfindToPose(targetPose, constraints);
+    return Commands.none();
   }
 
   public Command generatePathCommand(Pose2d targetPose, Rotation2d finalHeading) {

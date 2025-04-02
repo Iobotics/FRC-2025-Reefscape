@@ -16,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.EqualsUtil;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -157,5 +158,11 @@ public class DriveToPose extends Command {
                     target.get().getRotation().getRadians())),
             currentPose.getRotation()));
     // driveController.calculate(currentPose.getTranslation().getNorm(), currentState.position);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return EqualsUtil.epsilonEquals(
+        target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0, 0.1);
   }
 }

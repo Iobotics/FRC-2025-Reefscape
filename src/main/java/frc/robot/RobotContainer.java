@@ -290,9 +290,9 @@ public class RobotContainer {
 
     driveController
         .b()
-        .onTrue(new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose(false)));
+        .onTrue(new DriveToPose(drive, () -> RobotState.getInstance().getSelectedSidePose()));
 
-    driveController.b().onFalse(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
+    driveController.x().onTrue(Commands.runOnce(() -> drive.getCurrentCommand().cancel()));
 
     // driveController
     //     .x()

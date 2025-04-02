@@ -1,7 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.math.util.Units.*;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -29,17 +27,87 @@ public class RobotState {
       this.angle = angle;
     }
 
+    /**
+     * Get the reef zone's pose for the bot to score
+     *
+     * @param clockwise true will return the pose for the higher letter of the two, AB -> B, false
+     *     will return the lower letter, AB -> A
+     * @param offset the distance from the center of the reef structure to the goal, the default for
+     *     the bot is 1.28
+     * @return the pose object representing the reef zone
+     */
+    public Pose2d getPose(boolean clockwise, double offset) {
+
+      return new Pose2d(
+          FieldConstants.center
+              .plus(
+                  FieldConstants.centerToReef.times(
+                      DriverStation.getAlliance().isPresent()
+                              && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+                          ? 1
+                          : -1))
+              .plus(
+                  new Translation2d(offset, clockwise ? REEF_CW_OFFSET : REEF_CCW_OFFSET)
+                      .rotateBy(this.getAngle())),
+          getParallelAngle());
+    }
+
+    /**
+     * Get the reef zone's pose for the bot to score
+     *
+     * @param clockwise true will return the pose for the higher letter of the two, AB -> B, false
+     *     will return the lower letter, AB -> A
+     * @return the pose object representing the reef zone
+     */
+    private Pose2d getPose(boolean clockwise) {
+      return getPose(clockwise, REEF_GOAL_OFFSET);
+    }
+
+    /**
+     * Get the angle parallel to the reef zone (what the robot needs to be facing to score)
+     *
+     * @return the rotation object representing the angle
+     */
+    private Rotation2d getParallelAngle() {
+      return new Rotation2d(getRads() + Math.PI);
+    }
+
+    /**
+     * Get the next reef zone in the sequence, ab -> cd -> ef -> gh -> ij -> kl -> ab
+     *
+     * @return the next reef zone
+     */
     private reefZone next() {
       return reefZone.values()[(this.ordinal() + 1) % reefZone.values().length];
     }
 
+    /**
+     * Get the angle in radians from the center of the reef structure to a specified side
+     *
+     * @return the angle in radians
+     */
     private double getRads() {
       return Units.degreesToRadians(angle);
+    }
+
+    /**
+     * Get the rotation object representing the angle from the center of the reef structure to a
+     * specified side
+     *
+     * @return the rotation object
+     */
+    private Rotation2d getAngle() {
+      return new Rotation2d(getRads());
     }
   }
 
   private static RobotState instance = null;
 
+  /**
+   * Get the singleton instance of the RobotState, do not instantiate this class directly
+   *
+   * @return the singleton instance of the RobotState
+   */
   public static RobotState getInstance() {
     if (instance == null) {
       instance = new RobotState();
@@ -48,10 +116,15 @@ public class RobotState {
   }
 
   private reefZone selectedSide = reefZone.AB;
+  private boolean selectedDirectionClockwise = false;
 
   public Pose2d reefGoalPose;
   private List<Pose2d> reefGoalsCW;
   private List<Pose2d> reefGoalsCCW;
+
+  private static final double REEF_GOAL_OFFSET = 1.28;
+  private static final double REEF_CW_OFFSET = -0.12;
+  private static final double REEF_CCW_OFFSET = 0.192;
 
   private RobotState() {
     reefGoalPose = new Pose2d();
@@ -77,18 +150,25 @@ public class RobotState {
     }
   }
 
-  private Pose2d odometryPose = new Pose2d();
   private Pose2d estimatedPose = new Pose2d();
 
   public Pose2d cycleSelectedSide() {
-    selectedSide = selectedSide.next();
-    return reefGoalsCCW.get(selectedSide.ordinal());
+    if (selectedDirectionClockwise) {
+      selectedSide = selectedSide.next();
+      selectedDirectionClockwise = false;
+    } else {
+      selectedDirectionClockwise = true;
+    }
+    return selectedSide.getPose(selectedDirectionClockwise);
   }
 
-  public Pose2d getSelectedSidePose(boolean clockwise) {
-    return clockwise
-        ? reefGoalsCW.get(selectedSide.ordinal())
-        : reefGoalsCCW.get(selectedSide.ordinal());
+  /**
+   * Get the reef zone's pose for the bot to score
+   *
+   * @return the pose object representing the reef zone
+   */
+  public Pose2d getSelectedSidePose() {
+    return selectedSide.getPose(selectedDirectionClockwise);
   }
 
   public void setEstimatedPose(Pose2d pose) {
