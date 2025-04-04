@@ -27,6 +27,60 @@
           "data": {
             "pathName": "F-station"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait for Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "station-D"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "select-D"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score L4-Auto"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "D-station"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait for Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "station-C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "select-C"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score L4-Auto"
+          }
         }
       ]
     }

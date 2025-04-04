@@ -3,64 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1267897727272727,
-        "y": 0.7194176136363637
+        "x": 1.1228890555245534,
+        "y": 0.8116010393415184
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.367170759637478,
-        "y": 0.7880978956107101
+        "x": 1.68948920235089,
+        "y": 1.1279896457625174
       },
       "isLocked": false,
-      "linkedName": "farStation"
+      "linkedName": "right-station"
     },
     {
       "anchor": {
-        "x": 4.018551136363637,
-        "y": 2.8932244318181812
+        "x": 3.869463239397321,
+        "y": 2.5331704275948663
       },
       "prevControl": {
-        "x": 3.2108522727272737,
-        "y": 1.616860795454545
+        "x": 2.9398976279691347,
+        "y": 1.9687619746257847
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "score-d"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.95,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 1200.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "L4 score",
-      "waypointRelativePos": 0.801894238358327,
+      "name": "Intake Coral",
+      "waypointRelativePos": 0.08935931348425198,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Raise L4"
+          "name": "Intake Coral"
         }
       }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 3.9,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,
     "nominalVoltage": 12.0,
@@ -68,10 +54,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 59.162168055312776
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Autoscoring based paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 54.0

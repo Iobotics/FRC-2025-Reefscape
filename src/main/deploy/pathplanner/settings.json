@@ -8,8 +8,8 @@
   "autoFolders": [
     "autoscoring based paths"
   ],
-  "defaultMaxVel": 3.0,
-  "defaultMaxAccel": 4.0,
+  "defaultMaxVel": 3.9,
+  "defaultMaxAccel": 6.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 1200.0,
   "defaultNominalVoltage": 12.0,
