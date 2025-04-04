@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.FieldConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -208,9 +209,10 @@ public class RobotState {
     return selectedSide.getPose(selectedDirectionClockwise);
   }
 
-  public void setSelectedSide(reefZone side, boolean clockwise) {
+  public void setSelectedSide(reefZone side, boolean clockwise, Consumer<Pose2d> callback) {
     selectedSide = side;
     selectedDirectionClockwise = clockwise;
+    callback.accept(getSelectedSidePose());
   }
 
   /**

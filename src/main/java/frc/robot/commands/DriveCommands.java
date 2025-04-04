@@ -40,8 +40,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class DriveCommands {
-  private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
+  private static final double DEADBAND = 0.05;
+  private static final double ANGLE_KP = 8.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 15.0;
   private static final double ANGLE_MAX_ACCELERATION = 40.0;

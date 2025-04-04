@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1228890555245534,
-        "y": 0.8116010393415184
+        "x": 0.9971590909090909,
+        "y": 0.7094460227272736
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.68948920235089,
-        "y": 1.1279896457625174
+        "x": 1.5637592377354275,
+        "y": 1.0258346291482727
       },
       "isLocked": false,
       "linkedName": "right-station"
     },
     {
       "anchor": {
-        "x": 3.869463239397321,
-        "y": 2.5331704275948663
+        "x": 3.739346590909091,
+        "y": 2.21515625
       },
       "prevControl": {
-        "x": 2.9398976279691347,
-        "y": 1.9687619746257847
+        "x": 2.8097809794809043,
+        "y": 1.6507477970309186
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,7 +46,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.9,
-    "maxAcceleration": 6.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1200.0,
     "nominalVoltage": 12.0,
@@ -54,7 +54,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.162168055312776
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": "Autoscoring based paths",

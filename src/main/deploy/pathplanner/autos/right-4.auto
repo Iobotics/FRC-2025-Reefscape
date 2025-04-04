@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "station-D"
+            "pathName": "station-d"
           }
         },
         {
@@ -55,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D-station"
+            "pathName": "d-station"
           }
         },
         {
@@ -67,7 +67,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "station-C"
+            "pathName": "station-c"
           }
         },
         {

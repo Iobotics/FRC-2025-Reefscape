@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotState.reefZone;
@@ -81,10 +81,13 @@ public class RobotContainer {
   private final LED LED;
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+  //   private final CommandXboxController operatorController = new CommandXboxController(1);
   //   private final CommandJoystick joystick1 = new CommandJoystick(2);
   //   private final CommandJoystick joystick2 = new CommandJoystick(3);
-  // Dashboard inputs
+
+  private final CommandGenericHID reefController = new CommandGenericHID(1);
+  private final CommandXboxController operatorController = new CommandXboxController(2);
+  // Dashboard input
   private final LoggedDashboardChooser<Command> autoChooser;
 
   // Commands
@@ -181,32 +184,53 @@ public class RobotContainer {
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
-    Command scoreL4_F =
-        Commands.sequence(
-            Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, true)),
-            scoreL4);
+    // Command scoreL4_F =
+    //     Commands.sequence(
+    //         Commands.runOnce(
+    //             () ->
+    //                 RobotState.getInstance()
+    //                     .setSelectedSide(reefZone.EF, true, drive::displayArbPose)),
+    //         scoreL4);
 
     NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand("Score L4-Auto", scoreL4);
     NamedCommands.registerCommand(
         "select-A",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.AB, true)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.AB, true, drive::displayArbPose)));
     NamedCommands.registerCommand(
         "select-B",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.AB, false)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.AB, false, drive::displayArbPose)));
     NamedCommands.registerCommand(
         "select-C",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.CD, true)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.CD, true, drive::displayArbPose)));
     NamedCommands.registerCommand(
         "select-D",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.CD, false)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.CD, false, drive::displayArbPose)));
     NamedCommands.registerCommand(
         "select-E",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, true)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.EF, true, drive::displayArbPose)));
     NamedCommands.registerCommand(
         "select-F",
-        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, false)));
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.EF, false, drive::displayArbPose)));
 
     NamedCommands.registerCommand("Remove Algae", removeAlgae);
 
@@ -329,51 +353,112 @@ public class RobotContainer {
                         Units.degreesToRadians(
                             RobotState.getInstance().getStationAngle(drive::getPose)))));
 
-    operatorController.b().onTrue(AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator));
-
-    operatorController.a().onTrue(AutoScore.autoScoreL3(drive, elevator, arm, CoralManipulator));
-
-    operatorController.x().onTrue(AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator));
-
-    operatorController
-        .pov(0)
+    reefController
+        .button(1)
         .onTrue(
             Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.DEFAULT);
-                  elevator.setGoal(Goal.STOW);
-                }));
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.AB, true, drive::displayArbPose)));
 
-    operatorController.pov(90).onTrue(removeAlgae);
-
-    operatorController
-        .pov(180)
+    reefController
+        .button(2)
         .onTrue(
             Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.INTAKEALGAE);
-                  elevator.setGoal(Goal.LOWERALGAE);
-                }));
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.AB, false, drive::displayArbPose)));
 
-    operatorController
-        .pov(270)
+    reefController
+        .button(3)
         .onTrue(
             Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.INTAKEALGAE);
-                  elevator.setGoal(Goal.HOLDALGAE);
-                }));
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.CD, true, drive::displayArbPose)));
+
+    reefController
+        .button(4)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.CD, false, drive::displayArbPose)));
+
+    reefController
+        .button(5)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.EF, true, drive::displayArbPose)));
+
+    reefController
+        .button(6)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.EF, false, drive::displayArbPose)));
+
+    reefController
+        .button(7)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.GH, true, drive::displayArbPose)));
+
+    reefController
+        .button(8)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.GH, false, drive::displayArbPose)));
+
+    reefController
+        .button(9)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.IJ, true, drive::displayArbPose)));
+
+    reefController
+        .button(10)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.IJ, false, drive::displayArbPose)));
+
+    reefController
+        .button(11)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.KL, true, drive::displayArbPose)));
+
+    reefController
+        .button(12)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    RobotState.getInstance()
+                        .setSelectedSide(reefZone.KL, false, drive::displayArbPose)));
+
+    // operatorController
+
+    operatorController.a().onTrue(scoreL2);
+
+    operatorController.b().onTrue(scoreL3);
+
+    operatorController.rightTrigger(0.9).onTrue(scoreL4);
 
     operatorController
-        .rightTrigger(0.2)
-        .onTrue(Commands.runOnce(() -> elevator.setDistanceOffset(true)));
-
-    operatorController
-        .rightTrigger(0.2)
-        .onFalse(Commands.runOnce(() -> elevator.setDistanceOffset(false)));
-
-    operatorController
-        .y()
+        .leftTrigger(0.5)
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -381,52 +466,131 @@ public class RobotContainer {
                   elevator.setGoal(Goal.SCOREL1);
                 }));
 
-    operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
-    operatorController.leftBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
-
     operatorController
-        .rightBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.setOutake(-0.2), () -> CoralManipulator.setOutake(0)));
-
-    operatorController
-        .leftTrigger(0.2)
-        .whileTrue(
-            Commands.startEnd(
-                () -> CoralManipulator.setOutake(1),
-                () -> {
-                  CoralManipulator.setOutake(0);
-                  LED.setColor(Color.kRed);
-                }));
-
-    // MANUAL CONTROLS
-
-    driveController
-        .pov(0)
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.DEFAULT);
-                  elevator.setGoal(Goal.STOW);
-                }));
-
-    driveController
-        .pov(90)
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.CUSTOM);
-                  elevator.setGoal(Goal.SCOREL4);
-                }));
-
-    driveController
-        .pov(180)
+        .leftBumper()
         .onTrue(
             Commands.sequence(
-                Commands.run(() -> arm.setGoal(Goalposition.HOLDALGAE)).withTimeout(0.2),
-                Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.8),
-                Commands.runOnce(() -> CoralManipulator.setOutake(0))));
+                Commands.runOnce(
+                    () -> {
+                      drive.getCurrentCommand().cancel();
+                      try {
+                        elevator.getCurrentCommand().cancel();
+                      } catch (Exception e) {
+                        // Do nothing
+                      }
+                      try {
+                        arm.getCurrentCommand().cancel();
+                      } catch (Exception e) {
+                        // Do nothing
+                      }
+                      CoralManipulator.setOutake(0);
+                    }),
+                CoralCommands.stow(elevator, arm)));
+
+    operatorController.x().onTrue(removeAlgae);
+    operatorController.y().onTrue(Commands.runOnce(() -> arm.setGoal(Goalposition.INTAKEALGAE)));
+    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    operatorController.rightBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+
+    // operatorController.b().onTrue(AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator));
+
+    // operatorController.a().onTrue(AutoScore.autoScoreL3(drive, elevator, arm, CoralManipulator));
+
+    // operatorController.x().onTrue(AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator));
+
+    // operatorController
+    //     .pov(0)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.DEFAULT);
+    //               elevator.setGoal(Goal.STOW);
+    //             }));
+
+    // operatorController.pov(90).onTrue(removeAlgae);
+
+    // operatorController
+    //     .pov(180)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.INTAKEALGAE);
+    //               elevator.setGoal(Goal.LOWERALGAE);
+    //             }));
+
+    // operatorController
+    //     .pov(270)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.INTAKEALGAE);
+    //               elevator.setGoal(Goal.HOLDALGAE);
+    //             }));
+
+    // operatorController
+    //     .rightTrigger(0.2)
+    //     .onTrue(Commands.runOnce(() -> elevator.setDistanceOffset(true)));
+
+    // operatorController
+    //     .rightTrigger(0.2)
+    //     .onFalse(Commands.runOnce(() -> elevator.setDistanceOffset(false)));
+
+    // operatorController
+    //     .y()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.SCOREL1);
+    //               elevator.setGoal(Goal.SCOREL1);
+    //             }));
+
+    // operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    // operatorController.leftBumper().onFalse(Commands.runOnce(() ->
+    // CoralManipulator.setOutake(0)));
+
+    // operatorController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.setOutake(-0.2), () -> CoralManipulator.setOutake(0)));
+
+    // operatorController
+    //     .leftTrigger(0.2)
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> CoralManipulator.setOutake(1),
+    //             () -> {
+    //               CoralManipulator.setOutake(0);
+    //               LED.setColor(Color.kRed);
+    //             }));
+
+    // // MANUAL CONTROLS
+
+    // driveController
+    //     .pov(0)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.DEFAULT);
+    //               elevator.setGoal(Goal.STOW);
+    //             }));
+
+    // driveController
+    //     .pov(90)
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               arm.setGoal(Goalposition.CUSTOM);
+    //               elevator.setGoal(Goal.SCOREL4);
+    //             }));
+
+    // driveController
+    //     .pov(180)
+    //     .onTrue(
+    //         Commands.sequence(
+    //             Commands.run(() -> arm.setGoal(Goalposition.HOLDALGAE)).withTimeout(0.2),
+    //             Commands.run(() -> CoralManipulator.setOutake(1)).withTimeout(0.8),
+    //             Commands.runOnce(() -> CoralManipulator.setOutake(0))));
 
     // ONE DRIVE CONTROLS
 
