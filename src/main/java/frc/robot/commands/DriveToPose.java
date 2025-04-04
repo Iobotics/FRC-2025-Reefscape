@@ -93,8 +93,7 @@ public class DriveToPose extends Command {
   public void initialize() {
     currentPose = drive.getPose();
     currentState =
-        new State(
-            target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0);
+        new State(target.get().getTranslation().minus(currentPose.getTranslation()).getNorm(), 0);
     thetaController.reset(currentPose.getRotation().getRadians());
     driveController.reset();
   }

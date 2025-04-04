@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.RobotState.reefZone;
 import frc.robot.commands.AutoScore;
 import frc.robot.commands.CoralCommands;
 import frc.robot.commands.DriveCommands;
@@ -86,12 +87,14 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
+  // Commands
   public Command scoreL4;
   public Command scoreL3;
   public Command scoreL2;
-  public Command intakeCoral;
 
-  public Command raiseL4;
+  public Command removeAlgae;
+
+  public Command intakeCoral;
 
   public Trigger driveRightStickActive =
       new Trigger(
@@ -171,25 +174,41 @@ public class RobotContainer {
         break;
     }
 
-    scoreL4 = CoralCommands.scoreCoral(Goal.SCOREL4, elevator, CoralManipulator, arm);
-    scoreL3 = CoralCommands.scoreCoral(Goal.SCOREL3, elevator, CoralManipulator, arm);
-    scoreL2 = CoralCommands.scoreCoral(Goal.SCOREL2, elevator, CoralManipulator, arm);
-
-    raiseL4 =
-        Commands.sequence(
-            Commands.runOnce(() -> LED.setColor(Color.kYellow)),
-            elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
-            Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.2));
+    scoreL4 = AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator);
+    scoreL3 = AutoScore.autoScoreL3(drive, elevator, arm, CoralManipulator);
+    scoreL2 = AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator);
+    removeAlgae = AutoScore.removeAlgae(drive, elevator, arm, CoralManipulator);
 
     intakeCoral = CoralManipulator.getCommand(sensor, LED);
 
+    Command scoreL4_F =
+        Commands.sequence(
+            Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, true)),
+            scoreL4);
+
     NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
+    NamedCommands.registerCommand("Score L4-Auto", scoreL4);
     NamedCommands.registerCommand(
-        "L4 score", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
-    NamedCommands.registerCommand("Raise L4", raiseL4);
+        "select-A",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.AB, true)));
     NamedCommands.registerCommand(
-        "L4 Release", CoralCommands.releaseL4(elevator, arm, CoralManipulator).withTimeout(0.6));
+        "select-B",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.AB, false)));
+    NamedCommands.registerCommand(
+        "select-C",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.CD, true)));
+    NamedCommands.registerCommand(
+        "select-D",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.CD, false)));
+    NamedCommands.registerCommand(
+        "select-E",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, true)));
+    NamedCommands.registerCommand(
+        "select-F",
+        Commands.runOnce(() -> RobotState.getInstance().setSelectedSide(reefZone.EF, false)));
+
+    NamedCommands.registerCommand("Remove Algae", removeAlgae);
 
     drive.configureAutoBuilder();
 
@@ -280,24 +299,23 @@ public class RobotContainer {
     driveController
         .x()
         .onTrue(
-          Commands.sequence(
-            Commands.runOnce(
-                () -> {
-                  drive.getCurrentCommand().cancel();
-                  try {
-                    elevator.getCurrentCommand().cancel();
-                  } catch (Exception e) {
-                    // Do nothing
-                  }
-                  try {
-                    arm.getCurrentCommand().cancel();
-                  } catch (Exception e) {
-                    // Do nothing
-                  }
-                  CoralManipulator.setOutake(0);
-                }),
-                CoralCommands.stow(elevator, arm)
-        ));
+            Commands.sequence(
+                Commands.runOnce(
+                    () -> {
+                      drive.getCurrentCommand().cancel();
+                      try {
+                        elevator.getCurrentCommand().cancel();
+                      } catch (Exception e) {
+                        // Do nothing
+                      }
+                      try {
+                        arm.getCurrentCommand().cancel();
+                      } catch (Exception e) {
+                        // Do nothing
+                      }
+                      CoralManipulator.setOutake(0);
+                    }),
+                CoralCommands.stow(elevator, arm)));
 
     driveController
         .rightBumper()
@@ -310,8 +328,6 @@ public class RobotContainer {
                     new Rotation2d(
                         Units.degreesToRadians(
                             RobotState.getInstance().getStationAngle(drive::getPose)))));
-
-    driveController.b().onTrue(AutoScore.removeAlgae(drive, elevator, arm, CoralManipulator));
 
     operatorController.b().onTrue(AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator));
 
@@ -328,14 +344,8 @@ public class RobotContainer {
                   elevator.setGoal(Goal.STOW);
                 }));
 
-    operatorController
-        .pov(90)
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  arm.setGoal(Goalposition.INTAKEALGAE);
-                  elevator.setGoal(Goal.UPPERALGAE);
-                }));
+    operatorController.pov(90).onTrue(removeAlgae);
+
     operatorController
         .pov(180)
         .onTrue(

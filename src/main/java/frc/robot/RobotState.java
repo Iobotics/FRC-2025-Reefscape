@@ -15,11 +15,11 @@ public class RobotState {
   // 0 degrees is facing red alliance
   public enum reefZone {
     AB(180),
-    CD(120),
-    EF(60),
+    CD(240),
+    EF(300),
     GH(0),
-    IJ(300),
-    KL(240);
+    IJ(60),
+    KL(120);
 
     private double angle;
 
@@ -38,14 +38,19 @@ public class RobotState {
      */
     public Pose2d getPose(boolean clockwise, double offset) {
 
+      if (DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+        return new Pose2d(
+            FieldConstants.center
+                .plus(FieldConstants.centerToReef.times(1))
+                .plus(
+                    new Translation2d(offset, clockwise ? REEF_CW_OFFSET : REEF_CCW_OFFSET)
+                        .rotateBy(this.getAngle())),
+            getParallelAngle());
+      }
       return new Pose2d(
           FieldConstants.center
-              .plus(
-                  FieldConstants.centerToReef.times(
-                      DriverStation.getAlliance().isPresent()
-                              && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
-                          ? 1
-                          : -1))
+              .plus(FieldConstants.centerToReef.times(-1))
               .plus(
                   new Translation2d(offset, clockwise ? REEF_CW_OFFSET : REEF_CCW_OFFSET)
                       .rotateBy(this.getAngle())),
@@ -124,7 +129,11 @@ public class RobotState {
      * @return the angle in radians
      */
     private double getRads() {
-      return Units.degreesToRadians(angle);
+      return Units.degreesToRadians(angle)
+          + (DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+              ? 0
+              : Math.PI);
     }
 
     /**
@@ -197,6 +206,11 @@ public class RobotState {
       selectedDirectionClockwise = true;
     }
     return selectedSide.getPose(selectedDirectionClockwise);
+  }
+
+  public void setSelectedSide(reefZone side, boolean clockwise) {
+    selectedSide = side;
+    selectedDirectionClockwise = clockwise;
   }
 
   /**
