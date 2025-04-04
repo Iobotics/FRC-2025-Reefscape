@@ -24,7 +24,7 @@ public final class AutoScore {
             .minus(RobotState.getInstance().getSelectedSidePose().getTranslation())
             .getNorm();
     Logger.recordOutput("Distance to target", distance);
-    if (Math.abs(distance) > 0.8) {
+    if (Math.abs(distance) > 0.3) {
       return drive.pathFindToPose(RobotState.getInstance().getSelectedSidePose(2.0));
     }
     return Commands.none();
@@ -55,7 +55,9 @@ public final class AutoScore {
                         new DriveToPose(
                             drive, () -> RobotState.getInstance().getSelectedSidePose(), 0.8, 3),
                         CoralCommands.raiseL4(elevator, arm)),
-                    CoralCommands.releaseL4(elevator, arm, coralManipulator).withTimeout(1.1)),
+                    new WaitCommand(0.1),
+                    CoralCommands.releaseL4(elevator, arm, coralManipulator).withTimeout(1.1),
+                    new WaitCommand(0.1)),
             Set.of(drive, elevator, arm, coralManipulator));
     // command.addRequirements(drive, elevator, arm, coralManipulator);
     return command;
@@ -72,7 +74,6 @@ public final class AutoScore {
                         new DriveToPose(
                             drive, () -> RobotState.getInstance().getSelectedSidePose(1.28), 1, 3),
                         CoralCommands.raiseL3(elevator, arm)),
-                    new WaitCommand(0.1),
                     CoralCommands.releaseL3(elevator, arm, coralManipulator).withTimeout(0.6)),
             Set.of(drive, elevator, arm, coralManipulator));
     command.addRequirements(drive, elevator, arm, coralManipulator);
@@ -102,9 +103,9 @@ public final class AutoScore {
         Commands.defer(
             () ->
                 Commands.sequence(
-                    checkDistance(drive, RobotState.getInstance().getSelectedSideAlgaePose(2)),
+                    checkDistance(drive, RobotState.getInstance().getSelectedSideAlgaePose(1.7)),
                     new DriveToPose(
-                        drive, () -> RobotState.getInstance().getSelectedSideAlgaePose(2), 0.7, 1),
+                        drive, () -> RobotState.getInstance().getSelectedSideAlgaePose(1.7), 0.8, 1),
                     Commands.parallel(
                         new DriveToPose(
                             drive,
@@ -116,7 +117,7 @@ public final class AutoScore {
                             : CoralCommands.removeLowAlgae(elevator, arm, coralManipulator)),
                     new WaitCommand(0.2),
                     new DriveToPose(
-                        drive, () -> RobotState.getInstance().getSelectedSideAlgaePose(2), 0.7, 1),
+                        drive, () -> RobotState.getInstance().getSelectedSideAlgaePose(1.7), 0.7, 1),
                     CoralCommands.holdAlgae(elevator, arm, coralManipulator).withTimeout(0.4)),
             Set.of(drive, elevator, arm, coralManipulator));
     return command;

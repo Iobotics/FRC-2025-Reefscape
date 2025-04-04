@@ -244,7 +244,6 @@ public class RobotContainer {
 
     driveController
         .leftBumper()
-        .and(driveRightStickActive)
         .whileTrue(
             Commands.defer(
                 () ->
@@ -281,6 +280,7 @@ public class RobotContainer {
     driveController
         .x()
         .onTrue(
+          Commands.sequence(
             Commands.runOnce(
                 () -> {
                   drive.getCurrentCommand().cancel();
@@ -295,8 +295,9 @@ public class RobotContainer {
                     // Do nothing
                   }
                   CoralManipulator.setOutake(0);
-                  CoralCommands.stow(elevator, arm);
-                }));
+                }),
+                CoralCommands.stow(elevator, arm)
+        ));
 
     driveController
         .rightBumper()
