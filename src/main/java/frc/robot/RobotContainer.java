@@ -236,6 +236,12 @@ public class RobotContainer {
             () ->
                 RobotState.getInstance()
                     .setSelectedSide(reefZone.EF, false, drive::displayArbPose)));
+    NamedCommands.registerCommand(
+        "select-G",
+        Commands.runOnce(
+            () ->
+                RobotState.getInstance()
+                    .setSelectedSide(reefZone.GH, true, drive::displayArbPose)));
 
     NamedCommands.registerCommand("Remove Algae", removeAlgae);
 

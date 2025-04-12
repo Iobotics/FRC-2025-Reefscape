@@ -3,36 +3,36 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.129687499999999,
-        "y": 2.9929403409090907
+        "x": 1.5954545454545452,
+        "y": 7.400383522727273
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.629602148514223,
-        "y": 2.9519990128365876
+        "x": 1.9048044808176052,
+        "y": 7.13898194891872
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "new-left-station"
     },
     {
       "anchor": {
-        "x": 5.274971590909091,
-        "y": 2.9929403409090907
+        "x": 3.9886363636363638,
+        "y": 5.256491477272728
       },
       "prevControl": {
-        "x": 5.5238314540831155,
-        "y": 3.016789208827841
+        "x": 3.797551429660557,
+        "y": 5.417694913983802
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "new-score-f"
+      "linkedName": "new-score-k"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5003946329913163,
+      "minWaypointRelativePos": 0.5,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 3.8,
@@ -47,8 +47,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "Intake Coral",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake Coral"
+        }
+      }
+    },
+    {
       "name": "Raise L4",
-      "waypointRelativePos": 0.4451460142067871,
+      "waypointRelativePos": 0.538279400157854,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -68,13 +79,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": -59.99999999999999
   },
   "reversed": false,
   "folder": "new-paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
