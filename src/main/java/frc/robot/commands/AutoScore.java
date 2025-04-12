@@ -25,7 +25,7 @@ public final class AutoScore {
             .getNorm();
     Logger.recordOutput("Distance to target", distance);
     if (Math.abs(distance) > 0.3) {
-      return drive.pathFindToPose(RobotState.getInstance().getSelectedSidePose(2.0));
+      return drive.pathFindToPose(RobotState.getInstance().getSelectedSidePose(1.6));
     }
     return Commands.none();
   }

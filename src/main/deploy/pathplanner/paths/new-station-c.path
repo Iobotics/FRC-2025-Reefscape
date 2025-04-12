@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.200870949074074,
-        "y": 2.531697048611111
+        "x": 1.4757954545454544,
+        "y": 0.57981534090909
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.950871885085934,
-        "y": 2.5323811575599415
+        "x": 1.7301453941306033,
+        "y": 0.8316981321130333
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "new-right-station"
     },
     {
       "anchor": {
-        "x": 4.965852272727273,
-        "y": 2.8583238636363637
+        "x": 3.709431818181818,
+        "y": 2.9729971590909092
       },
       "prevControl": {
-        "x": 5.114852272727273,
-        "y": 2.600248293308601
+        "x": 3.5057879410575508,
+        "y": 2.730117142646841
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "score-e"
+      "linkedName": "new-score-c"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5961754780652435,
+      "minWaypointRelativePos": 0.50197316495659,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 3.8,
+        "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1200.0,
         "nominalVoltage": 12.0,
@@ -47,8 +47,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "L4 score",
-      "waypointRelativePos": 0.6,
+      "name": "Intake Coral",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake Coral"
+        }
+      }
+    },
+    {
+      "name": "Raise L4",
+      "waypointRelativePos": 0.538279400157854,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -68,13 +79,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "new-paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 54.0
   },
   "useDefaultConstraints": true
 }

@@ -194,6 +194,11 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
+    NamedCommands.registerCommand(
+        "Score L4", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
+    NamedCommands.registerCommand("Raise L4", CoralCommands.raiseL4(elevator, arm));
+    NamedCommands.registerCommand(
+        "Release L4", CoralCommands.releaseL4(elevator, arm, CoralManipulator));
     NamedCommands.registerCommand("Score L4-Auto", scoreL4);
     NamedCommands.registerCommand(
         "select-A",

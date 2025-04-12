@@ -11,7 +11,7 @@ public class ElevatorConstants {
   public static final double maxHeight = Units.inchesToMeters(72);
 
   public static TrapezoidProfile.Constraints profileConstraints =
-      new TrapezoidProfile.Constraints(2.0, 2.0);
+      new TrapezoidProfile.Constraints(100.0, 26.0);
 
   public static final Gains gains =
       switch (Constants.getRobot()) {

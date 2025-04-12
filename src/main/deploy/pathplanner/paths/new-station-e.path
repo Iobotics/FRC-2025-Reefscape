@@ -3,40 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1267897727272727,
-        "y": 0.7194176136363637
+        "x": 1.4757954545454544,
+        "y": 0.57981534090909
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7046638961861484,
-        "y": 1.4524174073481642
+        "x": 1.6981410654586242,
+        "y": 0.6941063261513621
       },
       "isLocked": false,
-      "linkedName": "farStation"
+      "linkedName": "new-right-station"
     },
     {
       "anchor": {
-        "x": 3.1984067563657397,
-        "y": 3.877964048032407
+        "x": 5.1054545454545455,
+        "y": 2.6439346590909087
       },
       "prevControl": {
-        "x": 2.720997308711581,
-        "y": 3.1224041200219173
+        "x": 4.882041663710515,
+        "y": 2.5317442661384475
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "new-score-e"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.49335106382978605,
+      "rotationDegrees": 119.99999999999999
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.99,
-      "maxWaypointRelativePos": 1,
+      "minWaypointRelativePos": 0.6456195737963722,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.1,
-        "maxAcceleration": 9.7,
+        "maxVelocity": 3.8,
+        "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1200.0,
         "nominalVoltage": 12.0,
@@ -45,7 +50,19 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Intake Coral",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake Coral"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.8,
     "maxAcceleration": 6.0,
@@ -56,10 +73,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "new-paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 54.0

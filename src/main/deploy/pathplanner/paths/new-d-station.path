@@ -3,47 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4059943181868038,
-        "y": 0.5798153409041049
+        "x": 3.9886363636363638,
+        "y": 2.8333948863636365
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.69942379138724,
-        "y": 0.8378376331500195
+        "x": 2.595872820919924,
+        "y": 1.5899486657139983
       },
       "isLocked": false,
-      "linkedName": "right-station"
+      "linkedName": "new-score-d"
     },
     {
       "anchor": {
-        "x": 3.549886363636363,
-        "y": 2.65390625
+        "x": 1.4757954545454544,
+        "y": 0.57981534090909
       },
       "prevControl": {
-        "x": 2.6622348351710663,
-        "y": 1.812756268134947
+        "x": 2.7800907477963084,
+        "y": 1.761362157044618
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "new-right-station"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Intake Coral",
-      "waypointRelativePos": 0.08935931348425198,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Intake Coral"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
     "maxAcceleration": 6.0,
@@ -54,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 54.0
   },
   "reversed": false,
-  "folder": "Autoscoring based paths",
+  "folder": "new-paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }
