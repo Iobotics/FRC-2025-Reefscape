@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -41,6 +42,9 @@ import frc.robot.subsystems.CoralManipulator.CoralManipulator;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIO;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSim;
 import frc.robot.subsystems.CoralManipulator.CoralManipulatorIOSpark;
+import frc.robot.subsystems.Funnel.Funnel;
+import frc.robot.subsystems.Funnel.FunnelIO;
+import frc.robot.subsystems.Funnel.FunnelIOTalonFX;
 import frc.robot.subsystems.LED.LED;
 import frc.robot.subsystems.Sensor.IntakeSensor;
 import frc.robot.subsystems.Sensor.RangeSensor;
@@ -79,6 +83,7 @@ public class RobotContainer {
   private final RangeSensor rangeSensor;
   private final IntakeSensor sensor;
   private final LED LED;
+  private final Funnel funnel;
   // Controller
   private final CommandXboxController driveController = new CommandXboxController(0);
   //   private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -87,6 +92,7 @@ public class RobotContainer {
 
   private final CommandGenericHID reefController = new CommandGenericHID(1);
   private final CommandXboxController operatorController = new CommandXboxController(2);
+  private final CommandXboxController manualController = new CommandXboxController(3);
   // Dashboard input
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -131,6 +137,7 @@ public class RobotContainer {
         rangeSensor = new RangeSensor();
         LED = new LED();
         CoralManipulator = new CoralManipulator(new CoralManipulatorIOSpark());
+        funnel = new Funnel(new FunnelIOTalonFX());
         break;
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -155,6 +162,7 @@ public class RobotContainer {
         sensor = new IntakeSensor();
         LED = new LED();
         rangeSensor = new RangeSensor();
+        funnel = new Funnel(new FunnelIO() {});
         break;
 
       default:
@@ -174,6 +182,7 @@ public class RobotContainer {
         sensor = new IntakeSensor();
         LED = new LED();
         rangeSensor = new RangeSensor();
+        funnel = new Funnel(new FunnelIO() {});
         break;
     }
 
@@ -182,7 +191,7 @@ public class RobotContainer {
     scoreL2 = AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator);
     removeAlgae = AutoScore.removeAlgae(drive, elevator, arm, CoralManipulator);
 
-    intakeCoral = CoralManipulator.getCommand(sensor, LED);
+    intakeCoral = CoralCommands.intakeCoral(CoralManipulator, funnel, elevator, sensor, LED);
 
     // Command scoreL4_F =
     //     Commands.sequence(
@@ -192,7 +201,12 @@ public class RobotContainer {
     //                     .setSelectedSide(reefZone.EF, true, drive::displayArbPose)),
     //         scoreL4);
 
-    NamedCommands.registerCommand("Wait for Coral", CoralManipulator.waitForCoral(sensor));
+    NamedCommands.registerCommand(
+        "Wait for Coral",
+        Commands.deadline(
+            CoralManipulator.waitForCoral(sensor),
+            Commands.startEnd(() -> funnel.runVoltage(4), () -> funnel.runVoltage(0))));
+
     NamedCommands.registerCommand("Intake Coral", intakeCoral);
     NamedCommands.registerCommand(
         "Score L4", CoralCommands.scoreL4(elevator, CoralManipulator, arm));
@@ -326,12 +340,6 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driveController
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () -> drive.displayArbPose(RobotState.getInstance().cycleSelectedSide())));
-
-    driveController
         .x()
         .onTrue(
             Commands.sequence(
@@ -363,6 +371,12 @@ public class RobotContainer {
                     new Rotation2d(
                         Units.degreesToRadians(
                             RobotState.getInstance().getStationAngle(drive::getPose)))));
+
+    driveController
+        .leftTrigger(0.5)
+        .onTrue(Commands.runOnce(() -> CoralManipulator.setOutake(-0.2)));
+
+    driveController.leftTrigger(0.5).onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
 
     reefController
         .button(1)
@@ -478,30 +492,44 @@ public class RobotContainer {
                 }));
 
     operatorController
+        .leftTrigger(0.5)
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.DEFAULT);
+                  elevator.setGoal(Goal.STOW);
+                }));
+
+    operatorController
         .leftBumper()
         .onTrue(
-            Commands.sequence(
-                Commands.runOnce(
-                    () -> {
-                      drive.getCurrentCommand().cancel();
-                      try {
-                        elevator.getCurrentCommand().cancel();
-                      } catch (Exception e) {
-                        // Do nothing
-                      }
-                      try {
-                        arm.getCurrentCommand().cancel();
-                      } catch (Exception e) {
-                        // Do nothing
-                      }
-                      CoralManipulator.setOutake(0);
-                    }),
-                CoralCommands.stow(elevator, arm)));
+            Commands.runOnce(
+                () -> {
+                  drive.getCurrentCommand().cancel();
+                  try {
+                    elevator.getCurrentCommand().cancel();
+                  } catch (Exception e) {
+                    // Do nothing
+                  }
+                  try {
+                    arm.getCurrentCommand().cancel();
+                  } catch (Exception e) {
+                    // Do nothing
+                  }
+                  CoralManipulator.setOutake(0);
+                }));
+
+    operatorController.leftBumper().onFalse(CoralCommands.stow(elevator, arm));
 
     operatorController.x().onTrue(removeAlgae);
-    operatorController.y().onTrue(Commands.runOnce(() -> arm.setGoal(Goalposition.INTAKEALGAE)));
-    operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
-    operatorController.rightBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
+    operatorController.y().onTrue(CoralCommands.releaseAlgae(elevator, arm, CoralManipulator));
+
+    operatorController
+        .rightStick()
+        .onTrue(CoralCommands.releaseL4(elevator, arm, CoralManipulator));
+    // operatorController.rightBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
+    // operatorController.rightBumper().onFalse(Commands.runOnce(() ->
+    // CoralManipulator.setOutake(0)));
 
     // operatorController.b().onTrue(AutoScore.autoScoreL4(drive, elevator, arm, CoralManipulator));
 
@@ -509,25 +537,32 @@ public class RobotContainer {
 
     // operatorController.x().onTrue(AutoScore.autoScoreL2(drive, elevator, arm, CoralManipulator));
 
-    // operatorController
-    //     .pov(0)
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               arm.setGoal(Goalposition.DEFAULT);
-    //               elevator.setGoal(Goal.STOW);
-    //             }));
+    manualController
+        .pov(0)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.DEFAULT);
+                  elevator.setGoal(Goal.STOW);
+                }));
 
-    // operatorController.pov(90).onTrue(removeAlgae);
+    manualController
+        .pov(90)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.INTAKEALGAE);
+                  elevator.setGoal(Goal.UPPERALGAE);
+                }));
 
-    // operatorController
-    //     .pov(180)
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               arm.setGoal(Goalposition.INTAKEALGAE);
-    //               elevator.setGoal(Goal.LOWERALGAE);
-    //             }));
+    manualController
+        .pov(180)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.INTAKEALGAE);
+                  elevator.setGoal(Goal.LOWERALGAE);
+                }));
 
     // operatorController
     //     .pov(270)
@@ -555,9 +590,38 @@ public class RobotContainer {
     //               elevator.setGoal(Goal.SCOREL1);
     //             }));
 
-    // operatorController.leftBumper().whileTrue(CoralManipulator.getCommand(sensor, LED));
-    // operatorController.leftBumper().onFalse(Commands.runOnce(() ->
-    // CoralManipulator.setOutake(0)));
+    operatorController
+        .rightBumper()
+        .whileTrue(CoralCommands.intakeCoral(CoralManipulator, funnel, elevator, sensor, LED));
+    operatorController
+        .rightBumper()
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  CoralManipulator.setOutake(0);
+                  funnel.runVoltage(0);
+                  elevator.setGoal(Goal.STOW);
+                }));
+
+    manualController.b().onTrue(CoralCommands.raiseL4(elevator, arm));
+
+    manualController.b().onFalse(CoralCommands.releaseL4(elevator, arm, CoralManipulator));
+
+    manualController
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  arm.setGoal(Goalposition.SCOREL3);
+                  elevator.setGoal(Goal.SCOREL3);
+                }));
+    manualController.a().onFalse(CoralCommands.stow(elevator, arm));
+
+    manualController.x().onTrue(Commands.runOnce(() -> elevator.setGoal(Goal.SCOREL2)));
+
+    manualController.x().onFalse(CoralCommands.stow(elevator, arm));
+
+    // manualController.leftTrigger(0.2).onTrue(Commands.runOnce(()->CoralManipulator.setOutake(0.8)));
 
     // operatorController
     //     .rightBumper()
@@ -565,15 +629,33 @@ public class RobotContainer {
     //         Commands.startEnd(
     //             () -> CoralManipulator.setOutake(-0.2), () -> CoralManipulator.setOutake(0)));
 
-    // operatorController
-    //     .leftTrigger(0.2)
-    //     .whileTrue(
-    //         Commands.startEnd(
-    //             () -> CoralManipulator.setOutake(1),
-    //             () -> {
-    //               CoralManipulator.setOutake(0);
-    //               LED.setColor(Color.kRed);
-    //             }));
+    manualController
+        .leftTrigger(0.2)
+        .whileTrue(
+            Commands.startEnd(
+                () -> CoralManipulator.setOutake(1),
+                () -> {
+                  CoralManipulator.setOutake(0);
+                  LED.setColor(Color.kRed);
+                }));
+
+    manualController
+        .leftBumper()
+        .whileTrue(CoralCommands.intakeCoral(CoralManipulator, funnel, elevator, sensor, LED));
+
+    manualController
+        .leftBumper()
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  CoralManipulator.setOutake(0);
+                  funnel.runVoltage(0);
+                  elevator.setGoal(Goal.STOW);
+                }));
+
+    manualController.rightBumper().onTrue(Commands.runOnce(() -> CoralManipulator.setOutake(-0.2)));
+
+    manualController.rightBumper().onFalse(Commands.runOnce(() -> CoralManipulator.setOutake(0)));
 
     // // MANUAL CONTROLS
 

@@ -41,32 +41,42 @@ public class CoralManipulator extends SubsystemBase {
   }
 
   public Command getCommand(IntakeSensor coralSwitch, LED led) {
-    return new Command() {
-      @Override
-      public void execute() {
-        setOutake(0.5);
-        led.applyLED(led.yellow);
-        if (!coralSwitch.getSwitch()) {
-          touchingManipulator = true;
-        }
-      }
+    var command =
+        new Command() {
+          @Override
+          public void execute() {
+            setOutake(0.5);
+            led.applyLED(led.yellow);
+            if (!coralSwitch.getSwitch()) {
+              touchingManipulator = true;
+            }
+          }
 
-      @Override
-      public boolean isFinished() {
-        if (touchingManipulator) {
-          return coralSwitch.getSwitch();
-        } else {
-          return false;
-        }
-      }
+          @Override
+          public boolean isFinished() {
+            if (touchingManipulator) {
+              return coralSwitch.getSwitch();
+            } else {
+              return false;
+            }
+          }
 
-      @Override
-      public void end(boolean interrupted) {
-        touchingManipulator = false;
-        setOutake(0);
-        led.applyLED(led.green);
-      }
-    };
+          @Override
+          public void end(boolean interrupted) {
+            touchingManipulator = false;
+            setOutake(0);
+            led.applyLED(led.green);
+          }
+        };
+    // command.andThen(new WaitCommand(0.1));
+    // command.andThen(
+    //     Commands.runOnce(
+    //         () -> {
+    //           touchingManipulator = false;
+    //           setOutake(0);
+    //           led.applyLED(led.green);
+    //         }));
+    return command;
   }
 
   public Command waitForCoral(IntakeSensor sensor) {
@@ -83,7 +93,7 @@ public class CoralManipulator extends SubsystemBase {
     return new Command() {
       @Override
       public void execute() {
-        setOutake(0.7);
+        setOutake(0.5);
       }
 
       @Override

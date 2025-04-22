@@ -4,9 +4,9 @@
       "visible": true
     }
   },
-  "System Joysticks": {
+  "Keyboard 2 Settings": {
     "window": {
-      "enabled": false
+      "visible": true
     }
   },
   "keyboardJoysticks": [
@@ -39,25 +39,13 @@
         67,
         86
       ],
-      "povConfig": [
-        {
-          "key0": 49,
-          "key135": 52,
-          "key180": 53,
-          "key225": 54,
-          "key270": 55,
-          "key315": 56,
-          "key45": 50,
-          "key90": 51
-        }
-      ],
       "povCount": 1
     },
     {
       "axisCount": 2,
       "buttonCount": 4,
       "buttonKeys": [
-        72,
+        -1,
         74,
         75,
         76
@@ -68,7 +56,9 @@
       "axisConfig": [
         {
           "decKey": 263,
-          "incKey": 262
+          "decayRate": 1.0,
+          "incKey": 72,
+          "keyRate": 1.0
         },
         {
           "decKey": 265,
@@ -76,14 +66,23 @@
         }
       ],
       "axisCount": 2,
-      "buttonCount": 6,
+      "buttonCount": 12,
       "buttonKeys": [
-        260,
-        268,
-        266,
-        261,
-        269,
-        267
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        45,
+        61,
+        -1,
+        -1,
+        -1
       ],
       "povCount": 0
     },
@@ -96,6 +95,9 @@
   "robotJoysticks": [
     {
       "guid": "Keyboard0"
+    },
+    {
+      "guid": "Keyboard2"
     },
     {
       "guid": "Keyboard1"

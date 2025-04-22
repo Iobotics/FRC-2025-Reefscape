@@ -1,13 +1,17 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -170,7 +174,7 @@ public class RobotState {
   private List<Pose2d> reefGoalsCCW;
 
   private static final double REEF_GOAL_OFFSET = 1.28;
-  private static final double REEF_CW_OFFSET = -0.12;
+  private static final double REEF_CW_OFFSET = -0.15;
   private static final double REEF_CCW_OFFSET = 0.192;
 
   private RobotState() {
@@ -188,13 +192,27 @@ public class RobotState {
       reefGoalsCW.add(
           new Pose2d(
               reef.plus(
-                  new Translation2d(1.28, 0.12 * -1).rotateBy(new Rotation2d(zone.getRads()))),
+                  new Translation2d(1.28, REEF_CW_OFFSET).rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
       reefGoalsCCW.add(
           new Pose2d(
-              reef.plus(new Translation2d(1.28, 0.192).rotateBy(new Rotation2d(zone.getRads()))),
+              reef.plus(
+                  new Translation2d(1.28, REEF_CCW_OFFSET)
+                      .rotateBy(new Rotation2d(zone.getRads()))),
               new Rotation2d(zone.getRads() + Math.PI)));
     }
+
+    Optional<Pose3d> IJPose = VisionConstants.aprilTagLayout.getTagPose(6);
+
+    Pose2d IJPose2 = new Pose2d(IJPose.get().getX(), IJPose.get().getZ(), new Rotation2d());
+
+    Pose2d offset =
+        new Pose2d(Units.inchesToMeters(6.5), 0., new Rotation2d())
+            .rotateBy(new Rotation2d(Units.degreesToRadians(60)));
+
+    IJPose2.plus(new Transform2d(offset.getTranslation(), offset.getRotation()));
+
+    Logger.recordOutput("pose", IJPose2);
   }
 
   private Pose2d estimatedPose = new Pose2d();

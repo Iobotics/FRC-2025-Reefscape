@@ -21,15 +21,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "new-i-station"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Wait for Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "new-i-station"
                 }
               }
             ]
@@ -52,15 +52,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "new-k-station"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Wait for Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "new-k-station"
                 }
               }
             ]
@@ -83,15 +83,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "new-l-station"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Wait for Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "new-l-station"
                 }
               }
             ]

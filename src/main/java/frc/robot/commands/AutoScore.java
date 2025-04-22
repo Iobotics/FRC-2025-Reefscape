@@ -53,7 +53,8 @@ public final class AutoScore {
                     checkDistance(drive),
                     Commands.parallel(
                         new DriveToPose(
-                            drive, () -> RobotState.getInstance().getSelectedSidePose(), 0.8, 3),
+                                drive, () -> RobotState.getInstance().getSelectedSidePose(), 0.8, 3)
+                            .withTimeout(4),
                         CoralCommands.raiseL4(elevator, arm)),
                     new WaitCommand(0.1),
                     CoralCommands.releaseL4(elevator, arm, coralManipulator).withTimeout(1.1),
@@ -72,7 +73,11 @@ public final class AutoScore {
                     checkDistance(drive),
                     Commands.parallel(
                         new DriveToPose(
-                            drive, () -> RobotState.getInstance().getSelectedSidePose(1.28), 1, 3),
+                                drive,
+                                () -> RobotState.getInstance().getSelectedSidePose(1.28),
+                                1,
+                                3)
+                            .withTimeout(4),
                         CoralCommands.raiseL3(elevator, arm)),
                     new WaitCommand(0.1),
                     CoralCommands.releaseL3(elevator, arm, coralManipulator).withTimeout(0.6)),
@@ -90,7 +95,11 @@ public final class AutoScore {
                     checkDistance(drive),
                     Commands.parallel(
                         new DriveToPose(
-                            drive, () -> RobotState.getInstance().getSelectedSidePose(1.28), 1, 3),
+                                drive,
+                                () -> RobotState.getInstance().getSelectedSidePose(1.28),
+                                1,
+                                3)
+                            .withTimeout(4),
                         CoralCommands.raiseL2(elevator)),
                     CoralCommands.releaseL2(elevator, coralManipulator).withTimeout(0.6)),
             Set.of(drive, elevator, arm, coralManipulator));

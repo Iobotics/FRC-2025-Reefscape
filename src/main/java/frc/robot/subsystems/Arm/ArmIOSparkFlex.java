@@ -22,6 +22,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -67,7 +68,9 @@ public class ArmIOSparkFlex implements ArmIO {
         .iZone(1)
         .outputRange(-1, 1);
     config.smartCurrentLimit(40);
-    config.absoluteEncoder.zeroOffset(0.5899142);
+    config.secondaryCurrentLimit(120);
+
+    config.absoluteEncoder.zeroOffset(0.5869142);
     tryUntilOk(
         Arm,
         5,
@@ -98,7 +101,8 @@ public class ArmIOSparkFlex implements ArmIO {
   public void runSetpoint(double setpointDegrees, double ffVolts) {
     double setpoint = Units.degreesToRotations(setpointDegrees);
     if (setpoint == 0 && encoder.getPosition() < 0.05) {
-      Arm.setVoltage(-0.8);
+      // Arm.setVoltage(-0.8);
+      pid.setReference(0, ControlType.kVoltage, ClosedLoopSlot.kSlot1, -0.2, ArbFFUnits.kVoltage);
       return;
     }
     pid.setReference(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVolts);
@@ -132,6 +136,3 @@ public class ArmIOSparkFlex implements ArmIO {
   // }
 
 }
-
-  // DELMAR ROBOTICS ENGINEERS AT MADE 2024 ROBOT    LOOK AT GITHUB
-  // NRG ROBOT 2025

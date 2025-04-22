@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
 
   public enum Goalposition {
     DEFAULT(() -> 0),
-    SCOREL4(new LoggedTunableNumber("Arm/Positions/ScoreL4", 33.0)),
+    SCOREL4(new LoggedTunableNumber("Arm/Positions/ScoreL4", 42.0)),
     INTAKEALGAE(new LoggedTunableNumber("Arm/Positions/IntakeAlgae", 145.0)),
     HOLDALGAE(new LoggedTunableNumber("Arm/Positions/HoldAlgae", 90.0)),
     SCOREL1(new LoggedTunableNumber("Arm/Positions/ScoreL1", 120)),

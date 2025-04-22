@@ -2,9 +2,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Arm.Goalposition;
 import frc.robot.subsystems.CoralManipulator.CoralManipulator;
+import frc.robot.subsystems.Funnel.Funnel;
+import frc.robot.subsystems.LED.LED;
+import frc.robot.subsystems.Sensor.IntakeSensor;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.Goal;
 
@@ -91,7 +95,7 @@ public final class CoralCommands {
   public static Command raiseL4(Elevator elevator, Arm arm) {
     return Commands.sequence(
         elevator.getSetpointCommand(Goal.SCOREL4).withTimeout(0.6),
-        Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.2));
+        Commands.run(() -> arm.setGoal(Goalposition.SCOREL4)).withTimeout(0.4));
   }
 
   public static Command raiseL3(Elevator elevator, Arm arm) {
@@ -148,10 +152,10 @@ public final class CoralCommands {
         Commands.run(
                 () -> {
                   elevator.setGoal(Goal.HOLDALGAE);
-                  arm.setGoal(Goalposition.HOLDALGAE);
+                  arm.setGoal(Goalposition.INTAKEALGAE);
                   coralManipulator.setOutake(0);
                 })
-            .withTimeout(0.3),
+            .withTimeout(0.5),
         Commands.run(() -> coralManipulator.setOutake(0.4)).withTimeout(0.3),
         Commands.runOnce(
             () -> {
@@ -159,5 +163,26 @@ public final class CoralCommands {
               arm.setGoal(Goalposition.DEFAULT);
               coralManipulator.setOutake(0);
             }));
+  }
+
+  public static Command intakeCoral(
+      CoralManipulator coralManipulator,
+      Funnel funnel,
+      Elevator elevator,
+      IntakeSensor sensor,
+      LED led) {
+    var command =
+        Commands.sequence(
+            Commands.deadline(
+                coralManipulator.getCommand(sensor, led),
+                Commands.runOnce(() -> elevator.setGoal(Goal.INTAKE)),
+                Commands.runOnce(() -> funnel.runVoltage(4))),
+            new WaitCommand(0.2),
+            Commands.runOnce(
+                () -> {
+                  funnel.runVoltage(0);
+                  elevator.setGoal(Goal.STOW);
+                }));
+    return command;
   }
 }

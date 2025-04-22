@@ -43,9 +43,9 @@ public class DriveToPose extends Command {
       new LoggedTunableNumber("DriveToPose/Theta/kD", 0);
 
   private static final LoggedTunableNumber driveTolerance =
-      new LoggedTunableNumber("DriveToPose/Drive/Tolerance", 0.03);
+      new LoggedTunableNumber("DriveToPose/Drive/Tolerance", 0.05);
   private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("DriveToPose/Theta/Tolerance", Units.degreesToRadians(1.5));
+      new LoggedTunableNumber("DriveToPose/Theta/Tolerance", Units.degreesToRadians(3.5));
 
   private static final LoggedTunableNumber driveMaxSpeed =
       new LoggedTunableNumber("DriveToPose/Drive/MaxSpeed", 1.0);
