@@ -39,6 +39,24 @@
           "data": {
             "pathName": "new-center-processor"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "select-F"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Remove Algae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "new-farRight-processor"
+          }
         }
       ]
     }
