@@ -18,17 +18,21 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ArmIO {
   @AutoLog
   public static class ArmIOInputs {
-    public boolean motorConnected = true;
+    public boolean armConnect = true;
+    public boolean absoluteEncoderConnected = true;
 
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
+
     public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
-    public double torqueCurrentAmps = 0.0;
-    public double absoluteEncoderPositionRads = 0.0;
-    public double relativeEncoderPositionRads = 0.0;
-    public boolean absoluteEncoderConnected = true;
+
+    public double absEncoderPositionRads = 0.0;
+    public double relEncoderPositionRads = 0.0;
+
+    // PID variables
+
   }
 
   /** Update the set of loggable inputs. */
